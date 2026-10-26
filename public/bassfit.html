@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BASSFIT | Plataforma Web Headless — Concepto 2 (Clean Athletic)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Lato', 'system-ui', 'sans-serif'],
+            display: ['Montserrat', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            orangeGlow: '0 10px 25px -5px rgba(255, 74, 0, 0.35)',
+          }
+        }
+      }
+    };
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-white text-[#0F172A] antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    /**
+ * ============================================================================
+ * BASSFIT HEADLESS DATA LAYER & TIPOS ESTRICTOS (TypeScript)
+ * ============================================================================
+ * Incluye:
+ * 1. Planes de Entrenamiento y Asesorías (Prioridad  del sitio - Concepto 2 Clean Athletic)
+ * 2. Catálogo Completo con los 48 Productos Reales extraídos del Google Drive de Bassfit
+ *    + Línea de Suplementos y Cuidado para el Doble Flujo de Compra (Carrito Easy Pay vs WhatsApp)
+ * 3. Artículos Evergreen SEO («Noticias / Comunidad / Tribu») sin fechas ni comentarios,
+ *    con vinculación bidireccional a productos y soporte de video corto introductorio.
+ */
+
+
+
+
+
+
+
+
+
+
+
+const TRAINING_PROGRAMS = [
+  {
+    id: "prog-longevidad-fuerza",
+    title: "Fuerza & Longevidad Activa (+40 / Sin Límites)",
+    subtitle: "Nuestro programa insignia: recupera masa muscular, movilidad articular y energía vital a cualquier edad.",
+    badge: "MÁS SOLICITADO · FILOSOFÍA BASSFIT",
+    level: "Todos los niveles (Adaptado)",
+    duration: "Plan Mensual / Trimestral",
+    modality: "Online Personalizado + Seguimiento 1 a 1",
+    targetAudience: "Adultos de 35 a 70+ años que buscan salud articular, fuerza funcional y vitalidad sin lesiones.",
+    priceMonthly: 180,
+    description:
+      "Fieles a nuestro lema «...fitness sin límites de edad..», este programa combina entrenamiento de fuerza progresivo en casa o gimnasio con trabajo de estabilidad y movilidad articular.",
+    includes: [
+      "Evaluación funcional inicial por videollamada (movilidad, historial y objetivos)",
+      "Rutina semanal estructurada en app/plataforma con videos demostrativos paso a paso",
+      "Corrección de técnica por video vía WhatsApp directo con tu entrenador Bassfit",
+      "Guía de equipamiento óptimo en casa y orientación nutricional base"
+    ],
+    recommendedProductSlugs: ["kit-de-5-ligas-elasticas", "mancuernas-pvc", "disco-de-balance", "mat-de-yoga"],
+    coachName: "Head Coach Bassfit",
+    coachSpecialty: "Especialista en Fuerza Funcional & Salud Articular",
+    image: "./images/products/kit-de-5-ligas-elasticas-1.jpg",
+    highlighted: true
+  },
+  {
+    id: "prog-hipertrofia-homegym",
+    title: "Hipertrofia & Tonificación Inteligente (Home Gym / Gym)",
+    subtitle: "Construcción muscular estructurada por sobrecarga progresiva con barras, mancuernas y lastre.",
+    badge: "ALTO RENDIMIENTO",
+    level: "Intermedio / Avanzado",
+    duration: "Ciclos de 8 a 12 semanas",
+    modality: "Híbrido / Online con Control Semanal",
+    targetAudience: "Personas que desean transformar su composición corporal, ganar fuerza real y optimizar cada serie.",
+    priceMonthly: 210,
+    description:
+      "Periodización científica del entrenamiento de fuerza. Diseñamos tu microciclo según el equipamiento que tengas disponible (banca inclinada, barras, pesas rusas o gimnasio completo).",
+    includes: [
+      "Planificación de cargas, repeticiones en recámara (RIR) y tempos de ejecución",
+      "Ajuste quincenal de volumen de entrenamiento según progreso real",
+      "Protocolo de activación de core y prevención de molestias lumbares",
+      "Evaluación consultiva para suplementación deportiva segura"
+    ],
+    recommendedProductSlugs: ["banca-inclinada", "maleta-de-pesas", "pesas-rusas", "chaleco-cinturon-de-lastre"],
+    coachName: "Staff Técnico Bassfit",
+    coachSpecialty: "Preparación Física & Recomposición Corporal",
+    image: "./images/products/banca-inclinada-1.jpg",
+    highlighted: false
+  },
+  {
+    id: "prog-combat-conditioning",
+    title: "Combat Conditioning, Boxeo & Coordinación",
+    subtitle: "Potencia cardiovascular, reflejos, agilidad de pies y descarga de estrés con metodología de combate.",
+    badge: "QUEMA CALÓRICA & AGILIDAD",
+    level: "Principiante a Avanzado",
+    duration: "Plan Mensual",
+    modality: "Sesiones Guiadas + Programación Semanal",
+    targetAudience: "Quienes buscan un entrenamiento dinámico, explosivo y motivador que mejore reflejos y resistencia.",
+    priceMonthly: 160,
+    description:
+      "Integra trabajo técnico de boxeo, intervalos metabólicos (HIIT), escalera de coordinación pliométrica y pelota de reflejos para llevar tu capacidad aeróbica y agilidad al siguiente nivel.",
+    includes: [
+      "Circuitos metabólicos de 40 minutos de alta adherencia",
+      "Drills de coordinación oculomanual y juego de piernas",
+      "Acondicionamiento de core y hombros para golpeo seguro",
+      "Asesoría en elección de guantes, vendas y protección articular"
+    ],
+    recommendedProductSlugs: ["guantes-de-box", "pera-de-boxeo", "escalera-de-coordinacion", "pelota-de-reflejos"],
+    coachName: "Coach de Combate & Agilidad",
+    coachSpecialty: "Boxing Fitness & Pliometría",
+    image: "./images/products/pera-de-boxeo-1.jpg",
+    highlighted: false
+  },
+  {
+    id: "prog-movilidad-pilates-core",
+    title: "Movilidad, Pilates & Rehabilitación Funcional",
+    subtitle: "Libera tensión de espalda, fortalece tu centro (Core) y recupera flexibilidad profunda.",
+    badge: "BIENESTAR & POSTURA",
+    level: "Todos los niveles",
+    duration: "Plan Mensual",
+    modality: "Online a tu ritmo + Check-in semanal",
+    targetAudience: "Profesionales con jornadas frente al computador, deportistas que buscan descarga muscular y adultos mayores.",
+    priceMonthly: 150,
+    description:
+      "Sesiones enfocadas en higiene de columna, control postural, respiración consciente y fortalecimiento sin impacto articular utilizando aro de yoga, pelota de pilates y bandas suaves.",
+    includes: [
+      "Rutinas de 25 a 45 minutos para mañana o noche",
+      "Protocolos específicos para alivio cervical, dorsal y lumbar",
+      "Trabajo de equilibrio propioceptivo para prevención de caídas y esguinces",
+      "Acompañamiento cercano por WhatsApp"
+    ],
+    recommendedProductSlugs: ["aro-de-yoga", "pelota-de-pilates", "ladrillo-de-yoga", "correa-de-yoga"],
+    coachName: "Especialista en Movilidad Bassfit",
+    coachSpecialty: "Pilates Terapéutico, Yoga & Propiocepción",
+    image: "./images/products/aro-de-yoga-1.jpg",
+    highlighted: false
+  }
+];
+
+const EVERGREEN_ARTICLES = [
+  {
+    id: "art-1",
+    slug: "entrenamiento-fuerza-despues-de-los-40-guia-definitiva",
+    title: "Entrenamiento de fuerza sin límites de edad: cómo proteger tus articulaciones y ganar músculo en casa",
+    pillarCategory: "Longevidad Activa",
+    readingTime: "5 min de lectura",
+    seoExcerpt:
+      "Descubre por qué el entrenamiento de fuerza progresivo es el verdadero seguro de vida metabólico y articular, y qué implementos necesitas para empezar de forma segura.",
+    heroImage: "./images/products/maleta-de-pesas-1.jpg",
+    shortVideoTitle: "3 ejercicios clave con mancuernas y bandas para proteger rodillas y espalda",
+    shortVideoDuration: "01:15",
+    keyTakeaways: [
+      "La masa muscular es el órgano endocrino más importante para mantener la vitalidad y sensibilidad a la insulina.",
+      "Combinar resistencia elástica (bandas cerradas) con peso libre (mancuernas o pesas rusas) reduce el estrés articular.",
+      "La técnica y el control excéntrico siempre superan al peso excesivo."
+    ],
+    contentSections: [
+      {
+        heading: "Por qué la fuerza no tiene edad",
+        body: "En Bassfit trabajamos bajo una premisa clara: el cuerpo humano conserva su capacidad de adaptación neuromuscular durante toda la vida. A partir de los 35 años, si no estimulamos la musculatura contra una resistencia externa, perdemos entre un 3% y un 8% de masa muscular por década. La buena noticia es que este proceso es totalmente reversible mediante un programa estructurado."
+      },
+      {
+        heading: "Progresión inteligente: de bandas elásticas a barras y mancuernas",
+        body: "Para lograr adherencia sin lesiones, recomendamos iniciar con patrones básicos de movimiento (sentadilla a cajón, empuje, tracción y bisagra de cadera) utilizando kits de ligas elásticas y mancuernas recubiertas de vinilo/PVC, avanzando progresivamente hacia maletas de pesas de 20 kg y banca inclinada."
+      }
+    ],
+    relatedProductSlugs: [
+      "maleta-de-pesas",
+      "banca-inclinada",
+      "kit-de-5-ligas-elasticas",
+      "pesas-rusas",
+      "proteina-whey-isolate-bassfit"
+    ]
+  },
+  {
+    id: "art-2",
+    slug: "suplementacion-inteligente-cuando-necesitas-evaluacion-personalizada",
+    title: "Suplementación deportiva responsable: por qué cada cuerpo requiere una evaluación previa antes de elegir",
+    pillarCategory: "Nutrición & Suplementación",
+    readingTime: "4 min de lectura",
+    seoExcerpt:
+      "Proteína aislada, creatina monohidratada, colágeno hidrolizado o geles reductores: aprende cómo elegir con el respaldo de un asesor especializado según tu objetivo real.",
+    heroImage: "./images/products/crema-corporal-1.jpg",
+    shortVideoTitle: "¿Por qué en Bassfit te asesoramos por WhatsApp antes de recomendar un suplemento?",
+    shortVideoDuration: "00:58",
+    keyTakeaways: [
+      "Un suplemento nunca reemplaza un plan de entrenamiento bien estructurado, pero multiplica la recuperación cuando está bien indicado.",
+      "En Bassfit aplicamos venta consultiva en toda nuestra línea de suplementos para validar tolerancia digestiva, nivel de actividad y objetivos.",
+      "La combinación de creatina monohidratada y proteína de suero es el estándar de oro con mayor respaldo científico."
+    ],
+    contentSections: [
+      {
+        heading: "El valor de la Venta Consultiva en suplementación",
+        body: "Comprar un suplemento al azar suele llevar a gastos innecesarios o dosis incorrectas. Por eso en Bassfit hemos eliminado la compra a ciegas de suplementos: al hacer clic en cualquiera de nuestras fórmulas, un asesor evalúa contigo por WhatsApp tu carga de entrenamiento actual, horarios y requerimientos antes de despachar tu pedido."
+      },
+      {
+        heading: "Sinergia entre entrenamiento térmico, cuidado corporal y nutrición",
+        body: "Tanto si utilizas cremas corporales activadoras o fajas de soporte durante tus sesiones cardiovasculares como si buscas optimizar tu síntesis proteica post-entreno, la clave está en personalizar el protocolo."
+      }
+    ],
+    relatedProductSlugs: [
+      "proteina-whey-isolate-bassfit",
+      "creatina-monohidratada-micronizada",
+      "colageno-hidrolizado-magnesio-articular",
+      "crema-corporal",
+      "fajas-reductoras"
+    ]
+  },
+  {
+    id: "art-3",
+    slug: "boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares",
+    title: "Boxeo fitness y agilidad en casa: cómo armar tu estación de combate y coordinación en pocos metros",
+    pillarCategory: "Entrenamiento & Técnica",
+    readingTime: "4 min de lectura",
+    seoExcerpt:
+      "Mejora tus reflejos, coordinación oculomanual y capacidad pulmonar integrando pera de boxeo, pelota de reflejos y escalera pliométrica en tus rutinas semanales.",
+    heroImage: "./images/products/guantes-de-box-1.jpg",
+    shortVideoTitle: "Circuito de 15 minutos con Escalera de Coordinación + Pera de Boxeo",
+    shortVideoDuration: "01:30",
+    keyTakeaways: [
+      "El trabajo de golpeo y esquiva activa el core profundo en rotación mucho más que los abdominales tradicionales.",
+      "La pelota de reflejos y la pera fija mejoran la velocidad de reacción y reducen el estrés mental en minutos.",
+      "Elegir el onzaje correcto de guantes y usar muñequeras protege tus metacarpianos y muñecas."
+    ],
+    contentSections: [
+      {
+        heading: "Entrenamiento neuromotor: cuerpo y mente en sincronía",
+        body: "El entrenamiento de combate sin contacto o con implementos (pera fija, pelota de reflejos, manoplas) exige concentración total. Cada combinación de golpes y desplazamientos en la escalera pliométrica estimula la neuroplasticidad y quema hasta 600 kcal por sesión."
+      },
+      {
+        heading: "Equipamiento esencial para entrenar seguro",
+        body: "Asegúrate siempre de proteger tus articulaciones con guantes de boxeo o MMA de espuma de alta densidad, careta si realizas sparring técnico y protector bucal anatómico."
+      }
+    ],
+    relatedProductSlugs: [
+      "guantes-de-box",
+      "pera-de-boxeo",
+      "pelota-de-reflejos",
+      "escalera-de-coordinacion",
+      "guantes-mma"
+    ]
+  },
+  {
+    id: "art-4",
+    slug: "movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor",
+    title: "Propiocepción, Yoga y liberación miofascial: el secreto para entrenar fuerte sin dolor de espalda ni rodillas",
+    pillarCategory: "Recuperación & Movilidad",
+    readingTime: "5 min de lectura",
+    seoExcerpt:
+      "Aprende a utilizar la rueda de yoga, el disco de balance inestable, el ladrillo de apoyo y el masajeador muscular para acelerar tu recuperación entre entrenamientos.",
+    heroImage: "./images/products/mat-de-yoga-1.jpg",
+    shortVideoTitle: "Rutina de 10 minutos con Rueda de Yoga y Disco de Balance para descompresión lumbar",
+    shortVideoDuration: "01:10",
+    keyTakeaways: [
+      "Dedicar 10 minutos a la extensión torácica con el Aro de Yoga contrarresta horas de postura encorvada.",
+      "Los discos de balance e inestabilidad fortalecen los ligamentos del tobillo y la rodilla mediante microajustes reflejos.",
+      "La descarga muscular con masajeador post-entreno reduce el dolor muscular tardío (DOMS)."
+    ],
+    contentSections: [
+      {
+        heading: "Por qué la estabilidad precede a la fuerza",
+        body: "Un músculo no puede aplicar su máxima fuerza si la articulación sobre la que actúa es inestable. Incorporar ejercicios sobre disco de balance o pelota de pilates despierta la musculatura estabilizadora profunda antes de pasar a las pesas."
+      },
+      {
+        heading: "Recuperación activa en casa",
+        body: "Al finalizar tu sesión, utiliza la correa de algodón de yoga para estiramientos asistidos de isquiotibiales y aplica el masajeador Blueidea en las zonas de mayor sobrecarga."
+      }
+    ],
+    relatedProductSlugs: [
+      "aro-de-yoga",
+      "mat-de-yoga",
+      "disco-de-balance",
+      "pelota-de-pilates",
+      "masajeador-blueidea"
+    ]
+  }
+];
+
+/**
+ * CATÁLOGO COMPLETO BASSFIT:
+ * Incluye los 46 productos reales de las carpetas de Google Drive del cliente +
+ * la línea de Suplementos (Proteína, Creatina, Colágeno, Pre-entreno + Crema Corporal Consultiva)
+ * para demostrar de forma íntegra el Doble Flujo Comercial (Direct Cart Easy Pay vs WhatsApp Consultivo).
+ */
+const BASSFIT_PRODUCTS = [
+  // ==========================================================================
+  // CATEGORÍA 1: SUPLEMENTOS & CUIDADO CONSULTIVO (FLUJO WHATSAPP OBLIGATORIO)
+  // ==========================================================================
+  {
+    id: "sup-whey-isolate",
+    wcId: 9001,
+    name: "Proteína Whey Isolate Pro Bassfit (Evaluación Personalizada)",
+    slug: "proteina-whey-isolate-bassfit",
+    categorySlug: "suplementos",
+    categoryLabel: "Suplementos (Venta Consultiva)",
+    price: 219,
+    compareAtPrice: 249,
+    stock: 18,
+    sku: "BF-SUP-001",
+    saleMode: "consultative_whatsapp",
+    shortDescription:
+      "Aislado de proteína de suero de rápida absorción (27g proteína por servicio, 0g azúcar añadido). Venta exclusiva tras evaluación rápida con asesor Bassfit.",
+    technicalSpecs: [
+      "27g de proteína aislada de alto valor biológico por scoop",
+      "Libre de lactosa y gluten — máxima digestibilidad",
+      "Rico en leucina y aminoácidos esenciales (BCAA) para síntesis muscular",
+      "Modalidad: Venta Consultiva con Asesor Nutricional/Deportivo Bassfit"
+    ],
+    images: ["./images/products/kits-deportivos-1.jpg", "./images/products/kit-de-5-ligas-elasticas-1.jpg"],
+    driveFolderId: "1VxF0g2zhqLTPkfwHUHpEGy-b479l6GAJ",
+    featured: true,
+    relatedArticleSlugs: [
+      "suplementacion-inteligente-cuando-necesitas-evaluacion-personalizada",
+      "entrenamiento-fuerza-despues-de-los-40-guia-definitiva"
+    ],
+    coachTip: "Un asesor validará por WhatsApp tu peso corporal y carga de entrenamiento semanal para indicarte la dosis exacta."
+  },
+  {
+    id: "sup-creatina-monohidratada",
+    wcId: 9002,
+    name: "Creatina Monohidratada Micronizada 100% Pura ( Grado Clínico )",
+    slug: "creatina-monohidratada-micronizada",
+    categorySlug: "suplementos",
+    categoryLabel: "Suplementos (Venta Consultiva)",
+    price: 135,
+    compareAtPrice: 159,
+    stock: 25,
+    sku: "BF-SUP-002",
+    saleMode: "consultative_whatsapp",
+    shortDescription:
+      "El suplemento con mayor evidencia científica para fuerza explosiva, recuperación celular y salud cognitiva en adultos jóvenes y mayores.",
+    technicalSpecs: [
+      "100 Servicios (5g por toma) micronizada malla 200 mesh",
+      "Incrementa las reservas de fosfocreatina (ATP) y potencia muscular",
+      "Ideal para programas de Fuerza & Longevidad Activa Bassfit",
+      "Requiere validación previa por WhatsApp con especialista"
+    ],
+    images: ["./images/products/kits-deportivos-2.jpg", "./images/products/maleta-de-pesas-1.jpg"],
+    driveFolderId: "1VxF0g2zhqLTPkfwHUHpEGy-b479l6GAJ",
+    featured: true,
+    relatedArticleSlugs: [
+      "suplementacion-inteligente-cuando-necesitas-evaluacion-personalizada",
+      "entrenamiento-fuerza-despues-de-los-40-guia-definitiva"
+    ],
+    coachTip: "Sin fase de carga necesaria: nuestro equipo te guía en la hidratación y toma diaria según tu peso."
+  },
+  {
+    id: "sup-colageno-magnesio",
+    wcId: 9003,
+    name: "Colágeno Hidrolizado + Citrato de Magnesio & Vitamina C Articular",
+    slug: "colageno-hidrolizado-magnesio-articular",
+    categorySlug: "suplementos",
+    categoryLabel: "Suplementos (Venta Consultiva)",
+    price: 115,
+    stock: 30,
+    sku: "BF-SUP-003",
+    saleMode: "consultative_whatsapp",
+    shortDescription:
+      "Fórmula sinérgica diseñada para proteger tendones, ligamentos, cartílago articular y mejorar la calidad del descanso nocturno.",
+    technicalSpecs: [
+      "Péptidos bioactivos de colágeno tipo I y III de alta biodisponibilidad",
+      "Enriquecido con Magnesio para función neuromuscular y prevención de calambres",
+      "Vitamina C co-factor esencial para síntesis de colágeno endógeno",
+      "Venta consultiva personalizada vía WhatsApp"
+    ],
+    images: ["./images/products/crema-corporal-2.jpg", "./images/products/crema-corporal-1.jpg"],
+    driveFolderId: "19wvNSSyXAmfrVX0bxPekK5sJS_k9Uzd3",
+    featured: false,
+    relatedArticleSlugs: [
+      "suplementacion-inteligente-cuando-necesitas-evaluacion-personalizada",
+      "movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"
+    ],
+    coachTip: "Especialmente recomendado para alumnos del programa Longevidad Activa (+40) o con desgaste articular."
+  },
+  {
+    id: "prod-crema-corporal",
+    wcId: 1015,
+    name: "Crema Corporal Termo-Activadora Pre-Entreno Bassfit",
+    slug: "crema-corporal",
+    categorySlug: "suplementos",
+    categoryLabel: "Suplementos (Venta Consultiva)",
+    price: 65,
+    compareAtPrice: 79,
+    stock: 22,
+    sku: "BF-DRV-015",
+    saleMode: "consultative_whatsapp",
+    shortDescription:
+      "Gel/crema tópica de activación circulatoria para potenciar el calentamiento localizado y complementar tus sesiones cardiovasculares.",
+    technicalSpecs: [
+      "Fórmula de rápida absorción sin residuos grasos en la ropa deportiva",
+      "Ideal para combinar con fajas de soporte o sesiones de cardio HIIT",
+      "Evaluación dermatológica y de protocolo de uso con asesor vía WhatsApp"
+    ],
+    images: ["./images/products/crema-corporal-1.jpg", "./images/products/crema-corporal-2.jpg"],
+    driveFolderId: "19wvNSSyXAmfrVX0bxPekK5sJS_k9Uzd3",
+    featured: false,
+    relatedArticleSlugs: ["suplementacion-inteligente-cuando-necesitas-evaluacion-personalizada"],
+    coachTip: "Aplícala 15 minutos antes de tu sesión de cardio o boxeo; consulta con nuestro asesor el protocolo ideal."
+  },
+
+  // ==========================================================================
+  // CATEGORÍA 2: ENTRENAMIENTO DE FUERZA & PESAS (COMPRA DIRECTA EASY PAY)
+  // ==========================================================================
+  {
+    id: "prod-banca-inclinada",
+    wcId: 1003,
+    name: "Banca Inclinada Multiposición para Musculación & Core",
+    slug: "banca-inclinada",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 389,
+    compareAtPrice: 449,
+    stock: 8,
+    sku: "BF-DRV-003",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Banca estructural de acero reforzado con regulación de inclinación para press de pecho, trabajo con mancuernas y abdominales declinados.",
+    technicalSpecs: [
+      "Estructura tubular de acero de alta resistencia y estabilidad",
+      "Tapizado ergonómico de alta densidad resistente al sudor",
+      "Rodillos acolchados para sujeción segura de tobillos y rodillas",
+      "Plegado compacto ideal para Home Gym"
+    ],
+    images: ["./images/products/banca-inclinada-1.jpg", "./images/products/banca-inclinada-2.jpg"],
+    driveFolderId: "1i8xJQPk_Rfz6fdZb-XLoeJCxANe7qDTR",
+    featured: true,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "El centro neurálgico de cualquier gimnasio en casa: permite variar el ángulo de empuje para proteger el hombro."
+  },
+  {
+    id: "prod-maleta-de-pesas",
+    wcId: 1035,
+    name: "Maleta de Pesas Regulables 20 Kg (Mancuernas + Barra)",
+    slug: "maleta-de-pesas",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 249,
+    compareAtPrice: 289,
+    stock: 14,
+    sku: "BF-DRV-035",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Set completo de 20 kg en maletín rígido transportable: discos intercambiables, barras cortas cromadas con agarre antideslizante y seguros estrella.",
+    technicalSpecs: [
+      "Peso total configurable de hasta 20 kg para progresión exacta",
+      "Agarre moleteado ergonómico que evita deslizamientos",
+      "Incluye maletín organizador de polímero de alta resistencia"
+    ],
+    images: ["./images/products/maleta-de-pesas-1.jpg", "./images/products/maleta-de-pesas-2.jpg"],
+    driveFolderId: "1grGSURCtP8FyfoXbtK1_mwGOYkfq0L6K",
+    featured: true,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Te permite aplicar sobrecarga progresiva real semana a semana sin ocupar espacio en tu sala."
+  },
+  {
+    id: "prod-maleta-de-pesas-de-goma",
+    wcId: 1036,
+    name: "Maleta de Pesas Recubiertas en Goma (Protección de Pisos)",
+    slug: "maleta-de-pesas-de-goma",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 279,
+    stock: 10,
+    sku: "BF-DRV-036",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Set de pesas y mancuernas con discos recubiertos en goma amortiguadora: cero ruido y máxima protección para pisos de madera o porcelanato.",
+    technicalSpecs: [
+      "Discos revestidos en caucho/goma virgen sin olor",
+      "Conector incluido para transformar las 2 mancuernas en barra larga",
+      "Seguros de rosca de ajuste firme"
+    ],
+    images: ["./images/products/maleta-de-pesas-de-goma-1.jpg", "./images/products/maleta-de-pesas-de-goma-2.jpg"],
+    driveFolderId: "14Wbq1oiSRIY8tvSr8C6c8IdP_r7X81pu",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Ideal para departamentos: entrena a primera hora de la mañana con total silencio al apoyar las pesas."
+  },
+  {
+    id: "prod-barra-de-pesas",
+    wcId: 1006,
+    name: "Barra de Pesas y Mancuernas Nacionales de Acero",
+    slug: "barra-de-pesas",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 165,
+    stock: 12,
+    sku: "BF-DRV-006",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Barras rectas y de mancuernas de fabricación nacional en acero macizo para levantamiento pesado, sentadillas, peso muerto y press.",
+    technicalSpecs: [
+      "Acero sólido de alta capacidad de carga sin deformación",
+      "Moleteado antideslizante para agarre firme",
+      "Compatible con discos estándar"
+    ],
+    images: ["./images/products/barra-de-pesas-1.jpg", "./images/products/barra-de-pesas-2.jpg"],
+    driveFolderId: "1T8KOPZgMOYOsfxCFofKIYGNAxIzWLdQh",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Indispensable para ejercicios compuestos multiarticulares como el peso muerto rumano y el remo con barra."
+  },
+  {
+    id: "prod-pesas-rusas",
+    wcId: 1048,
+    name: "Pesas Rusas (Kettlebells) Ergonómicas de Base Plana",
+    slug: "pesas-rusas",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 89,
+    compareAtPrice: 105,
+    stock: 20,
+    sku: "BF-DRV-048",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Kettlebells con asa ancha ergonómica para swings, sentadillas goblet, turkish get-ups y acondicionamiento metabólico de cuerpo completo.",
+    technicalSpecs: [
+      "Base plana estable que evita rodamientos accidentales",
+      "Asa texturizada para agarre seguro a una o dos manos",
+      "Excelente distribución del centro de gravedad"
+    ],
+    images: ["./images/products/pesas-rusas-1.jpg", "./images/products/pesas-rusas-2.jpg"],
+    driveFolderId: "1PraGE_hgr_NxyNYd6Ms03Y0pxuRE637-",
+    featured: true,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "La sentadilla Goblet con pesa rusa es el mejor ejercicio para aprender a mantener la espalda neutra."
+  },
+  {
+    id: "prod-mancuernas-pvc",
+    wcId: 1037,
+    name: "Par de Mancuernas Recubiertas en Vinilo / PVC Antideslizante",
+    slug: "mancuernas-pvc",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 59,
+    stock: 35,
+    sku: "BF-DRV-037",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Mancuernas compactas recubiertas en vinilo suave al tacto, ideales para tonificación de tren superior, rehabilitación y clases funcionales.",
+    technicalSpecs: [
+      "Recubrimiento de vinilo higiénico y fácil de limpiar",
+      "Diseño hexagonal en extremos que impide que rueden en el suelo",
+      "Agarre anatómico cómodo sin necesidad de guantes"
+    ],
+    images: ["./images/products/mancuernas-pvc-1.jpg", "./images/products/mancuernas-pvc-2.jpg"],
+    driveFolderId: "18ut6zOXlgpFDNTQpvDHxDMDLSX-VY8Rd",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Perfectas para trabajo de manguito rotador, elevaciones laterales y sesiones de tonificación rápida."
+  },
+  {
+    id: "prod-chaleco-cinturon-de-lastre",
+    wcId: 1010,
+    name: "Chaleco & Cinturón de Lastre Profesional con Peso Ajustable",
+    slug: "chaleco-cinturon-de-lastre",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 159,
+    compareAtPrice: 185,
+    stock: 11,
+    sku: "BF-DRV-010",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Añade carga progresiva a tus dominadas, fondos, flexiones, sentadillas y caminatas sin comprometer el agarre de tus manos.",
+    technicalSpecs: [
+      "Tejido Oxford de grado militar resistente a la abrasión",
+      "Compartimentos modulares para ajustar el lastre progresivamente",
+      "Correas acolchadas en hombros y ajuste lumbar firme"
+    ],
+    images: ["./images/products/chaleco-cinturon-de-lastre-1.jpg", "./images/products/chaleco-cinturon-de-lastre-2.jpg"],
+    driveFolderId: "1czB3ziXlD_ACfBiOqX-mSQCFjnUYIofH",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Caminar con un chaleco lastrado ligero aumenta el gasto calórico y fortalece la densidad ósea."
+  },
+  {
+    id: "prod-pesas-tobilleras",
+    wcId: 1049,
+    name: "Par de Pesas Tobilleras / Muñequeras Ajustables con Velcro",
+    slug: "pesas-tobilleras",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 49,
+    stock: 28,
+    sku: "BF-DRV-049",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Lastres anatómicos para tobillos o muñecas: intensifica el trabajo de glúteos, abductores, isquiotibiales y rehabilitación de rodilla.",
+    technicalSpecs: [
+      "Cierre de velcro de alta adherencia y hebilla metálica de retorno",
+      "Costuras reforzadas anti-fuga",
+      "Ajuste cómodo que no roza la piel"
+    ],
+    images: ["./images/products/pesas-tobilleras-1.jpg", "./images/products/pesas-tobilleras-2.jpg"],
+    driveFolderId: "1hhAGdIx1FjC6B80LF-wyAQlxhx1rh2mi",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Excelentes para ejercicios focalizados de glúteo medio y fortalecimiento de cuádriceps sin carga axial."
+  },
+  {
+    id: "prod-cinturon-de-pesas",
+    wcId: 1011,
+    name: "Cinturón Lumbar de Cuero para Levantamiento de Pesas",
+    slug: "cinturon-de-pesas",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 119,
+    stock: 15,
+    sku: "BF-DRV-011",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Cinturón de cuero genuino con acolchado lumbar interno y hebilla de doble púa para máxima presión intraabdominal en levantamientos pesados.",
+    technicalSpecs: [
+      "Cuero de alta resistencia con doble costura industrial",
+      "Zona dorsal ancha con almohadilla ergonómica",
+      "Hebilla de acero cromado de doble pasador"
+    ],
+    images: ["./images/products/cinturon-de-pesas-1.jpg", "./images/products/cinturon-de-pesas-2.jpg"],
+    driveFolderId: "1MYyw9DmsvFZCrxUAJ9ooYp49zNwcWef3",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Úsalo en tus series efectivas de sentadilla y peso muerto por encima del 80% de tu capacidad."
+  },
+  {
+    id: "prod-espuma-para-barra-gym",
+    wcId: 1019,
+    name: "Almohadilla / Espuma Protectora para Barra Olímpica (Hip Thrust & Squat)",
+    slug: "espuma-para-barra-gym",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 45,
+    stock: 30,
+    sku: "BF-DRV-019",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Pad de espuma de alta densidad que distribuye la presión de la barra sobre la cadera en Hip Thrust y sobre los trapecios en Sentadilla.",
+    technicalSpecs: [
+      "Espuma NBR de alta densidad que no se aplasta bajo carga",
+      "Ranura ergonómica para el cuello",
+      "Incluye correas de sujeción de seguridad"
+    ],
+    images: ["./images/products/espuma-para-barra-gym-1.jpg", "./images/products/espuma-para-barra-gym-2.jpg"],
+    driveFolderId: "1gOhwGIEVBFOUUAG9qEMdcSAoHj1fT6Zt",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Imprescindible para cargar peso real en Hip Thrust sin dolor en las crestas ilíacas."
+  },
+  {
+    id: "prod-munequera-pesas-con-gancho",
+    wcId: 1041,
+    name: "Muñequeras de Levantamiento con Gancho de Acero (Lifting Hooks)",
+    slug: "munequera-pesas-con-gancho",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 69,
+    stock: 18,
+    sku: "BF-DRV-041",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Supera la fatiga del antebrazo en dominadas, jalones y peso muerto gracias a sus ganchos de acero recubiertos antideslizantes.",
+    technicalSpecs: [
+      "Gancho de acero sólido con revestimiento de fricción",
+      "Soporte de muñeca en neopreno acolchado de alto confort",
+      "Cierre de velcro industrial ajustable"
+    ],
+    images: ["./images/products/munequera-pesas-con-gancho-1.jpg", "./images/products/munequera-pesas-con-gancho-2.jpg"],
+    driveFolderId: "1MOPuEt3l7EaBE-pKDZPNoj9-t9q5e6a8",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Permite que tu espalda siga trabajando al máximo cuando el agarre de los dedos empieza a ceder."
+  },
+  {
+    id: "prod-hand-grip",
+    wcId: 1029,
+    name: "Hand-Grip Regulable para Fuerza de Agarre y Antebrazo",
+    slug: "hand-grip",
+    categorySlug: "entrenamiento-fuerza",
+    categoryLabel: "Fuerza & Pesas",
+    price: 35,
+    stock: 40,
+    sku: "BF-DRV-029",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Ejercitador de mano y antebrazo con resorte de acero de tensión graduable; clave para mejorar la fuerza de prensión y salud articular de muñeca.",
+    technicalSpecs: [
+      "Resistencia regulable progresiva",
+      "Mangos anatómicos antideslizantes",
+      "Resorte de acero templado de larga vida útil"
+    ],
+    images: ["./images/products/hand-grip-1.jpg", "./images/products/hand-grip-2.jpg"],
+    driveFolderId: "1Lts8L1iZL5eNg2HO9OiNJbtst6sxq-0F",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "La fuerza de agarre (Grip Strength) es uno de los principales biomarcadores de longevidad y salud neuromuscular."
+  },
+
+  // ==========================================================================
+  // CATEGORÍA 3: BOXEO & ARTES MARCIALES (COMPRA DIRECTA EASY PAY)
+  // ==========================================================================
+  {
+    id: "prod-guantes-de-box",
+    wcId: 1024,
+    name: "Guantes de Boxeo Profesionales de Alta Absorción",
+    slug: "guantes-de-box",
+    categorySlug: "boxeo-artes-marciales",
+    categoryLabel: "Boxeo & Combate",
+    price: 129,
+    compareAtPrice: 149,
+    stock: 22,
+    sku: "BF-DRV-024",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Guantes de boxeo con espuma multicapa de absorción de impactos, palma ventilada y cierre ancho de velcro para máxima estabilidad de muñeca.",
+    technicalSpecs: [
+      "Cuero sintético PU de alto impacto resistente al desgaste",
+      "Pulgar sujeto anatómicamente para prevenir esguinces",
+      "Malla transpirable en la palma para control de humedad"
+    ],
+    images: ["./images/products/guantes-de-box-1.jpg", "./images/products/guantes-de-box-2.jpg"],
+    driveFolderId: "1avt_w1Om8yZNW4E_V2aEQZaZZyp2prU9",
+    featured: true,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Combínalos siempre con vendas o muñequeras para proteger los nudillos en trabajo de saco o pera."
+  },
+  {
+    id: "prod-pera-de-boxeo",
+    wcId: 1047,
+    name: "Pera de Boxeo con Pedestal Regulable y Resorte de Velocidad",
+    slug: "pera-de-boxeo",
+    categorySlug: "boxeo-artes-marciales",
+    categoryLabel: "Boxeo & Combate",
+    price: 219,
+    compareAtPrice: 259,
+    stock: 9,
+    sku: "BF-DRV-047",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Estación de boxeo de velocidad con altura ajustable y resorte de rebote rápido para entrenar reflejos, ritmo, esquivas y cardio en casa.",
+    technicalSpecs: [
+      "Altura regulable adaptable a adultos y jóvenes",
+      "Base rellenable con agua o arena para máxima fijación",
+      "Resorte de acero cromado de retorno explosivo"
+    ],
+    images: ["./images/products/pera-de-boxeo-1.jpg", "./images/products/pera-de-boxeo-2.jpg"],
+    driveFolderId: "1Zb9ogIRdU7Kw0G9MKGJBoKWKARCdbWcI",
+    featured: true,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Ideal para sesiones de 5 rounds de 3 minutos en casa sin necesidad de perforar techos ni paredes."
+  },
+  {
+    id: "prod-guantes-mma",
+    wcId: 1028,
+    name: "Guantes MMA FCU de Dedos Libres (Grappling & Striking)",
+    slug: "guantes-mma",
+    categorySlug: "boxeo-artes-marciales",
+    categoryLabel: "Boxeo & Combate",
+    price: 95,
+    stock: 16,
+    sku: "BF-DRV-028",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Guantes de artes marciales mixtas con acolchado segmentado en nudillos y palma abierta para transiciones rápidas entre golpeo y agarre.",
+    technicalSpecs: [
+      "Diseño ergonómico pre-curvado que reduce la fatiga de mano",
+      "Doble vuelta de ajuste en muñeca",
+      "Costuras reforzadas para entrenamiento intensivo"
+    ],
+    images: ["./images/products/guantes-mma-1.jpg", "./images/products/guantes-mma-2.jpg"],
+    driveFolderId: "1fv7ZQdQzTD_t9MWOZnemz7mhRvYCZH-f",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Excelentes para circuitos funcionales que combinan saco de boxeo con burpees o pesas rusas."
+  },
+  {
+    id: "prod-careta-boxeo",
+    wcId: 1009,
+    name: "Careta de Boxeo con Protección de Pómulos y Mentón",
+    slug: "careta-boxeo",
+    categorySlug: "boxeo-artes-marciales",
+    categoryLabel: "Boxeo & Combate",
+    price: 115,
+    stock: 12,
+    sku: "BF-DRV-009",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Casco protector integral para sparring seguro con amplio campo de visión periférica y acolchado amortiguador en frente, orejas y pómulos.",
+    technicalSpecs: [
+      "Visión periférica de 180 grados sin puntos ciegos",
+      "Ajuste posterior triple de velcro adaptable",
+      "Forro interior antideslizante de secado rápido"
+    ],
+    images: ["./images/products/careta-boxeo-1.jpg", "./images/products/careta-boxeo-2.jpg"],
+    driveFolderId: "18lmGCTE13ovVV68eUL1Jh0ZqxuEvKIw5",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Entrena sparring técnico con total confianza y protección craneofacial."
+  },
+  {
+    id: "prod-pelota-de-reflejos",
+    wcId: 1045,
+    name: "Pelota de Reflejos Boxeo con Vincha Ajustable (Reflex Ball)",
+    slug: "pelota-de-reflejos",
+    categorySlug: "boxeo-artes-marciales",
+    categoryLabel: "Boxeo & Combate",
+    price: 39,
+    stock: 32,
+    sku: "BF-DRV-045",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Entrena tu precisión oculomanual, velocidad de reacción y coordinación de golpeo en cualquier lugar con la Reflex Ball de Bassfit.",
+    technicalSpecs: [
+      "Vincha elástica antideslizante y confortable",
+      "Pelota ligera de rebote controlado segura para el rostro",
+      "Portátil: llévala en tu bolsillo al parque o de viaje"
+    ],
+    images: ["./images/products/pelota-de-reflejos-1.jpg", "./images/products/pelota-de-reflejos-2.jpg"],
+    driveFolderId: "1DG_HvoAbVSZxSLY-QMQap5Q_uUkE_PHq",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "10 minutos de pelota de reflejos activan tu sistema nervioso antes de cualquier entrenamiento."
+  },
+  {
+    id: "prod-bucal-boxeo",
+    wcId: 1007,
+    name: "Protector Bucal Termomoldeable para Boxeo y Deportes de Contacto",
+    slug: "bucal-boxeo",
+    categorySlug: "boxeo-artes-marciales",
+    categoryLabel: "Boxeo & Combate",
+    price: 25,
+    stock: 45,
+    sku: "BF-DRV-007",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Protector bucal anatómico de silicona EVA termomoldeable con estuche higiénico ventilado para proteger dientes y mandíbula.",
+    technicalSpecs: [
+      "Material EVA grado alimenticio libre de BPA",
+      "Se amolda exactamente a tu mordida en agua caliente",
+      "Canales inferiores que facilitan la respiración"
+    ],
+    images: ["./images/products/bucal-boxeo-1.jpg", "./images/products/bucal-boxeo-2.jpg"],
+    driveFolderId: "1Nr9LBs58pDAFWvSltoIau27cCjEUIDF7",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Un buen ajuste mandibular también ayuda a estabilizar el cuello durante esfuerzos intensos."
+  },
+  {
+    id: "prod-guantes-de-karate",
+    wcId: 1025,
+    name: "Guantes / Mitones de Karate Kumite Homologados",
+    slug: "guantes-de-karate",
+    categorySlug: "boxeo-artes-marciales",
+    categoryLabel: "Boxeo & Combate",
+    price: 69,
+    stock: 15,
+    sku: "BF-DRV-025",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Mitones ultraligeros con núcleo de espuma moldeada para práctica de Karate, Taekwondo y artes marciales tradicionales.",
+    technicalSpecs: [
+      "Diseño ergonómico ligero que permite velocidad máxima de puño",
+      "Banda elástica de muñeca con cierre de velcro",
+      "Cubierta exterior lavable y resistente"
+    ],
+    images: ["./images/products/guantes-de-karate-1.jpg", "./images/products/guantes-de-karate-2.jpg"],
+    driveFolderId: "1IGz6BnFgazmRyIihpWxLSDK4ZlvWoU1F",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Ideales para entrenamientos de velocidad y marcación técnica."
+  },
+
+  // ==========================================================================
+  // CATEGORÍA 4: YOGA, PILATES & MOVILIDAD (COMPRA DIRECTA EASY PAY)
+  // ==========================================================================
+  {
+    id: "prod-aro-de-yoga",
+    wcId: 1001,
+    name: "Rueda / Aro de Yoga Dharma para Extensión Dorsal y Flexibilidad",
+    slug: "aro-de-yoga",
+    categorySlug: "yoga-pilates-movilidad",
+    categoryLabel: "Yoga, Pilates & Movilidad",
+    price: 79,
+    compareAtPrice: 95,
+    stock: 19,
+    sku: "BF-DRV-001",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Rueda de yoga de alta resistencia con exterior acolchado antideslizante para apertura de pecho, liberación de columna torácica y posturas avanzadas.",
+    technicalSpecs: [
+      "Núcleo rígido capaz de soportar más de 150 kg sin deformarse",
+      "Recubrimiento exterior de TPE ecológico antideslizante",
+      "Diámetro ergonómico ideal para la curvatura natural de la espalda"
+    ],
+    images: ["./images/products/aro-de-yoga-1.jpg", "./images/products/aro-de-yoga-2.jpg"],
+    driveFolderId: "1Z6QT1KtmM050BqL5q7yOP3T1qHhgRSdF",
+    featured: true,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "Rueda suavemente tu espalda alta sobre el aro durante 2 minutos al terminar tu jornada de oficina."
+  },
+  {
+    id: "prod-mat-de-yoga",
+    wcId: 1039,
+    name: "Mat / Colchoneta de Yoga Antideslizante de Alta Densidad",
+    slug: "mat-de-yoga",
+    categorySlug: "yoga-pilates-movilidad",
+    categoryLabel: "Yoga, Pilates & Movilidad",
+    price: 69,
+    stock: 30,
+    sku: "BF-DRV-039",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Mat de yoga y entrenamiento funcional con textura de doble agarre, amortiguación óptima para rodillas y correa de transporte incluida.",
+    technicalSpecs: [
+      "Superficie texturizada que evita resbalones incluso con sudor",
+      "Amortiguación equilibrada para proteger rodillas, codos y columna",
+      "Ligero, enrollable e impermeable"
+    ],
+    images: ["./images/products/mat-de-yoga-1.jpg", "./images/products/mat-de-yoga-2.jpg"],
+    driveFolderId: "1TXY5o7_K6tjU-xiW7A_rgn_aFTl7KviS",
+    featured: true,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "La base indispensable para tus rutinas de movilidad, core y estiramientos diarios."
+  },
+  {
+    id: "prod-pelota-de-pilates",
+    wcId: 1044,
+    name: "Pelota Suiza de Pilates & Estabilidad Anti-Explosión (Gym Ball)",
+    slug: "pelota-de-pilates",
+    categorySlug: "yoga-pilates-movilidad",
+    categoryLabel: "Yoga, Pilates & Movilidad",
+    price: 65,
+    stock: 24,
+    sku: "BF-DRV-044",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Balón terapéutico de PVC anti-burst para fortalecimiento de core, pilates, rehabilitación lumbar y ejercicios de estabilidad pélvica.",
+    technicalSpecs: [
+      "Sistema Anti-Burst (desinflado lento de seguridad en caso de pinchazo)",
+      "Anillos concéntricos antideslizantes en toda la superficie",
+      "Excelente para usar incluso como asiento activo ergonómico"
+    ],
+    images: ["./images/products/pelota-de-pilates-1.jpg", "./images/products/pelota-de-pilates-2.jpg"],
+    driveFolderId: "1rz0jimh0nmBIDu9D0d5d7UpAbwXDPuPt",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "Los puentes de glúteo e isquiotibiales sobre pelota de pilates activan el doble de fibras estabilizadoras."
+  },
+  {
+    id: "prod-disco-de-balance",
+    wcId: 1016,
+    name: "Disco de Balance Rígido para Propiocepción y Equilibrio (360°)",
+    slug: "disco-de-balance",
+    categorySlug: "yoga-pilates-movilidad",
+    categoryLabel: "Yoga, Pilates & Movilidad",
+    price: 75,
+    stock: 16,
+    sku: "BF-DRV-016",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Plataforma circular de equilibrio con superficie antideslizante para rehabilitación de tobillos, rodillas y activación neuromuscular del core.",
+    technicalSpecs: [
+      "Inclinación omnidireccional de 360 grados",
+      "Superficie superior con relieve de agarre seguro",
+      "Polímero de alto impacto resistente al uso intensivo"
+    ],
+    images: ["./images/products/disco-de-balance-1.jpg", "./images/products/disco-de-balance-2.jpg"],
+    driveFolderId: "16LZ3Zs3BzYFbTBYcRXNpK9VZsPj11-gy",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "Fundamental en nuestro programa de Longevidad Activa para blindar tobillos y prevenir esguinces."
+  },
+  {
+    id: "prod-disco-de-inestabilidad-pvc",
+    wcId: 1017,
+    name: "Cojín / Disco de Inestabilidad Inflable de PVC con Textura Sensorial",
+    slug: "disco-de-inestabilidad-pvc",
+    categorySlug: "yoga-pilates-movilidad",
+    categoryLabel: "Yoga, Pilates & Movilidad",
+    price: 55,
+    stock: 20,
+    sku: "BF-DRV-017",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Disco inflable de equilibrio y postura activa: úsalo de pie para propiocepción o en tu silla de trabajo para activar la faja abdominal.",
+    technicalSpecs: [
+      "Doble cara: púas sensoriales masajeadoras de un lado y relieve suave del otro",
+      "Nivel de inestabilidad regulable mediante presión de inflado",
+      "PVC de alto grosor hipoalergénico"
+    ],
+    images: ["./images/products/disco-de-inestabilidad-pvc-1.jpg", "./images/products/disco-de-inestabilidad-pvc-2.jpg"],
+    driveFolderId: "1WoiYANUpILZpDYk5kvYVXW__zdobhbjb",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "Colócalo sobre la silla de tu escritorio durante 30 minutos al día para eliminar la rigidez lumbar."
+  },
+  {
+    id: "prod-ladrillo-de-yoga",
+    wcId: 1032,
+    name: "Bloque / Ladrillo de Yoga EVA de Alta Densidad (Bordes Biselados)",
+    slug: "ladrillo-de-yoga",
+    categorySlug: "yoga-pilates-movilidad",
+    categoryLabel: "Yoga, Pilates & Movilidad",
+    price: 32,
+    stock: 40,
+    sku: "BF-DRV-032",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Soporte ergonómico de espuma EVA densa que acerca el suelo a tus manos, permitiendo mantener la columna alineada en posturas de yoga y estiramiento.",
+    technicalSpecs: [
+      "3 alturas distintas según la cara de apoyo",
+      "Bordes biselados para un agarre cómodo y firme",
+      "Ultraligero e indeformable"
+    ],
+    images: ["./images/products/ladrillo-de-yoga-1.jpg", "./images/products/ladrillo-de-yoga-2.jpg"],
+    driveFolderId: "1n9RQ3CwdQuNOr_2lseVe7BBD8V8LnmN1",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "Usar bloques no es señal de poca flexibilidad, sino de inteligencia biomecánica para no encorvar la espalda."
+  },
+  {
+    id: "prod-correa-de-yoga",
+    wcId: 1014,
+    name: "Correa de Algodón para Yoga y Estiramiento Asistido (Hebilla Metálica)",
+    slug: "correa-de-yoga",
+    categorySlug: "yoga-pilates-movilidad",
+    categoryLabel: "Yoga, Pilates & Movilidad",
+    price: 29,
+    stock: 35,
+    sku: "BF-DRV-014",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Cinta de algodón tejido de alta resistencia con doble anilla en D para profundizar estiramientos de isquiotibiales, hombros y cadera sin tensión.",
+    technicalSpecs: [
+      "Tejido de algodón suave que no corta ni irrita las manos",
+      "Hebilla metálica doble D para ajuste milimétrico de longitud",
+      "Ideal para elongación PNF post-entrenamiento"
+    ],
+    images: ["./images/products/correa-de-yoga-1.jpg", "./images/products/correa-de-yoga-2.jpg"],
+    driveFolderId: "1sGMllYa9hI7L6n6JXIMs_El2Ng9JnGvQ",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "Estira tus isquiotibiales tumbado boca arriba con la correa en la planta del pie para proteger la zona lumbar."
+  },
+  {
+    id: "prod-masajeador-blueidea",
+    wcId: 1038,
+    name: "Masajeador Muscular Eléctrico de Percusión & Vibración Blueidea",
+    slug: "masajeador-blueidea",
+    categorySlug: "yoga-pilates-movilidad",
+    categoryLabel: "Yoga, Pilates & Movilidad",
+    price: 89,
+    stock: 14,
+    sku: "BF-DRV-038",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Masajeador corporal ergonómico para descarga miofascial, alivio de contracturas cervicales/lumbares y aceleración del flujo sanguíneo post-entreno.",
+    technicalSpecs: [
+      "Cabezales intercambiables según el grupo muscular",
+      "Intensidad regulable para masaje suave o tejido profundo",
+      "Mango largo anatómico para alcanzar la espalda sin ayuda"
+    ],
+    images: ["./images/products/masajeador-blueidea-1.jpg", "./images/products/masajeador-blueidea-2.jpg"],
+    driveFolderId: "1GGTxc3m9ERV_U7RNaaSOAMfBZ-c_4CBR",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "5 minutos en cuádriceps, gemelos y trapecios después de entrenar mejoran notablemente tu recuperación."
+  },
+
+  // ==========================================================================
+  // CATEGORÍA 5: ENTRENAMIENTO FUNCIONAL, BANDAS & AGILIDAD (COMPRA DIRECTA)
+  // ==========================================================================
+  {
+    id: "prod-kit-5-ligas-elasticas",
+    wcId: 1030,
+    name: "Kit Profesional de 5 Ligas Elásticas de Resistencia con Manubrios y Anclaje",
+    slug: "kit-de-5-ligas-elasticas",
+    categorySlug: "funcional-bandas-agilidad",
+    categoryLabel: "Funcional, Bandas & Agilidad",
+    price: 79,
+    compareAtPrice: 99,
+    stock: 28,
+    sku: "BF-DRV-030",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Tu gimnasio portátil completo: 5 tubos de látex combinables (hasta 100 lbs / 45 kg), 2 manijas acolchadas, 2 correas de tobillo, anclaje de puerta y bolso.",
+    technicalSpecs: [
+      "5 niveles de tensión identificables por color (10 a 30 lbs c/u, sumables)",
+      "Mosquetones metálicos reforzados para combinar varias bandas a la vez",
+      "Anclaje de puerta de espuma que no daña la madera"
+    ],
+    images: ["./images/products/kit-de-5-ligas-elasticas-1.jpg", "./images/products/kit-de-5-ligas-elasticas-2.jpg"],
+    driveFolderId: "1i_ISOpsd_rcCAkBfBQGxfxci-uQRK__9",
+    featured: true,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "El kit número 1 para nuestros alumnos online: permite realizar jalones dorsales, press de pecho y remos en cualquier habitación."
+  },
+  {
+    id: "prod-banda-elastica-cerrada",
+    wcId: 1004,
+    name: "Banda Elástica Cerrada de Tela Antideslizante (Hip Band Glúteos & Piernas)",
+    slug: "banda-elastica-cerrada",
+    categorySlug: "funcional-bandas-agilidad",
+    categoryLabel: "Funcional, Bandas & Agilidad",
+    price: 39,
+    stock: 42,
+    sku: "BF-DRV-004",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Banda circular de tejido elástico de lona/algodón con filamentos internos de látex: no se enrolla, no pellizca la piel ni se rompe jamás.",
+    technicalSpecs: [
+      "Tejido ancho de alta resistencia para activación de glúteo medio y mayor",
+      "Bandas internas de silicona/látex antideslizantes",
+      "Lavable y ultraduradera"
+    ],
+    images: ["./images/products/banda-elastica---cerrada-1.jpg", "./images/products/banda-elastica---cerrada-2.jpg"],
+    driveFolderId: "1d5NqhXxqAWCmj_0VptTb7AAfF1t1OaCn",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Colócala sobre las rodillas durante el calentamiento de sentadillas para activar la abducción de cadera."
+  },
+  {
+    id: "prod-banda-elastica-tension-rope",
+    wcId: 1005,
+    name: "Banda Elástica Multiuso con Pedales y Manubrios (Tension Rope)",
+    slug: "banda-elastica-tension-rope",
+    categorySlug: "funcional-bandas-agilidad",
+    categoryLabel: "Funcional, Bandas & Agilidad",
+    price: 42,
+    stock: 25,
+    sku: "BF-DRV-005",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Remo elástico de 4 tubos con estribos para pies y agarre de espuma para tonificar abdomen, brazos, espalda e isquiotibiales desde casa.",
+    technicalSpecs: [
+      "Doble par de tubos de látex de alta elasticidad",
+      "Pedales contorneados antideslizantes",
+      "Manubrios de espuma absorbente de sudor"
+    ],
+    images: ["./images/products/banda-elastica---tension-rope-1.jpg", "./images/products/banda-elastica---tension-rope-2.jpg"],
+    driveFolderId: "1ciuqwOrgwut_n36sv9j5fBVjH7b5bF2v",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Muy práctico para realizar remos sentados y curls de bíceps sin ocupar espacio."
+  },
+  {
+    id: "prod-aros-de-gimnasia",
+    wcId: 1002,
+    name: "Anillas / Aros de Gimnasia y Calistenia con Correas Regulables",
+    slug: "aros-de-gimnasia",
+    categorySlug: "funcional-bandas-agilidad",
+    categoryLabel: "Funcional, Bandas & Agilidad",
+    price: 119,
+    stock: 12,
+    sku: "BF-DRV-002",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Aros de suspensión de alta resistencia con correas de nylon y hebillas de bloqueo rápido para dominadas, fondos, remos invertidos y core.",
+    technicalSpecs: [
+      "Agarre texturizado antideslizante de diámetro oficial",
+      "Correas de poliéster de alta tenacidad con hebilla dentada de seguridad",
+      "Instalación rápida en barras de dominadas, vigas o parques"
+    ],
+    images: ["./images/products/aros-de-gimnasia-1.jpg"],
+    driveFolderId: "1n_bT4WGEvjJY0VHkLUhBhC0X19RMDoST",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Los remos en anillas permiten rotación libre de muñeca y hombro, siendo mucho más amigables con los codos que la barra fija."
+  },
+  {
+    id: "prod-escalera-de-coordinacion",
+    wcId: 1018,
+    name: "Escalera Pliométrica de Coordinación, Velocidad y Agilidad",
+    slug: "escalera-de-coordinacion",
+    categorySlug: "funcional-bandas-agilidad",
+    categoryLabel: "Funcional, Bandas & Agilidad",
+    price: 55,
+    stock: 22,
+    sku: "BF-DRV-018",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Escalera de suelo con peldaños planos regulables y bolso de transporte para entrenamiento de agilidad de pies, pliometría y quema calórica.",
+    technicalSpecs: [
+      "Peldaños de polímero flexible de alta visibilidad resistentes a pisadas",
+      "Distancia entre peldaños totalmente ajustable sobre las cintas laterales",
+      "Incluye bolso para llevar al parque, cancha o gimnasio"
+    ],
+    images: ["./images/products/escalera-de-coordinacion-1.jpg", "./images/products/escalera-de-coordinacion-2.jpg"],
+    driveFolderId: "1fEKQyj9ECSmeZN0TT1cdXqV488NnrwhS",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Úsala en tus calentamientos de 8 minutos para elevar pulsaciones y mejorar la reactividad del tobillo."
+  },
+  {
+    id: "prod-kits-deportivos",
+    wcId: 1031,
+    name: "Pack / Kit Deportivo Integral Bassfit (Entrenamiento en Casa)",
+    slug: "kits-deportivos",
+    categorySlug: "funcional-bandas-agilidad",
+    categoryLabel: "Funcional, Bandas & Agilidad",
+    price: 169,
+    compareAtPrice: 199,
+    stock: 15,
+    sku: "BF-DRV-031",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Combinación seleccionada de implementos funcionales Bassfit lista para acompañar tu primer mes de entrenamiento guiado.",
+    technicalSpecs: [
+      "Selección versátil para trabajo de tren superior, inferior y core",
+      "Ahorro directo frente a la compra de implementos por separado",
+      "Recomendado para alumnos que inician asesoría online"
+    ],
+    images: ["./images/products/kits-deportivos-1.jpg", "./images/products/kits-deportivos-2.jpg"],
+    driveFolderId: "1VxF0g2zhqLTPkfwHUHpEGy-b479l6GAJ",
+    featured: true,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Todo lo que necesitas en una sola compra para arrancar tu programa personalizado hoy mismo."
+  },
+
+  // ==========================================================================
+  // CATEGORÍA 6: ACCESORIOS, PROTECCIÓN ARTICULAR & DEPORTES (COMPRA DIRECTA)
+  // ==========================================================================
+  {
+    id: "prod-fajas-reductoras",
+    wcId: 1020,
+    name: "Faja Deportiva de Compresión y Soporte Lumbar (Modelo Avispa)",
+    slug: "fajas-reductoras",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 79,
+    stock: 25,
+    sku: "BF-DRV-020",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Faja térmica y de soporte postural con doble banda de ajuste en cintura para mantener la zona media contenida durante tu actividad física.",
+    technicalSpecs: [
+      "Neopreno/látex térmico con varillas flexibles de soporte postural",
+      "Doble banda elástica de compresión graduable",
+      "Cierre de alta firmeza"
+    ],
+    images: ["./images/products/fajas-reductoras-1.jpg", "./images/products/fajas-reductoras-2.jpg"],
+    driveFolderId: "1FZnqivvR_eJH1AiXuTjK5Rc7bY1rBz1C",
+    featured: false,
+    relatedArticleSlugs: ["suplementacion-inteligente-cuando-necesitas-evaluacion-personalizada"],
+    coachTip: "Úsala como recordatorio propioceptivo postural sin apretar en exceso para permitir la respiración diafragmática."
+  },
+  {
+    id: "prod-guante-cuero",
+    wcId: 1022,
+    name: "Guantes de Gimnasio en Cuero Genuino con Muñequera",
+    slug: "guante-cuero",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 55,
+    stock: 20,
+    sku: "BF-DRV-022",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Guantes de musculación confeccionados en cuero resistente con palma acolchada antideslizante para barras y mancuernas.",
+    technicalSpecs: [
+      "Palma de cuero con refuerzo en zonas de máxima fricción",
+      "Dorso ventilado para evacuación de calor",
+      "Previene callosidades y mejora la firmeza del agarre"
+    ],
+    images: ["./images/products/guante-cuero-1.jpg", "./images/products/guante-cuero-2.jpg"],
+    driveFolderId: "1LFppylbQV1D3uDJPVlPh9bn94MVD8INw",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Durabilidad superior para quienes entrenan diariamente con barras moleteadas."
+  },
+  {
+    id: "prod-guantes-de-neopreno",
+    wcId: 1027,
+    name: "Guantes Deportivos de Neopreno Antideslizantes para Gym",
+    slug: "guantes-de-neopreno",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 39,
+    stock: 30,
+    sku: "BF-DRV-027",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Guantes ligeros y flexibles de neopreno con relieve de silicona en la palma para entrenamientos funcionales, pesas y calistenia.",
+    technicalSpecs: [
+      "Neopreno transpirable de secado rápido",
+      "Palma con patrón hexagonal de alto agarre",
+      "Ajuste anatómico de velcro"
+    ],
+    images: ["./images/products/guantes-de-neopreno-1.jpg", "./images/products/guantes-de-neopreno-2.jpg"],
+    driveFolderId: "1cnFcZ21r1LXju8CXnh9ABz_ujSV7jdQs",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Muy cómodos y fáciles de lavar después de cada sesión."
+  },
+  {
+    id: "prod-guantes-de-licra",
+    wcId: 1026,
+    name: "Guantes Deportivos de Licra Ultraligeros y Transpirables",
+    slug: "guantes-de-licra",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 35,
+    stock: 28,
+    sku: "BF-DRV-026",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Guantes de entrenamiento en tejido de licra elástica de segunda piel, ideales para ciclismo indoor, funcional y máquinas.",
+    technicalSpecs: [
+      "Tejido elástico en 4 direcciones de máxima frescura",
+      "Almohadilla palmar ergonómica",
+      "Lengüetas en dedos para extracción rápida"
+    ],
+    images: ["./images/products/guantes-de-licra-1.jpg", "./images/products/guantes-de-licra-2.jpg"],
+    driveFolderId: "1zZmccRyXUW8m0xSud3BLV8dF2TSu9w53",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Perfectos si buscas protección en las manos sin perder sensibilidad al tacto."
+  },
+  {
+    id: "prod-munequera-de-felpa",
+    wcId: 1040,
+    name: "Muñequeras Deportivas Absorbentes de Algodón / Felpa",
+    slug: "munequera-de-felpa",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 22,
+    stock: 50,
+    sku: "BF-DRV-040",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Muñequeras de felpa de alta absorción para controlar el sudor en sesiones intensas de cardio, tenis, running y funcional.",
+    technicalSpecs: [
+      "Algodón rizado suave y elástico",
+      "Mantiene las manos secas para un agarre seguro",
+      "Lavable a máquina sin perder elasticidad"
+    ],
+    images: ["./images/products/munequera-de-felpa-1.jpg", "./images/products/munequera-de-felpa-2.jpg"],
+    driveFolderId: "1Va_94DbqTPA7qQJlodnEkUD-ZO6Iwy-9",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Un clásico funcional para evitar que el sudor baje hacia las palmas de las manos."
+  },
+  {
+    id: "prod-muslera",
+    wcId: 1042,
+    name: "Muslera de Compresión Térmica y Soporte Muscular",
+    slug: "muslera",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 45,
+    stock: 20,
+    sku: "BF-DRV-042",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Soporte elástico de compresión para cuádriceps e isquiotibiales; conserva el calor terapéutico y previene distensiones fibrilares.",
+    technicalSpecs: [
+      "Compresión graduada que reduce la vibración muscular",
+      "Diseño anatómico que no se desliza al correr o hacer sentadillas",
+      "Ideal para retorno deportivo tras sobrecargas"
+    ],
+    images: ["./images/products/muslera-1.jpg"],
+    driveFolderId: "1TZpkZVbYZi91r9_XNKJ7udqsWpawqnU0",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "Brinda seguridad adicional a tus isquiotibiales en sprints o cambios de ritmo."
+  },
+  {
+    id: "prod-pantorrillera",
+    wcId: 1043,
+    name: "Pantorrillera de Compresión para Running y Recuperación Gemelar",
+    slug: "pantorrillera",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 42,
+    stock: 24,
+    sku: "BF-DRV-043",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Manga de compresión para gemelos y sóleo que favorece el retorno venoso, disminuye el impacto de zancada y previene la periostitis.",
+    technicalSpecs: [
+      "Tejido técnico elástico transpirable",
+      "Estabiliza los gemelos en carreras, saltos de cuerda y pliometría",
+      "Acelera el drenaje de metabolitos post-ejercicio"
+    ],
+    images: ["./images/products/pantorrillera-1.jpg"],
+    driveFolderId: "1IdsF0x1eFefYYTSajse5hie7w1loYqoO",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "Muy recomendada para corredores y alumnos que saltan soga o escalera pliométrica."
+  },
+  {
+    id: "prod-gorro-de-natacion",
+    wcId: 1021,
+    name: "Gorro de Natación Hidrodinámico de Alta Elasticidad",
+    slug: "gorro-de-natacion",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 29,
+    stock: 35,
+    sku: "BF-DRV-021",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Gorro anatómico para piscina y aguas abiertas que protege el cabello del cloro y reduce la resistencia al avance en el agua.",
+    technicalSpecs: [
+      "Ajuste cómodo sin tirones de cabello",
+      "Material resistente al cloro y al desgarro",
+      "Talla única de gran adaptabilidad"
+    ],
+    images: ["./images/products/gorro-de-natacion-1.jpg", "./images/products/gorro-de-natacion-2.jpg"],
+    driveFolderId: "1hc9BAKiJgOszk6tCz2NGEgxqBSyi76w0",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "La natación es el mejor cardio sin impacto articular para complementar tus días de fuerza."
+  },
+  {
+    id: "prod-lentes-natacion",
+    wcId: 1033,
+    name: "Lentes de Natación Antiempañantes con Protección UV",
+    slug: "lentes-natacion",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 45,
+    stock: 26,
+    sku: "BF-DRV-033",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Gafas de natación con ventosas de silicona suave antifugas, tratamiento Anti-Fog y correa doble regulable.",
+    technicalSpecs: [
+      "Visión panorámica clara bajo el agua",
+      "Sellado hermético hipoalergénico que no deja marcas excesivas",
+      "Protección UV para piscinas al aire libre"
+    ],
+    images: ["./images/products/lentes-natacion-1.jpg", "./images/products/lentes-natacion-2.jpg"],
+    driveFolderId: "1x7qTkp4zOlzupuqxip3M7juZnusTE7Jg",
+    featured: false,
+    relatedArticleSlugs: ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
+    coachTip: "Enjuágalos siempre con agua fría sin frotar el interior de las lunas para conservar el recubrimiento antiempañante."
+  },
+  {
+    id: "prod-guantes-de-arquero",
+    wcId: 1023,
+    name: "Guantes de Arquero de Fútbol con Palma de Agarre y Soporte de Muñeca",
+    slug: "guantes-de-arquero",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 79,
+    stock: 18,
+    sku: "BF-DRV-023",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Guantes de portero con palma de látex sintético amortiguador para máxima sujeción del balón y protección en los dedos.",
+    technicalSpecs: [
+      "Palma de alto grip en césped natural o sintético",
+      "Cinta elástica envolvente de muñeca",
+      "Dorso acolchado para despeje de puños"
+    ],
+    images: ["./images/products/guantes-de-arquero-1.jpg", "./images/products/guantes-de-arquero-2.jpg"],
+    driveFolderId: "1X3zSjuT6Zm3gEDmNkiicWkrW1eYEyU5Z",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Humedecer ligeramente las palmas antes del partido optimiza la adherencia con el balón."
+  },
+  {
+    id: "prod-pelotas-de-futbol",
+    wcId: 1046,
+    name: "Pelota de Fútbol Cosida de Alta Resistencia",
+    slug: "pelotas-de-futbol",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 65,
+    stock: 20,
+    sku: "BF-DRV-046",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Balón de fútbol con cámara de butilo para retención óptima de aire y cubierta resistente para grass sintético o losa.",
+    technicalSpecs: [
+      "Peso y circunferencia reglamentarios",
+      "Vuelo estable y toque amortiguado",
+      "Alta durabilidad frente a la abrasión"
+    ],
+    images: ["./images/products/pelotas-de-futbol-1.jpg"],
+    driveFolderId: "1G5WgIAZwez3Y1w67Mydza4kfz6vWS5w9",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "Mantenerte activo el fin de semana con deportes de equipo suma pasos y salud cardiovascular."
+  },
+  {
+    id: "prod-canasta-de-bicicletas",
+    wcId: 1008,
+    name: "Canasta Plegable Metálica para Bicicleta Urbana / Paseo Activo",
+    slug: "canasta-de-bicicletas",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 59,
+    stock: 15,
+    sku: "BF-DRV-008",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Canasta plegable de acero revestido anticorrosión de fácil montaje en manubrio o parrilla para transporte activo en bicicleta.",
+    technicalSpecs: [
+      "Sistema plegable inteligente con gancho de liberación rápida",
+      "Revestimiento resistente a la intemperie",
+      "Gran capacidad de carga para mochila deportiva o compras"
+    ],
+    images: ["./images/products/canasta-de-bicicletas-1.jpg", "./images/products/canasta-de-bicicletas-2.jpg"],
+    driveFolderId: "13CPniwmz0aJyGhNWyeI63VZClkdRgHF1",
+    featured: false,
+    relatedArticleSlugs: ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
+    coachTip: "Ir en bicicleta a tus actividades diarias sin mochila en la espalda cuida tu postura y suma cardio Zona 2."
+  },
+  {
+    id: "prod-pin-pon",
+    wcId: 1050,
+    name: "Set de Tenis de Mesa / Ping Pong (Raquetas + Pelotas + Red)",
+    slug: "pin-pon",
+    categorySlug: "accesorios-proteccion",
+    categoryLabel: "Accesorios, Soporte & Deportes",
+    price: 49,
+    stock: 20,
+    sku: "BF-DRV-050",
+    saleMode: "direct_cart",
+    shortDescription:
+      "Kit recreativo y de agilidad mental de Ping Pong: excelente ejercicio de reflejos, coordinación visomotora y movilidad para todas las edades.",
+    technicalSpecs: [
+      "Raquetas con goma de control y efecto equilibrado",
+      "Excelente actividad neuro-motora familiar y de longevidad activa",
+      "Portátil para instalar en cualquier mesa"
+    ],
+    images: ["./images/products/pin-pon-1.jpg"],
+    driveFolderId: "1CRxNgVouPJxfDWJ7HVcHYMz1cn6LNGvQ",
+    featured: false,
+    relatedArticleSlugs: ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
+    coachTip: "El tenis de mesa está considerado uno de los mejores deportes del mundo para estimular reflejos y agilidad cerebral a cualquier edad."
+  }
+];
+
+const PRODUCT_CATEGORIES = [
+  { slug: "todos", label: "Todos los Productos (47)" },
+  { slug: "entrenamiento-fuerza", label: "Fuerza & Pesas (11)" },
+  { slug: "boxeo-artes-marciales", label: "Boxeo & Combate (7)" },
+  { slug: "yoga-pilates-movilidad", label: "Yoga, Pilates & Movilidad (8)" },
+  { slug: "funcional-bandas-agilidad", label: "Funcional & Bandas (6)" },
+  { slug: "accesorios-proteccion", label: "Accesorios & Deportes (11)" },
+  { slug: "suplementos", label: "Suplementos · Venta Consultiva (4)", badge: "WhatsApp Asesor" }
+];
+
+function buildWhatsAppAdvisorUrl(product, customQuestion) {
+  const phone = "51999888777";
+  const text =
+    customQuestion ||
+    `Hola equipo Bassfit 👋, solicito una evaluación previa con un asesor para el producto de Venta Consultiva: *${product.name}* (SKU: ${product.sku} - S/ ${product.price}). Mi objetivo actual es: `;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+}
+
+function buildWhatsAppCoachUrl(programTitle, userData) {
+  const phone = "51999888777";
+  const details = userData?.name
+    ? `Soy *${userData.name}* (${userData.age || "edad no indicada"} años). Mi objetivo principal es: *${userData.goal || "Entrenamiento personalizado"}*.`
+    : "Me gustaría agendar mi evaluación inicial.";
+  const text = `Hola entrenadores de Bassfit 💪 («...fitness sin límites de edad..»), quiero información e inscripción en el programa: *${programTitle}*. ${details}`;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+}
+
+
+
+    function resolveStrictSaleMode(categorySlug, wcPurchasable = true, explicitMode) {
+      if (explicitMode === "consultative_whatsapp" || !wcPurchasable) return "consultative_whatsapp";
+      if (["suplementos", "cuidado-y-suplementos", "nutricion"].includes((categorySlug || "").toLowerCase())) {
+        return "consultative_whatsapp";
+      }
+      return "direct_cart";
+    }
+
+    function ProductCard({ product, onOpenDetail, onAddToCart, onTestBackendGuard }) {
+      const isSupplement = product.saleMode === "consultative_whatsapp";
+      return (
+        <div className="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden group">
+          <div>
+            <div onClick={onOpenDetail} className="relative h-52 bg-white flex items-center justify-center p-3 overflow-hidden cursor-pointer border-b border-slate-100">
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                className="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-300"
+              />
+              <span className={`absolute top-3 left-3 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase ${
+                isSupplement ? "bg-[#0F172A] text-white border border-[#FF4A00]" : "bg-[#0F172A]/90 text-white"
+              }`}>
+                {isSupplement ? "Venta Consultiva · WhatsApp" : product.categoryLabel}
+              </span>
+              {product.relatedArticleSlugs.length > 0 && (
+                <span className="absolute bottom-2.5 right-2.5 bg-white/95 text-[#0F172A] text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200">
+                  📖 Guía SEO vinculada
+                </span>
+              )}
+            </div>
+            <div className="p-4">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-lg font-black text-[#0F172A]">S/ {product.price}</span>
+                {product.compareAtPrice && (
+                  <span className="text-xs text-slate-400 line-through">S/ {product.compareAtPrice}</span>
+                )}
+              </div>
+              <h3 onClick={onOpenDetail} className="text-sm font-extrabold text-[#0F172A] hover:text-[#FF4A00] cursor-pointer mt-1 line-clamp-2">
+                {product.name}
+              </h3>
+              <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{product.shortDescription}</p>
+            </div>
+          </div>
+          <div className="p-4 pt-0 space-y-2">
+            {isSupplement ? (
+              <>
+                <a
+                  href={buildWhatsAppAdvisorUrl(product)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-[#0F172A] hover:bg-[#FF4A00] text-white text-xs font-extrabold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 border border-[#FF4A00] shadow-sm transition"
+                >
+                  <span>Evaluar con Asesor (WhatsApp)</span>
+                  <span>→</span>
+                </a>
+                <button
+                  onClick={onTestBackendGuard}
+                  className="w-full text-[10px] font-semibold text-slate-400 hover:text-[#FF4A00] text-center block"
+                >
+                  Verificar bloqueo de carrito en Backend
+                </button>
+              </>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={onOpenDetail}
+                  className="px-3 py-2.5 rounded-xl border border-slate-200 hover:border-slate-400 text-xs font-bold text-slate-700"
+                >
+                  Ficha
+                </button>
+                <button
+                  onClick={onAddToCart}
+                  className="flex-1 bg-[#FF4A00] hover:bg-[#E04000] text-white text-xs font-extrabold py-2.5 px-3 rounded-xl transition"
+                >
+                  + Añadir al Carrito
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [activeTab, setActiveTab] = useState("inicio");
+      const [selectedCategory, setSelectedCategory] = useState("todos");
+      const [searchQuery, setSearchQuery] = useState("");
+      const [cart, setCart] = useState([
+        { product: BASSFIT_PRODUCTS.find((p) => p.slug === "kit-de-5-ligas-elasticas"), quantity: 1 },
+      ]);
+      const [isCartOpen, setIsCartOpen] = useState(false);
+      const [selectedProduct, setSelectedProduct] = useState(null);
+      const [selectedArticle, setSelectedArticle] = useState(null);
+      const [securityAlert, setSecurityAlert] = useState(null);
+      const [checkoutStep, setCheckoutStep] = useState("cart");
+      const [customerForm, setCustomerForm] = useState({
+        fullName: "",
+        email: "",
+        phone: "",
+        dni: "",
+        address: "",
+        city: "Lima",
+      });
+      const [orderConfirmation, setOrderConfirmation] = useState(null);
+      const [coachForm, setCoachForm] = useState({
+        name: "",
+        age: "",
+        goal: "Fuerza & Longevidad Activa (+40 / Salud Articular)",
+        modality: "Entrenamiento en Casa (Home Gym)",
+      });
+
+      const filteredProducts = useMemo(() => {
+        return BASSFIT_PRODUCTS.filter((p) => {
+          const matchesCat = selectedCategory === "todos" || p.categorySlug === selectedCategory;
+          const q = searchQuery.trim().toLowerCase();
+          const matchesSearch =
+            !q ||
+            p.name.toLowerCase().includes(q) ||
+            p.shortDescription.toLowerCase().includes(q) ||
+            p.categoryLabel.toLowerCase().includes(q);
+          return matchesCat && matchesSearch;
+        });
+      }, [selectedCategory, searchQuery]);
+
+      const cartSubtotal = useMemo(
+        () => cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0),
+        [cart]
+      );
+      const shippingCost = cartSubtotal >= 250 || cartSubtotal === 0 ? 0 : 15;
+      const cartTotal = cartSubtotal + shippingCost;
+      const cartCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
+
+      function handleAddToCart(product) {
+        const mode = resolveStrictSaleMode(product.categorySlug, product.saleMode === "direct_cart", product.saleMode);
+        if (mode === "consultative_whatsapp") {
+          setSecurityAlert({
+            title: "Restricción Estricta (Backend WooCommerce & API): Venta Consultiva",
+            message: `«${product.name}» pertenece a la categoría de Suplementos. Por seguridad y personalización, el backend bloquea su compra directa en carrito (HTTP 403) y te deriva directamente con un especialista por WhatsApp.`,
+            whatsappUrl: buildWhatsAppAdvisorUrl(product),
+          });
+          return;
+        }
+        setCart((prev) => {
+          const existing = prev.find((i) => i.product.id === product.id);
+          if (existing) {
+            return prev.map((i) => (i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i));
+          }
+          return [...prev, { product, quantity: 1 }];
+        });
+        setCheckoutStep("cart");
+        setIsCartOpen(true);
+      }
+
+      function handleTestBackendSupplementGuard(supplement) {
+        setSecurityAlert({
+          title: "Respuesta Real del Servidor (HTTP 403 Forbidden - bassfit_consultative_product_forbidden)",
+          message: `El endpoint POST /api/checkout y el plugin de WordPress (bassfit-headless-rules.php) rechazaron la compra directa de «${supplement.name}». Los suplementos están bloqueados a nivel de servidor y solo pueden adquirirse tras evaluación por WhatsApp.`,
+          whatsappUrl: buildWhatsAppAdvisorUrl(supplement),
+        });
+      }
+
+      function handleProcessEasyPayCheckout(e) {
+        e.preventDefault();
+        setOrderConfirmation({
+          orderReference: `BF-2026-${Math.floor(100000 + Math.random() * 900000)}`,
+          gateway: "Easy Pay Perú (HTTPS Encrypted + Webhook HMAC)",
+          summary: { totalAmount: cartTotal },
+        });
+        setCheckoutStep("success");
+        setCart([]);
+      }
+
+      return (
+        <div className="min-h-screen bg-white text-[#0F172A] flex flex-col font-sans">
+          <div className="bg-[#0F172A] text-white text-xs py-2.5 px-4 border-b border-slate-800">
+            <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center gap-1.5 bg-[#FF4A00] text-white font-bold px-2.5 py-0.5 rounded-full text-[11px] uppercase">
+                  Entrenamiento & Vida Activa · Equipamiento Deportivo
+                </span>
+                <span className="hidden sm:inline text-slate-300 font-medium">
+                  «...fitness sin límites de edad..» — Asesorías personalizadas & equipamiento deportivo
+                </span>
+              </div>
+              <div className="flex items-center gap-4 text-slate-300">
+                <span className="hidden md:inline">Envíos a todo el Perú</span>
+                <span className="text-[#FF4A00] font-semibold">Compra 100% Segura · Atención Personalizada</span>
+              </div>
+            </div>
+          </div>
+
+          <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between gap-4">
+              <button onClick={() => setActiveTab("inicio")} className="flex items-center text-left group focus:outline-none">
+                <img src="./images/brand/logo_bassfit_peru.png" alt="Bassfit" className="h-16 md:h-20 w-auto object-contain transition duration-200 group-hover:scale-105" />
+              </button>
+
+              <div className="hidden lg:flex flex-1 max-w-md mx-4">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (activeTab !== "tienda") setActiveTab("tienda");
+                  }}
+                  placeholder="Buscar pesas, ligas, guantes, yoga, suplementos..."
+                  className="w-full px-4 py-2.5 text-sm bg-[#F8FAFC] border border-slate-300 rounded-full text-[#0F172A] focus:outline-none focus:border-[#FF4A00]"
+                />
+              </div>
+
+              <nav className="hidden md:flex items-center gap-1.5">
+                <button
+                  onClick={() => setActiveTab("inicio")}
+                  className={`px-3.5 py-2 rounded-lg text-sm font-bold transition ${activeTab === "inicio" ? "bg-[#0F172A] text-white" : "text-[#0F172A] hover:bg-[#F8FAFC]"}`}
+                >
+                  Inicio
+                </button>
+                <button
+                  onClick={() => setActiveTab("entrenamientos")}
+                  className={`px-3.5 py-2 rounded-lg text-sm font-bold transition flex items-center gap-1.5 ${activeTab === "entrenamientos" ? "bg-[#FF4A00] text-white shadow-md" : "text-[#0F172A] hover:bg-orange-50"}`}
+                >
+                  <span>Entrenamientos & Asesorías</span>
+                  
+                </button>
+                <button
+                  onClick={() => setActiveTab("comunidad")}
+                  className={`px-3.5 py-2 rounded-lg text-sm font-bold transition ${activeTab === "comunidad" ? "bg-[#0F172A] text-white" : "text-[#0F172A] hover:bg-[#F8FAFC]"}`}
+                >
+                  Comunidad & Guías SEO
+                </button>
+                <button
+                  onClick={() => setActiveTab("tienda")}
+                  className={`px-3.5 py-2 rounded-lg text-sm font-bold transition flex items-center gap-1.5 ${activeTab === "tienda" ? "bg-[#0F172A] text-white" : "text-[#0F172A] hover:bg-[#F8FAFC]"}`}
+                >
+                  <span>Tienda (47)</span>
+                  
+                </button>
+              </nav>
+
+              <button
+                onClick={() => { setCheckoutStep("cart"); setIsCartOpen(true); }}
+                className="inline-flex items-center gap-2 bg-[#F8FAFC] hover:bg-slate-100 text-[#0F172A] border border-slate-300 px-4 py-2.5 rounded-full text-sm font-bold"
+              >
+                <span>🛒 Carrito</span>
+                <span className="bg-[#FF4A00] text-white text-xs font-extrabold px-2 py-0.5 rounded-full">{cartCount}</span>
+              </button>
+            </div>
+          </header>
+
+          {securityAlert && (
+            <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border-2 border-[#FF4A00]">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <span className="bg-orange-100 text-[#FF4A00] text-xs font-extrabold px-3 py-1 rounded-full uppercase">
+                    Validación Estricta de Backend Activa
+                  </span>
+                  <button onClick={() => setSecurityAlert(null)} className="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+                </div>
+                <h3 className="text-lg font-extrabold text-[#0F172A] mb-2">{securityAlert.title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed mb-5">{securityAlert.message}</p>
+                <div className="flex justify-end gap-3">
+                  <button onClick={() => setSecurityAlert(null)} className="px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-bold">Cerrar</button>
+                  {securityAlert.whatsappUrl && (
+                    <a href={securityAlert.whatsappUrl} target="_blank" rel="noopener noreferrer" className="bg-[#0F172A] hover:bg-[#FF4A00] text-white font-extrabold px-5 py-2.5 rounded-xl text-sm border border-[#FF4A00] transition">
+                      Evaluar con un Asesor por WhatsApp →
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <main className="flex-1">
+            {activeTab === "inicio" && (
+              <div>
+                <section className="bg-gradient-to-b from-white via-[#F8FAFC] to-white border-b border-slate-200">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 grid lg:grid-cols-12 gap-10 items-center">
+                    <div className="lg:col-span-7 space-y-6">
+                      <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-200 text-[#FF4A00] px-4 py-1.5 rounded-full text-xs font-extrabold uppercase">
+                        Concepto 2 · Clean Athletic • ...Fitness sin límites de edad..
+                      </div>
+                      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] leading-[1.08] font-display">
+                        Entrena con propósito, <span className="text-[#FF4A00]">fuerza y salud articular</span> a cualquier edad.
+                      </h1>
+                      <p className="text-lg text-slate-600 leading-relaxed max-w-2xl">
+                        En <strong>Bassfit</strong> nuestro enfoque principal está en transformar tu vida mediante <strong className="text-[#FF4A00]">planes de entrenamiento personalizados y asesoría directa con entrenadores</strong>, complementados con el mejor <strong>equipamiento deportivo y suplementación</strong> seleccionada.
+                      </p>
+                      <div className="flex flex-wrap gap-4 pt-2">
+                        <button onClick={() => setActiveTab("entrenamientos")} className="bg-[#FF4A00] hover:bg-[#E04000] text-white font-extrabold px-7 py-4 rounded-xl text-base shadow-orangeGlow transition">
+                          Explorar Planes de Entrenamiento →
+                        </button>
+                        <button onClick={() => setActiveTab("tienda")} className="bg-[#0F172A] hover:bg-slate-800 text-white font-bold px-6 py-4 rounded-xl text-base transition">
+                          Ver Catálogo de Productos (47)
+                        </button>
+                      </div>
+                    </div>
+                    <div className="lg:col-span-5">
+                      <div className="bg-white p-4 rounded-3xl shadow-xl border border-slate-200">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-3">
+                            <img src="./images/products/kit-de-5-ligas-elasticas-1.jpg" className="w-full h-48 object-cover rounded-2xl" />
+                            <img src="./images/products/pesas-rusas-1.jpg" className="w-full h-36 object-cover rounded-2xl" />
+                          </div>
+                          <div className="space-y-3 pt-4">
+                            <img src="./images/products/banca-inclinada-1.jpg" className="w-full h-36 object-cover rounded-2xl" />
+                            <img src="./images/products/maleta-de-pesas-1.jpg" className="w-full h-48 object-cover rounded-2xl" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="py-14 bg-white">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="mb-8">
+                      <span className="text-xs font-extrabold uppercase text-[#FF4A00] bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
+                        Entrenamientos & Estilo de Vida Activo
+                      </span>
+                      <h2 className="text-3xl font-black text-[#0F172A] mt-2 font-display">Programas de Entrenamiento Personalizados</h2>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {TRAINING_PROGRAMS.map((prog) => (
+                        <div key={prog.id} className="rounded-3xl p-6 border-2 border-slate-200 hover:border-[#FF4A00] bg-[#F8FAFC] flex flex-col justify-between">
+                          <div>
+                            <span className="bg-[#0F172A] text-white text-[11px] font-extrabold px-3 py-1 rounded-full uppercase">{prog.badge}</span>
+                            <h3 className="text-xl font-black text-[#0F172A] mt-3">{prog.title}</h3>
+                            <p className="text-sm font-bold text-[#FF4A00] mt-1">{prog.subtitle}</p>
+                            <p className="text-xs text-slate-600 mt-2">{prog.description}</p>
+                          </div>
+                          <div className="mt-5 pt-4 border-t border-slate-200 flex items-center justify-between">
+                            <span className="text-2xl font-black text-[#0F172A]">S/ {prog.priceMonthly} <small className="text-xs font-normal text-slate-500">/ mes</small></span>
+                            <a href={buildWhatsAppCoachUrl(prog.title)} target="_blank" rel="noopener noreferrer" className="bg-[#FF4A00] text-white text-xs font-extrabold px-5 py-3 rounded-xl">
+                              Hablar con Entrenador →
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                <section className="py-14 bg-[#F8FAFC] border-t border-slate-200">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-wrap items-end justify-between mb-8 gap-4">
+                      <div>
+                        <span className="text-xs font-extrabold uppercase text-[#0F172A] bg-white px-3 py-1 rounded-full border border-slate-200">
+                          Tienda Oficial Bassfit · Equipamiento & Suplementos
+                        </span>
+                        <h2 className="text-3xl font-black text-[#0F172A] mt-2 font-display">Todos los Productos Disponibles ({BASSFIT_PRODUCTS.length})</h2>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {PRODUCT_CATEGORIES.map((cat) => (
+                          <button
+                            key={cat.slug}
+                            onClick={() => setSelectedCategory(cat.slug)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold ${selectedCategory === cat.slug ? "bg-[#0F172A] text-white" : "bg-white text-slate-700 border border-slate-200"}`}
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                      {filteredProducts.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          onOpenDetail={() => setSelectedProduct(product)}
+                          onAddToCart={() => handleAddToCart(product)}
+                          onTestBackendGuard={() => handleTestBackendSupplementGuard(product)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {activeTab === "entrenamientos" && (
+              <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+                <div className="bg-[#0F172A] text-white rounded-3xl p-8">
+                  <span className="bg-[#FF4A00] text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase">Entrenamiento & Bienestar Activo</span>
+                  <h1 className="text-3xl sm:text-4xl font-black mt-3 font-display">Planes de Entrenamiento & Derivación Directa a Entrenadores</h1>
+                  <p className="text-slate-300 text-sm mt-2">Selecciona tu programa o llena el formulario para comunicarte con tu coach de Bassfit.</p>
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {TRAINING_PROGRAMS.map((prog) => (
+                    <div key={prog.id} className="bg-[#F8FAFC] p-6 rounded-3xl border border-slate-200 flex flex-col justify-between">
+                      <div>
+                        <span className="bg-[#FF4A00] text-white text-xs font-extrabold px-3 py-1 rounded-full">{prog.badge}</span>
+                        <h2 className="text-2xl font-black mt-3">{prog.title}</h2>
+                        <p className="text-sm text-slate-600 mt-2">{prog.description}</p>
+                        <ul className="mt-4 space-y-1.5">
+                          {prog.includes.map((inc, i) => (
+                            <li key={i} className="text-xs text-slate-700">✓ {inc}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between items-center">
+                        <span className="text-2xl font-black">S/ {prog.priceMonthly}/mes</span>
+                        <a href={buildWhatsAppCoachUrl(prog.title, coachForm)} target="_blank" rel="noopener noreferrer" className="bg-[#0F172A] hover:bg-[#FF4A00] text-white font-extrabold px-5 py-3 rounded-xl text-xs border border-[#FF4A00] transition">
+                          Derivar con Coach por WhatsApp →
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "tienda" && (
+              <div className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {PRODUCT_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.slug}
+                      onClick={() => setSelectedCategory(cat.slug)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-extrabold ${selectedCategory === cat.slug ? "bg-[#0F172A] text-white" : "bg-[#F8FAFC] text-slate-700 border border-slate-200"}`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onOpenDetail={() => setSelectedProduct(product)}
+                      onAddToCart={() => handleAddToCart(product)}
+                      onTestBackendGuard={() => handleTestBackendSupplementGuard(product)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "comunidad" && (
+              <div className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                <div className="bg-[#F8FAFC] p-8 rounded-3xl border border-slate-200">
+                  <span className="bg-orange-100 text-[#FF4A00] text-xs font-extrabold px-3 py-1 rounded-full">
+                    Formato Evergreen SEO · Sin Fechas · Sin Comentarios
+                  </span>
+                  <h1 className="text-3xl font-black mt-2 font-display">Comunidad & Tribu Bassfit</h1>
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {EVERGREEN_ARTICLES.map((art) => (
+                    <div key={art.id} className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm p-6 space-y-4">
+                      <img src={art.heroImage} className="w-full h-52 object-cover rounded-2xl" />
+                      <div className="text-xs font-extrabold text-[#FF4A00]">🎬 Video Intro ({art.shortVideoDuration}): {art.shortVideoTitle}</div>
+                      <h2 className="text-xl font-black">{art.title}</h2>
+                      <p className="text-sm text-slate-600">{art.seoExcerpt}</p>
+                      <button onClick={() => setSelectedArticle(art)} className="bg-[#0F172A] text-white text-xs font-extrabold px-4 py-2.5 rounded-xl">
+                        Ver Guía + Productos Vinculados →
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
+
+          {selectedProduct && (
+            <div className="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl my-8">
+                <div className="flex justify-between items-center border-b pb-3 mb-5">
+                  <span className="bg-[#0F172A] text-white text-xs font-bold px-3 py-1 rounded-full">{selectedProduct.categoryLabel}</span>
+                  <button onClick={() => setSelectedProduct(null)} className="font-bold text-lg">✕</button>
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <img src={selectedProduct.images[0]} className="w-full h-64 object-contain rounded-2xl border border-slate-200 bg-white p-4" />
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-black">{selectedProduct.name}</h2>
+                    <div className="text-3xl font-black text-[#FF4A00]">S/ {selectedProduct.price}</div>
+                    <p className="text-sm text-slate-600">{selectedProduct.shortDescription}</p>
+                    <div className="bg-orange-50 p-3 rounded-xl text-xs">
+                      <strong>💡 Tip del Coach Bassfit:</strong> {selectedProduct.coachTip}
+                    </div>
+                    {selectedProduct.saleMode === "direct_cart" ? (
+                      <button
+                        onClick={() => { handleAddToCart(selectedProduct); setSelectedProduct(null); }}
+                        className="w-full bg-[#FF4A00] text-white font-extrabold py-3.5 rounded-xl text-sm"
+                      >
+                        + Añadir al Carrito Easy Pay (S/ {selectedProduct.price})
+                      </button>
+                    ) : (
+                      <a
+                        href={buildWhatsAppAdvisorUrl(selectedProduct)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-[#0F172A] hover:bg-[#FF4A00] text-white font-extrabold py-3.5 rounded-xl text-sm border-2 border-[#FF4A00] block text-center transition"
+                      >
+                        Evaluar con Asesor por WhatsApp →
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {selectedArticle && (
+            <div className="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl my-8 space-y-4">
+                <div className="flex justify-between items-center border-b pb-3">
+                  <span className="bg-orange-50 text-[#0F172A] text-xs font-bold px-3 py-1 rounded-full">
+                    Artículo Evergreen SEO · Sin fechas · Sin comentarios
+                  </span>
+                  <button onClick={() => setSelectedArticle(null)} className="font-bold text-lg">✕</button>
+                </div>
+                <h2 className="text-2xl font-black">{selectedArticle.title}</h2>
+                {selectedArticle.contentSections.map((s, i) => (
+                  <div key={i}>
+                    <h3 className="font-extrabold text-base">{s.heading}</h3>
+                    <p className="text-sm text-slate-600">{s.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {isCartOpen && (
+            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-end">
+              <div className="bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto">
+                <div>
+                  <div className="flex justify-between items-center border-b pb-4 mb-4">
+                    <h3 className="text-lg font-black">Carrito Directo Easy Pay</h3>
+                    <button onClick={() => setIsCartOpen(false)} className="font-bold">✕</button>
+                  </div>
+                  {checkoutStep === "cart" && cart.map((item) => (
+                    <div key={item.product.id} className="flex items-center justify-between gap-3 py-3 border-b">
+                      <img src={item.product.images[0]} className="w-14 h-14 rounded-xl object-cover" />
+                      <div className="flex-1">
+                        <div className="text-xs font-bold">{item.product.name}</div>
+                        <div className="text-xs text-[#FF4A00] font-bold">S/ {item.product.price} x {item.quantity}</div>
+                      </div>
+                      <div className="font-black text-sm">S/ {item.product.price * item.quantity}</div>
+                    </div>
+                  ))}
+                  {checkoutStep === "form" && (
+                    <form onSubmit={handleProcessEasyPayCheckout} className="space-y-3">
+                      <input required placeholder="Nombre Completo" className="w-full px-3 py-2 border rounded-xl text-sm" />
+                      <input required type="email" placeholder="Correo Electrónico" className="w-full px-3 py-2 border rounded-xl text-sm" />
+                      <input required placeholder="Dirección de Entrega" className="w-full px-3 py-2 border rounded-xl text-sm" />
+                      <button type="submit" className="w-full bg-[#FF4A00] text-white font-extrabold py-3 rounded-xl text-sm">
+                        Confirmar Pago S/ {cartTotal} en Easy Pay →
+                      </button>
+                    </form>
+                  )}
+                  {checkoutStep === "success" && orderConfirmation && (
+                    <div className="bg-orange-50 border border-orange-400 p-4 rounded-2xl text-center space-y-2">
+                      <div className="font-black text-[#0F172A]">¡Pedido Confirmado!</div>
+                      <div className="text-xs">Orden: {orderConfirmation.orderReference}</div>
+                    </div>
+                  )}
+                </div>
+                {checkoutStep === "cart" && cart.length > 0 && (
+                  <div className="pt-4 border-t space-y-3">
+                    <div className="flex justify-between font-black text-base">
+                      <span>Total Easy Pay</span>
+                      <span>S/ {cartTotal}</span>
+                    </div>
+                    <button onClick={() => setCheckoutStep("form")} className="w-full bg-[#FF4A00] text-white font-extrabold py-3.5 rounded-xl text-sm">
+                      Proceder al Pago Easy Pay →
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>

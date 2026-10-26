@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bassfit-white: #ffffff;
+  --bassfit-slate: #f8fafc;
+  --bassfit-orange: #ff4a00;
+  --bassfit-navy: #0f172a;
+}
+
+body {
+  background-color: var(--bassfit-white);
+  color: var(--bassfit-navy);
+}
+
