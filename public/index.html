@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BASSFIT | Plataforma Web Headless — Concepto 2 (Clean Athletic)</title>
+  <title>BASSFIT | Catálogo Oficial de Implementos y Entrenamientos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
@@ -26,14 +26,15 @@
   <!-- React 18: Soporte Local Offline con Fallback CDN automático -->
   <script src="./vendor/react.production.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/react@18/umd/react.production.min.js'"></script>
   <script src="./vendor/react-dom.production.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/react-dom@18/umd/react-dom.production.min.js'"></script>
-  </head>
+</head>
 <body class="bg-white text-[#0F172A] antialiased">
   <div id="root"></div>
 
   <script>
 const {
   useState,
-  useMemo
+  useMemo,
+  useEffect
 } = React;
 function resolveImg(src) {
   if (!src) return '';
@@ -43,175 +44,91 @@ function resolveImg(src) {
 }
 function buildWhatsAppProductUrl(product) {
   if (!product) return 'https://wa.me/51967581481';
-  const text = 'Hola Bassfit ­ƒæï, deseo consultar y comprar: *' + product.name + '* (S/ ' + product.price + '). ┬┐Tienen disponibilidad inmediata y env├¡os?';
+  const text = 'Hola Bassfit 👋, deseo consultar y comprar: *' + product.name + '* (S/ ' + product.price + '). ¿Tienen disponibilidad inmediata y envíos?';
   return 'https://wa.me/51967581481?text=' + encodeURIComponent(text);
 }
-
-/**
- * ============================================================================
- * BASSFIT HEADLESS DATA LAYER & TIPOS ESTRICTOS (TypeScript)
- * ============================================================================
- * Incluye:
- * 1. Planes de Entrenamiento y Asesor├¡as (Prioridad  del sitio - Concepto 2 Clean Athletic)
- * 2. Cat├ílogo Completo con los 48 Productos Reales extra├¡dos del Google Drive de Bassfit
- *    + L├¡nea de Suplementos y Cuidado para el Doble Flujo de Compra (Carrito Easy Pay vs WhatsApp)
- * 3. Art├¡culos Evergreen SEO (┬½Noticias / Comunidad / Tribu┬╗) sin fechas ni comentarios,
- *    con vinculaci├│n bidireccional a productos y soporte de video corto introductorio.
- */
-
 const TRAINING_PROGRAMS = [{
   id: "prog-longevidad-fuerza",
-  title: "Fuerza & Longevidad Activa (+40 / Sin L├¡mites)",
-  subtitle: "Nuestro programa insignia: recupera masa muscular, movilidad articular y energ├¡a vital a cualquier edad.",
-  badge: "M├üS SOLICITADO ┬À FILOSOF├ìA BASSFIT",
+  title: "Fuerza & Longevidad Activa (+40 / Sin Límites)",
+  subtitle: "Nuestro programa insignia: recupera masa muscular, movilidad articular y energía vital a cualquier edad.",
+  badge: "MÁS SOLICITADO · FILOSOFÍA BASSFIT",
   level: "Todos los niveles (Adaptado)",
   duration: "Plan Mensual / Trimestral",
   modality: "Online Personalizado + Seguimiento 1 a 1",
-  targetAudience: "Adultos de 35 a 70+ a├▒os que buscan salud articular, fuerza funcional y vitalidad sin lesiones.",
+  targetAudience: "Adultos de 35 a 70+ años que buscan salud articular, fuerza funcional y vitalidad sin lesiones.",
   priceMonthly: 180,
-  description: "Fieles a nuestro lema ┬½...fitness sin l├¡mites de edad..┬╗, este programa combina entrenamiento de fuerza progresivo en casa o gimnasio con trabajo de estabilidad y movilidad articular.",
-  includes: ["Evaluaci├│n funcional inicial por videollamada (movilidad, historial y objetivos)", "Rutina semanal estructurada en app/plataforma con videos demostrativos paso a paso", "Correcci├│n de t├®cnica por video v├¡a WhatsApp directo con tu entrenador Bassfit", "Gu├¡a de equipamiento ├│ptimo en casa y orientaci├│n nutricional base"],
-  recommendedProductSlugs: ["kit-ligas-elasticas", "mancuernas-pvc", "disco-de-balance", "mat-de-yoga"],
+  description: "Fieles a nuestro lema «...fitness sin límites de edad..», este programa combina entrenamiento de fuerza progresivo en casa o gimnasio con trabajo de estabilidad y movilidad articular.",
+  includes: ["Evaluación funcional inicial por videollamada", "Rutina semanal estructurada con videos paso a paso", "Corrección de técnica por video vía WhatsApp directo", "Guía de equipamiento óptimo en casa"],
+  recommendedProductSlugs: ["kit-ligas-elasticas", "mat-de-yoga-6mm-10mm-15mm", "pesas-rusas-pvc", "pelota-pilates-inflador"],
   coachName: "Head Coach Bassfit",
   coachSpecialty: "Especialista en Fuerza Funcional & Salud Articular",
   image: "./images/products/kit-ligas-elasticas-1.jpg",
   highlighted: true
 }, {
   id: "prog-hipertrofia-homegym",
-  title: "Hipertrofia & Tonificaci├│n Inteligente (Home Gym / Gym)",
-  subtitle: "Construcci├│n muscular estructurada por sobrecarga progresiva con barras, mancuernas y lastre.",
+  title: "Hipertrofia & Tonificación Inteligente (Home Gym / Gym)",
+  subtitle: "Construcción muscular estructurada por sobrecarga progresiva con barras, mancuernas y lastre.",
   badge: "ALTO RENDIMIENTO",
   level: "Intermedio / Avanzado",
   duration: "Ciclos de 8 a 12 semanas",
-  modality: "H├¡brido / Online con Control Semanal",
-  targetAudience: "Personas que desean transformar su composici├│n corporal, ganar fuerza real y optimizar cada serie.",
+  modality: "Híbrido / Online con Control Semanal",
+  targetAudience: "Personas que desean transformar su composición corporal, ganar fuerza real y optimizar cada serie.",
   priceMonthly: 210,
-  description: "Periodizaci├│n cient├¡fica del entrenamiento de fuerza. Dise├▒amos tu microciclo seg├║n el equipamiento que tengas disponible (banca inclinada, barras, pesas rusas o gimnasio completo).",
-  includes: ["Planificaci├│n de cargas, repeticiones en rec├ímara (RIR) y tempos de ejecuci├│n", "Ajuste quincenal de volumen de entrenamiento seg├║n progreso real", "Protocolo de activaci├│n de core y prevenci├│n de molestias lumbares", "Evaluaci├│n consultiva para suplementaci├│n deportiva segura"],
-  recommendedProductSlugs: ["banca-inclinada", "maleta-de-pesas", "pesas-rusas", "chaleco-cinturon-de-lastre"],
-  coachName: "Staff T├®cnico Bassfit",
-  coachSpecialty: "Preparaci├│n F├¡sica & Recomposici├│n Corporal",
+  description: "Periodización científica del entrenamiento de fuerza. Diseñamos tu microciclo según el equipamiento que tengas disponible.",
+  includes: ["Planificación de cargas, repeticiones en recámara (RIR) y tempos", "Ajustes semanales basados en tu progreso", "Protocolos específicos para piernas, torso y brazos", "Soporte directo con el entrenador por WhatsApp"],
+  recommendedProductSlugs: ["promo-barra-manubrios-y-discos-20kg-30kg-40kg", "set-de-mancuernas", "cinturon-de-lastre", "chaleco-de-lastre"],
+  coachName: "Coach de Hipertrofia Bassfit",
+  coachSpecialty: "Biomecánica y Sobrecarga Progresiva",
   image: "./images/products/set-de-mancuernas-1.jpg",
   highlighted: false
 }, {
-  id: "prog-combat-conditioning",
-  title: "Combat Conditioning, Boxeo & Coordinaci├│n",
-  subtitle: "Potencia cardiovascular, reflejos, agilidad de pies y descarga de estr├®s con metodolog├¡a de combate.",
-  badge: "QUEMA CAL├ôRICA & AGILIDAD",
+  id: "prog-box-conditioning",
+  title: "Boxing Conditioning & Quema Calórica Funcional",
+  subtitle: "Acondicionamiento físico de alto impacto, coordinación visomotora y reflejos de combate sin lesiones.",
+  badge: "CARDIO & REFLEJOS",
   level: "Principiante a Avanzado",
-  duration: "Plan Mensual",
-  modality: "Sesiones Guiadas + Programaci├│n Semanal",
-  targetAudience: "Quienes buscan un entrenamiento din├ímico, explosivo y motivador que mejore reflejos y resistencia.",
+  duration: "Plan Mensual Continuo",
+  modality: "100% Online con Videos de Alta Definición",
+  targetAudience: "Quienes buscan quemar grasa, liberar estrés y mejorar su agilidad con entrenamientos dinámicos y divertidos.",
   priceMonthly: 160,
-  description: "Integra trabajo t├®cnico de boxeo, intervalos metab├│licos (HIIT), escalera de coordinaci├│n pliom├®trica y pelota de reflejos para llevar tu capacidad aer├│bica y agilidad al siguiente nivel.",
-  includes: ["Circuitos metab├│licos de 40 minutos de alta adherencia", "Drills de coordinaci├│n oculomanual y juego de piernas", "Acondicionamiento de core y hombros para golpeo seguro", "Asesor├¡a en elecci├│n de guantes, vendas y protecci├│n articular"],
-  recommendedProductSlugs: ["guantes-de-box", "pera-de-boxeo", "escalera-de-coordinacion", "pelota-de-reflejos"],
-  coachName: "Coach de Combate & Agilidad",
-  coachSpecialty: "Boxing Fitness & Pliometr├¡a",
-  image: "./images/products/pera-de-boxeo-1.jpg",
-  highlighted: false
-}, {
-  id: "prog-movilidad-pilates-core",
-  title: "Movilidad, Pilates & Rehabilitaci├│n Funcional",
-  subtitle: "Libera tensi├│n de espalda, fortalece tu centro (Core) y recupera flexibilidad profunda.",
-  badge: "BIENESTAR & POSTURA",
-  level: "Todos los niveles",
-  duration: "Plan Mensual",
-  modality: "Online a tu ritmo + Check-in semanal",
-  targetAudience: "Profesionales con jornadas frente al computador, deportistas que buscan descarga muscular y adultos mayores.",
-  priceMonthly: 150,
-  description: "Sesiones enfocadas en higiene de columna, control postural, respiraci├│n consciente y fortalecimiento sin impacto articular utilizando aro de yoga, pelota de pilates y bandas suaves.",
-  includes: ["Rutinas de 25 a 45 minutos para ma├▒ana o noche", "Protocolos espec├¡ficos para alivio cervical, dorsal y lumbar", "Trabajo de equilibrio propioceptivo para prevenci├│n de ca├¡das y esguinces", "Acompa├▒amiento cercano por WhatsApp"],
-  recommendedProductSlugs: ["aro-de-yoga", "pelota-de-pilates", "ladrillo-de-yoga", "correa-de-yoga"],
-  coachName: "Especialista en Movilidad Bassfit",
-  coachSpecialty: "Pilates Terap├®utico, Yoga & Propiocepci├│n",
-  image: "./images/products/aro-de-yoga-1.jpg",
+  description: "Aprende combinaciones reales de boxeo, trabajo de saco, reflejos y pliometría funcional desde casa. No necesitas experiencia previa.",
+  includes: ["4 sesiones semanales de 35 a 45 minutos de alta intensidad", "Módulos progresivos de técnica de guardia y golpes", "Rounds específicos con saco de boxeo y pelota de reflejos", "Comunidad privada de motivación y retos mensuales"],
+  recommendedProductSlugs: ["saco-de-boxeo-lleno", "vendas-de-boxeo", "pelota-de-reflejos"],
+  coachName: "Coach de Combate Bassfit",
+  coachSpecialty: "Técnica de Boxeo y Preparación Física",
+  image: "./images/products/saco-de-boxeo-lleno-1.jpg",
   highlighted: false
 }];
 const EVERGREEN_ARTICLES = [{
-  id: "art-1",
-  slug: "entrenamiento-fuerza-despues-de-los-40-guia-definitiva",
-  title: "Entrenamiento de fuerza sin l├¡mites de edad: c├│mo proteger tus articulaciones y ganar m├║sculo en casa",
-  pillarCategory: "Longevidad Activa",
+  id: "art-longevidad-fuerza",
+  title: "Por qué el entrenamiento de fuerza es el seguro de vida más potente después de los 35 años",
+  pillarCategory: "Longevidad y Salud Muscular",
   readingTime: "5 min de lectura",
-  seoExcerpt: "Descubre por qu├® el entrenamiento de fuerza progresivo es el verdadero seguro de vida metab├│lico y articular, y qu├® implementos necesitas para empezar de forma segura.",
-  heroImage: "./images/products/promo-barra-manubrios-y-discos-20kg-30kg-40kg-1.jpg",
-  shortVideoTitle: "3 ejercicios clave con mancuernas y bandas para proteger rodillas y espalda",
-  shortVideoDuration: "01:15",
-  keyTakeaways: ["La masa muscular es el ├│rgano endocrino m├ís importante para mantener la vitalidad y sensibilidad a la insulina.", "Combinar resistencia el├ística (bandas cerradas) con peso libre (mancuernas o pesas rusas) reduce el estr├®s articular.", "La t├®cnica y el control exc├®ntrico siempre superan al peso excesivo."],
+  seoExcerpt: "La masa muscular es un órgano endocrino que regula la glucosa, la densidad ósea y previene la fragilidad metabólica.",
   contentSections: [{
-    heading: "Por qu├® la fuerza no tiene edad",
-    body: "En Bassfit trabajamos bajo una premisa clara: el cuerpo humano conserva su capacidad de adaptaci├│n neuromuscular durante toda la vida. A partir de los 35 a├▒os, si no estimulamos la musculatura contra una resistencia externa, perdemos entre un 3% y un 8% de masa muscular por d├®cada. La buena noticia es que este proceso es totalmente reversible mediante un programa estructurado."
+    heading: "1. La sarcopenia no es inevitable: es reversible",
+    body: "A partir de la cuarta década de vida, se pierde entre un 3% y un 8% de masa muscular por década si no existe un estímulo mecánico de fuerza. Levantar peso o usar bandas de resistencia frena y revierte esta pérdida radicalmente."
   }, {
-    heading: "Progresi├│n inteligente: de bandas el├ísticas a barras y mancuernas",
-    body: "Para lograr adherencia sin lesiones, recomendamos iniciar con patrones b├ísicos de movimiento (sentadilla a caj├│n, empuje, tracci├│n y bisagra de cadera) utilizando kits de ligas el├ísticas y mancuernas recubiertas de vinilo/PVC, avanzando progresivamente hacia maletas de pesas de 20 kg y banca inclinada."
-  }],
-  relatedProductSlugs: ["maleta-de-pesas", "banca-inclinada", "kit-ligas-elasticas", "pesas-rusas", "proteina-whey-isolate-bassfit"]
+    heading: "2. Densidad mineral ósea y articulaciones resistentes",
+    body: "Los huesos se adaptan a las fuerzas de tracción muscular. Entrenar fuerza con sentadillas, dominadas asistidas y peso muerto estimula a los osteoblastos, blindando articulaciones y previniendo la osteoporosis."
+  }, {
+    heading: "3. Filosofía Bassfit: Fitness sin límites de edad",
+    body: "Nunca es tarde ni temprano para empezar. Con técnica estricta, progresión gradual y el equipamiento adecuado, el progreso físico es constante a cualquier edad."
+  }]
 }, {
-  id: "art-2",
-  slug: "suplementacion-inteligente-cuando-necesitas-evaluacion-personalizada",
-  title: "Suplementaci├│n deportiva responsable: por qu├® cada cuerpo requiere una evaluaci├│n previa antes de elegir",
-  pillarCategory: "Nutrici├│n & Suplementaci├│n",
+  id: "art-recuperacion-fascial",
+  title: "Liberación miofascial y movilidad articular con Foam Roller y Yoga Mat",
+  pillarCategory: "Recuperación y Movilidad",
   readingTime: "4 min de lectura",
-  seoExcerpt: "Prote├¡na aislada, creatina monohidratada, col├ígeno hidrolizado o geles reductores: aprende c├│mo elegir con el respaldo de un asesor especializado seg├║n tu objetivo real.",
-  heroImage: "./images/products/crema-corporal-1.jpg",
-  shortVideoTitle: "┬┐Por qu├® en Bassfit te asesoramos por WhatsApp antes de recomendar un suplemento?",
-  shortVideoDuration: "00:58",
-  keyTakeaways: ["Un suplemento nunca reemplaza un plan de entrenamiento bien estructurado, pero multiplica la recuperaci├│n cuando est├í bien indicado.", "En Bassfit aplicamos venta consultiva en toda nuestra l├¡nea de suplementos para validar tolerancia digestiva, nivel de actividad y objetivos.", "La combinaci├│n de creatina monohidratada y prote├¡na de suero es el est├índar de oro con mayor respaldo cient├¡fico."],
+  seoExcerpt: "Aprende a descontracturar la fascia torácica, banda iliotibial y zona lumbar con técnicas guiadas por especialistas.",
   contentSections: [{
-    heading: "El valor de la Venta Consultiva en suplementaci├│n",
-    body: "Comprar un suplemento al azar suele llevar a gastos innecesarios o dosis incorrectas. Por eso en Bassfit hemos eliminado la compra a ciegas de suplementos: al hacer clic en cualquiera de nuestras f├│rmulas, un asesor eval├║a contigo por WhatsApp tu carga de entrenamiento actual, horarios y requerimientos antes de despachar tu pedido."
+    heading: "1. Qué es la fascia y por qué se tensa",
+    body: "La fascia es la red conectiva que envuelve músculos y articulaciones. El sedentarismo prolongado o el entrenamiento intenso provocan adherencias y rigidez postural."
   }, {
-    heading: "Sinergia entre entrenamiento t├®rmico, cuidado corporal y nutrici├│n",
-    body: "Tanto si utilizas cremas corporales activadoras o fajas de soporte durante tus sesiones cardiovasculares como si buscas optimizar tu s├¡ntesis proteica post-entreno, la clave est├í en personalizar el protocolo."
-  }],
-  relatedProductSlugs: ["proteina-whey-isolate-bassfit", "creatina-monohidratada-micronizada", "colageno-hidrolizado-magnesio-articular", "crema-corporal", "fajas-reductoras"]
-}, {
-  id: "art-3",
-  slug: "boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares",
-  title: "Boxeo fitness y agilidad en casa: c├│mo armar tu estaci├│n de combate y coordinaci├│n en pocos metros",
-  pillarCategory: "Entrenamiento & T├®cnica",
-  readingTime: "4 min de lectura",
-  seoExcerpt: "Mejora tus reflejos, coordinaci├│n oculomanual y capacidad pulmonar integrando pera de boxeo, pelota de reflejos y escalera pliom├®trica en tus rutinas semanales.",
-  heroImage: "./images/products/saco-de-boxeo-lleno-1.jpg",
-  shortVideoTitle: "Circuito de 15 minutos con Escalera de Coordinaci├│n + Pera de Boxeo",
-  shortVideoDuration: "01:30",
-  keyTakeaways: ["El trabajo de golpeo y esquiva activa el core profundo en rotaci├│n mucho m├ís que los abdominales tradicionales.", "La pelota de reflejos y la pera fija mejoran la velocidad de reacci├│n y reducen el estr├®s mental en minutos.", "Elegir el onzaje correcto de guantes y usar mu├▒equeras protege tus metacarpianos y mu├▒ecas."],
-  contentSections: [{
-    heading: "Entrenamiento neuromotor: cuerpo y mente en sincron├¡a",
-    body: "El entrenamiento de combate sin contacto o con implementos (pera fija, pelota de reflejos, manoplas) exige concentraci├│n total. Cada combinaci├│n de golpes y desplazamientos en la escalera pliom├®trica estimula la neuroplasticidad y quema hasta 600 kcal por sesi├│n."
-  }, {
-    heading: "Equipamiento esencial para entrenar seguro",
-    body: "Aseg├║rate siempre de proteger tus articulaciones con guantes de boxeo o MMA de espuma de alta densidad, careta si realizas sparring t├®cnico y protector bucal anat├│mico."
-  }],
-  relatedProductSlugs: ["guantes-de-box", "pera-de-boxeo", "pelota-de-reflejos", "escalera-de-coordinacion", "guantes-mma"]
-}, {
-  id: "art-4",
-  slug: "movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor",
-  title: "Propiocepci├│n, Yoga y liberaci├│n miofascial: el secreto para entrenar fuerte sin dolor de espalda ni rodillas",
-  pillarCategory: "Recuperaci├│n & Movilidad",
-  readingTime: "5 min de lectura",
-  seoExcerpt: "Aprende a utilizar la rueda de yoga, el disco de balance inestable, el ladrillo de apoyo y el masajeador muscular para acelerar tu recuperaci├│n entre entrenamientos.",
-  heroImage: "./images/products/mat-de-yoga-6mm-10mm-15mm-1.jpg",
-  shortVideoTitle: "Rutina de 10 minutos con Rueda de Yoga y Disco de Balance para descompresi├│n lumbar",
-  shortVideoDuration: "01:10",
-  keyTakeaways: ["Dedicar 10 minutos a la extensi├│n tor├ícica con el Aro de Yoga contrarresta horas de postura encorvada.", "Los discos de balance e inestabilidad fortalecen los ligamentos del tobillo y la rodilla mediante microajustes reflejos.", "La descarga muscular con masajeador post-entreno reduce el dolor muscular tard├¡o (DOMS)."],
-  contentSections: [{
-    heading: "Por qu├® la estabilidad precede a la fuerza",
-    body: "Un m├║sculo no puede aplicar su m├íxima fuerza si la articulaci├│n sobre la que act├║a es inestable. Incorporar ejercicios sobre disco de balance o pelota de pilates despierta la musculatura estabilizadora profunda antes de pasar a las pesas."
-  }, {
-    heading: "Recuperaci├│n activa en casa",
-    body: "Al finalizar tu sesi├│n, utiliza la correa de algod├│n de yoga para estiramientos asistidos de isquiotibiales y aplica el masajeador Blueidea en las zonas de mayor sobrecarga."
-  }],
-  relatedProductSlugs: ["aro-de-yoga", "mat-de-yoga", "disco-de-balance", "pelota-de-pilates", "masajeador-blueidea"]
+    heading: "2. Protocolo de 10 minutos con Foam Roller",
+    body: "Desliza de 30 a 60 segundos por zona muscular (gemelos, cuádriceps, glúteos y espalda alta) con respiración profunda para oxigenar tejidos y acelerar la recuperación articular."
+  }]
 }];
-
-/**
- * CAT├üLOGO COMPLETO BASSFIT:
- * Incluye los 46 productos reales de las carpetas de Google Drive del cliente +
- * la l├¡nea de Suplementos (Prote├¡na, Creatina, Col├ígeno, Pre-entreno + Crema Corporal Consultiva)
- * para demostrar de forma ├¡ntegra el Doble Flujo Comercial (Direct Cart Easy Pay vs WhatsApp Consultivo).
- */
 const BASSFIT_PRODUCTS = [{
   "id": "wa-2812633812125031",
   "wcId": 1001,
@@ -224,17 +141,18 @@ const BASSFIT_PRODUCTS = [{
   "stock": 35,
   "sku": "BF-YG-001",
   "saleMode": "direct_cart",
-  "shortDescription": "Colchoneta de alta densidad antideslizante y 100% antibacteriana para yoga, pilates y ejercicios de suelo. Con funda o correas seg├║n grosor.",
-  "technicalSpecs": ["Material: PVC de alta densidad 100% antibacteriano y de f├ícil limpieza", "Grosor 6mm incluye funda protectora de transporte", "Grosor 10mm y 15mm incluye correas de transporte", "Precios seg├║n espesor: 6mm (S/ 38) | 10mm (S/ 48) | 15mm (S/ 58)", "Opci├│n Mat ecol├│gico 6mm libre de l├ítex y PVC: S/ 48", "Superficie texturizada para evitar resbalones y proporcionar m├íximo confort articular"],
+  "shortDescription": "Colchoneta de alta densidad antideslizante y 100% antibacteriana para yoga, pilates y ejercicios de suelo. Con funda o correas según grosor.",
+  "technicalSpecs": ["Material: PVC de alta densidad 100% antibacteriano y de fácil limpieza", "Grosor 6mm incluye funda protectora de transporte", "Grosor 10mm y 15mm incluye correas de transporte", "Precios según espesor: 6mm (S/ 38) | 10mm (S/ 48) | 15mm (S/ 58)", "Opción Mat ecológico 6mm libre de látex y PVC: S/ 48", "Superficie texturizada para evitar resbalones y proporcionar máximo confort articular"],
   "images": ["/images/products/mat-de-yoga-6mm-10mm-15mm-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": true,
   "relatedArticleSlugs": ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
-  "coachTip": "Para mayor durabilidad, limpia tu mat con un pa├▒o h├║medo despu├®s de cada sesi├│n y no lo dejes expuesto al sol directo."
+  "coachTip": "Para mayor durabilidad, limpia tu mat con un paño húmedo después de cada sesión y no lo dejes expuesto al sol directo.",
+  "image": "/images/products/mat-de-yoga-6mm-10mm-15mm-1.jpg"
 }, {
   "id": "wa-2943449319070793",
   "wcId": 1002,
-  "name": "Bandas El├ísticas Abiertas (Pack x3)",
+  "name": "Bandas Elásticas Abiertas (Pack x3)",
   "slug": "bandas-elasticas-abiertas",
   "categorySlug": "yoga-pilates",
   "categoryLabel": "Yoga & Pilates",
@@ -243,13 +161,13 @@ const BASSFIT_PRODUCTS = [{
   "stock": 50,
   "sku": "BF-YG-002",
   "saleMode": "direct_cart",
-  "shortDescription": "Pack de 3 bandas el├ísticas abiertas 100% l├ítex natural de 1.20m x 15cm para pilates, yoga, estiramientos, tonificaci├│n y rehabilitaci├│n articular.",
-  "technicalSpecs": ["Composici├│n: 100% l├ítex natural el├ístico de alta memoria", "Medidas en reposo: 1.20 metros de largo x 15 cm de ancho", "Pack incluye 3 bandas de distintas resistencias progresivas", "Permite tonificar m├║sculos, aumentar la flexibilidad y mejorar la postura", "Uso vers├ítil en interiores, hogar o al aire libre"],
+  "shortDescription": "Pack de 3 bandas elásticas abiertas 100% látex natural de 1.20m x 15cm para pilates, yoga, estiramientos, tonificación y rehabilitación articular.",
+  "technicalSpecs": ["Composición: 100% látex natural elástico de alta memoria", "Medidas en reposo: 1.20 metros de largo x 15 cm de ancho", "Pack incluye 3 bandas de distintas resistencias progresivas", "Permite tonificar músculos, aumentar la flexibilidad y mejorar la postura", "Uso versátil en interiores, hogar o al aire libre"],
   "images": ["/images/products/bandas-elasticas-abiertas-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": false,
   "relatedArticleSlugs": ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
-  "coachTip": "Excelente para activaci├│n de gl├║teos y rotadores externos de hombro antes de entrenar fuerza."
+  "coachTip": "Excelente para activación de glúteos y rotadores externos de hombro antes de entrenar fuerza."
 }, {
   "id": "wa-3961794157280739",
   "wcId": 1003,
@@ -262,13 +180,13 @@ const BASSFIT_PRODUCTS = [{
   "stock": 40,
   "sku": "BF-YG-003",
   "saleMode": "direct_cart",
-  "shortDescription": "Bloque de apoyo en goma EVA ecol├│gica de alta densidad, clave para mantener posturas correctas, ganar flexibilidad y rehabilitar lesiones.",
-  "technicalSpecs": ["Medidas est├índar: 23 cm x 15 cm x 8 cm", "Material: Goma EVA ecol├│gica reciclable, no t├│xica e impermeable", "Bordes biselados ergon├│micos para un agarre seguro y confortable", "Ligero, f├ícil de transportar y resistente al sudor", "Ideal para yoga, pilates, danza y alineaci├│n biomec├ínica"],
+  "shortDescription": "Bloque de apoyo en goma EVA ecológica de alta densidad, clave para mantener posturas correctas, ganar flexibilidad y rehabilitar lesiones.",
+  "technicalSpecs": ["Medidas estándar: 23 cm x 15 cm x 8 cm", "Material: Goma EVA ecológica reciclable, no tóxica e impermeable", "Bordes biselados ergonómicos para un agarre seguro y confortable", "Ligero, fácil de transportar y resistente al sudor", "Ideal para yoga, pilates, danza y alineación biomecánica"],
   "images": ["/images/products/ladrillo-de-yoga-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": false,
   "relatedArticleSlugs": ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
-  "coachTip": "Util├¡zalo bajo las manos en flexiones hacia adelante para evitar doblar excesivamente la columna lumbar."
+  "coachTip": "Utilízalo bajo las manos en flexiones hacia adelante para evitar doblar excesivamente la columna lumbar."
 }, {
   "id": "wa-3065097563533218",
   "wcId": 1004,
@@ -281,17 +199,17 @@ const BASSFIT_PRODUCTS = [{
   "stock": 30,
   "sku": "BF-YG-004",
   "saleMode": "direct_cart",
-  "shortDescription": "Bal├│n suizo antiexplosi├│n de PVC reforzado para entrenamiento de core, postura, pilates y rehabilitaci├│n muscular sin impacto en articulaciones.",
-  "technicalSpecs": ["Material: PVC de alta resistencia con tecnolog├¡a anti-burst (anti-revent├│n)", "OBSEQUIO: Inflador manual con adaptador incluido", "Precios seg├║n di├ímetro: 55cm (S/ 28) | 65cm (S/ 34) | 75cm (S/ 44) | 85cm (S/ 54)", "Colores disponibles: Rojo, Azul, Plateado", "Obliga al cuerpo a responder a la inestabilidad activando el core y quemando calor├¡as"],
+  "shortDescription": "Balón suizo antiexplosión de PVC reforzado para entrenamiento de core, postura, pilates y rehabilitación muscular sin impacto en articulaciones.",
+  "technicalSpecs": ["Material: PVC de alta resistencia con tecnología anti-burst (anti-reventón)", "OBSEQUIO: Inflador manual con adaptador incluido", "Precios según diámetro: 55cm (S/ 28) | 65cm (S/ 34) | 75cm (S/ 44) | 85cm (S/ 54)", "Colores disponibles: Rojo, Azul, Plateado", "Obliga al cuerpo a responder a la inestabilidad activando el core y quemando calorías"],
   "images": ["/images/products/pelota-pilates-inflador-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": true,
   "relatedArticleSlugs": ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
-  "coachTip": "Si mides entre 1.60m y 1.75m, el tama├▒o est├índar de 65cm es el ideal para mantener la cadera en ├íngulo de 90┬░."
+  "coachTip": "Si mides entre 1.60m y 1.75m, el tamaño estándar de 65cm es el ideal para mantener la cadera en ángulo de 90°."
 }, {
   "id": "wa-7845596032182031",
   "wcId": 1005,
-  "name": "Foam Roller de Liberaci├│n Miofascial",
+  "name": "Foam Roller de Liberación Miofascial",
   "slug": "foam-roller",
   "categorySlug": "yoga-pilates",
   "categoryLabel": "Yoga & Pilates",
@@ -300,13 +218,13 @@ const BASSFIT_PRODUCTS = [{
   "stock": 25,
   "sku": "BF-YG-005",
   "saleMode": "direct_cart",
-  "shortDescription": "Rodillo texturizado de masaje profundo para descompresi├│n de columna, estiramientos de fascia y recuperaci├│n activa post-entrenamiento.",
-  "technicalSpecs": ["Dise├▒o tridimensional con zonas de amortiguaci├│n para masaje de puntos gatillo", "Opciones de longitud: 35 cm (S/ 36) | 45 cm (S/ 56)", "Estructura interna r├¡gida indeformable que soporta alto peso corporal", "Ideal para descontracturar cu├ídriceps, gl├║teos, fascia lata y espalda"],
+  "shortDescription": "Rodillo texturizado de masaje profundo para descompresión de columna, estiramientos de fascia y recuperación activa post-entrenamiento.",
+  "technicalSpecs": ["Diseño tridimensional con zonas de amortiguación para masaje de puntos gatillo", "Opciones de longitud: 35 cm (S/ 36) | 45 cm (S/ 56)", "Estructura interna rígida indeformable que soporta alto peso corporal", "Ideal para descontracturar cuádriceps, glúteos, fascia lata y espalda"],
   "images": ["/images/products/foam-roller-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": false,
   "relatedArticleSlugs": ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
-  "coachTip": "Rueda despacio por 30-45 segundos en ├íreas tensas, manteniendo la respiraci├│n profunda para liberar la fascia."
+  "coachTip": "Rueda despacio por 30-45 segundos en áreas tensas, manteniendo la respiración profunda para liberar la fascia."
 }, {
   "id": "wa-5321507361213862",
   "wcId": 2001,
@@ -319,13 +237,13 @@ const BASSFIT_PRODUCTS = [{
   "stock": 20,
   "sku": "BF-FZ-001",
   "saleMode": "direct_cart",
-  "shortDescription": "Set integral de pesas con barra cromada (Recta, Z o W), manubrios texturizados y discos de acero fundido. Incluye evaluaci├│n t├®cnica de obsequio.",
-  "technicalSpecs": ["Barra Recta, Z o W a elecci├│n con seguros cromados", "02 Manubrios con texturizado antideslizante y collarines roscados", "Discos nacionales de acero fundido de alta durabilidad", "Opciones: 20kg solo mancuernas (S/ 128) | 20kg mancuernas + barra (S/ 203) | 30kg (S/ 253) | 40kg (S/ 303)", "Piezas adicionales: Barra individual (S/ 75), Manubrios (S/ 28), Disco x kg (S/ 5.00)", "OBSEQUIO: Evaluaci├│n de T├®cnica con Coach Bassfit"],
+  "shortDescription": "Set integral de pesas con barra cromada (Recta, Z o W), manubrios texturizados y discos de acero fundido. Incluye evaluación técnica de obsequio.",
+  "technicalSpecs": ["Barra Recta, Z o W a elección con seguros cromados", "02 Manubrios con texturizado antideslizante y collarines roscados", "Discos nacionales de acero fundido de alta durabilidad", "Opciones: 20kg solo mancuernas (S/ 128) | 20kg mancuernas + barra (S/ 203) | 30kg (S/ 253) | 40kg (S/ 303)", "Piezas adicionales: Barra individual (S/ 75), Manubrios (S/ 28), Disco x kg (S/ 5.00)", "OBSEQUIO: Evaluación de Técnica con Coach Bassfit"],
   "images": ["/images/products/promo-barra-manubrios-y-discos-20kg-30kg-40kg-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": true,
   "relatedArticleSlugs": ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
-  "coachTip": "Aseg├║rate de ajustar los collares antes de cada levantamiento pesado y aprovecha la barra Z para cuidar tus mu├▒ecas en curls."
+  "coachTip": "Asegúrate de ajustar los collares antes de cada levantamiento pesado y aprovecha la barra Z para cuidar tus muñecas en curls."
 }, {
   "id": "wa-2973371469377261",
   "wcId": 2002,
@@ -338,8 +256,8 @@ const BASSFIT_PRODUCTS = [{
   "stock": 15,
   "sku": "BF-FZ-002",
   "saleMode": "direct_cart",
-  "shortDescription": "Malet├¡n organizador port├ítil con mancuernas cromadas, barra adaptadora extensible de 60cm y discos intercambiables de acero cromado.",
-  "technicalSpecs": ["12 Discos cromados de precisi├│n: 4 x 0.50kg, 4 x 1.25kg, 4 x 2.50kg", "02 Mancuernas cromadas de 35 cm con agarre ergon├│mico", "01 Barra adaptadora extensible de 60 cm para convertir a barra larga", "04 Collarines Spinlock con sellos de goma para m├íxima firmeza", "Maleta r├¡gida moldeada para f├ícil almacenaje y transporte", "Permite entrenar brazos, espalda, pecho, hombros, piernas y gl├║teos"],
+  "shortDescription": "Maletín organizador portátil con mancuernas cromadas, barra adaptadora extensible de 60cm y discos intercambiables de acero cromado.",
+  "technicalSpecs": ["12 Discos cromados de precisión: 4 x 0.50kg, 4 x 1.25kg, 4 x 2.50kg", "02 Mancuernas cromadas de 35 cm con agarre ergonómico", "01 Barra adaptadora extensible de 60 cm para convertir a barra larga", "04 Collarines Spinlock con sellos de goma para máxima firmeza", "Maleta rígida moldeada para fácil almacenaje y transporte", "Permite entrenar brazos, espalda, pecho, hombros, piernas y glúteos"],
   "images": ["/images/products/set-de-mancuernas-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": true,
@@ -357,8 +275,8 @@ const BASSFIT_PRODUCTS = [{
   "stock": 45,
   "sku": "BF-FZ-003",
   "saleMode": "direct_cart",
-  "shortDescription": "Pesas rusas de PVC de alta resistencia con asa ancha ergon├│mica. Dise├▒adas para activar el core, fuerza bal├¡stica y cardio din├ímico.",
-  "technicalSpecs": ["Pesos disponibles: 2kg (S/ 18), 3kg (S/ 27), 4kg (S/ 36), 5kg (S/ 45), 6kg (S/ 56), 8kg (S/ 72), 10kg (S/ 90), 12kg (S/ 108)", "Recubrimiento en PVC que protege el suelo contra impactos", "Asa de agarre ergon├│mico para una o dos manos", "Base plana antiderrapante para estabilidad en flexiones apoyadas", "Excelente para situar el centro de gravedad fuera de las manos y fortalecer el abdomen"],
+  "shortDescription": "Pesas rusas de PVC de alta resistencia con asa ancha ergonómica. Diseñadas para activar el core, fuerza balística y cardio dinámico.",
+  "technicalSpecs": ["Pesos disponibles: 2kg (S/ 18), 3kg (S/ 27), 4kg (S/ 36), 5kg (S/ 45), 6kg (S/ 56), 8kg (S/ 72), 10kg (S/ 90), 12kg (S/ 108)", "Recubrimiento en PVC que protege el suelo contra impactos", "Asa de agarre ergonómico para una o dos manos", "Base plana antiderrapante para estabilidad en flexiones apoyadas", "Excelente para situar el centro de gravedad fuera de las manos y fortalecer el abdomen"],
   "images": ["/images/products/pesas-rusas-pvc-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": false,
@@ -367,7 +285,7 @@ const BASSFIT_PRODUCTS = [{
 }, {
   "id": "wa-3384522224893267",
   "wcId": 2004,
-  "name": "Cintur├│n de Pesas de Cuero",
+  "name": "Cinturón de Pesas de Cuero",
   "slug": "cinturon-de-pesas-de-cuero",
   "categorySlug": "entrenamiento-fuerza",
   "categoryLabel": "Fuerza & Levantamiento",
@@ -376,17 +294,17 @@ const BASSFIT_PRODUCTS = [{
   "stock": 25,
   "sku": "BF-FZ-004",
   "saleMode": "direct_cart",
-  "shortDescription": "Cintur├│n lumbar en cuero leg├¡timo de alta resistencia con almohadilla interior, costuras de doble punto y hebilla met├ílica de dos espigas.",
-  "technicalSpecs": ["Cuero resistente al envejecimiento de textura suave y duradera", "Costuras de alta exigencia con refuerzo de doble punto", "Hebilla de metal cromado de dos espigas para fijaci├│n inquebrantable", "Coj├¡n anat├│mico en zona lumbar para control de presi├│n intraabdominal", "Colores: Negro y Marr├│n"],
+  "shortDescription": "Cinturón lumbar en cuero legítimo de alta resistencia con almohadilla interior, costuras de doble punto y hebilla metálica de dos espigas.",
+  "technicalSpecs": ["Cuero resistente al envejecimiento de textura suave y duradera", "Costuras de alta exigencia con refuerzo de doble punto", "Hebilla de metal cromado de dos espigas para fijación inquebrantable", "Cojín anatómico en zona lumbar para control de presión intraabdominal", "Colores: Negro y Marrón"],
   "images": ["/images/products/cinturon-de-pesas-de-cuero-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": false,
   "relatedArticleSlugs": ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
-  "coachTip": "Aprende a respirar contra el cintur├│n (maniobra de Valsalva) en series pesadas para crear una faja natural indestructible."
+  "coachTip": "Aprende a respirar contra el cinturón (maniobra de Valsalva) en series pesadas para crear una faja natural indestructible."
 }, {
   "id": "wa-3881609461855736",
   "wcId": 3001,
-  "name": "Cintur├│n de Lastre de Cuero para Calistenia",
+  "name": "Cinturón de Lastre de Cuero para Calistenia",
   "slug": "cinturon-de-lastre",
   "categorySlug": "calistenia",
   "categoryLabel": "Calistenia & Peso Corporal",
@@ -395,13 +313,13 @@ const BASSFIT_PRODUCTS = [{
   "stock": 20,
   "sku": "BF-CL-001",
   "saleMode": "direct_cart",
-  "shortDescription": "Cintur├│n de cuero reforzado con cadena de acero y mosquet├│n para sobrecarga progresiva en dominadas y fondos en paralelas.",
-  "technicalSpecs": ["Cuero de uso rudo preparado para soportar m├║ltiples discos pesados", "Cadena de eslabones de acero y mosquet├│n de apertura r├ípida", "Dise├▒o contorneado que asienta el peso en las caderas de forma sim├®trica", "Imprescindible para atletas de Street Workout y Calistenia con lastre"],
+  "shortDescription": "Cinturón de cuero reforzado con cadena de acero y mosquetón para sobrecarga progresiva en dominadas y fondos en paralelas.",
+  "technicalSpecs": ["Cuero de uso rudo preparado para soportar múltiples discos pesados", "Cadena de eslabones de acero y mosquetón de apertura rápida", "Diseño contorneado que asienta el peso en las caderas de forma simétrica", "Imprescindible para atletas de Street Workout y Calistenia con lastre"],
   "images": ["/images/products/cinturon-de-lastre-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": false,
   "relatedArticleSlugs": ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
-  "coachTip": "Cuando domines 10 dominadas estrictas con tu propio peso, agrega de 5kg a 10kg con este cintur├│n para romper mesetas."
+  "coachTip": "Cuando domines 10 dominadas estrictas con tu propio peso, agrega de 5kg a 10kg con este cinturón para romper mesetas."
 }, {
   "id": "wa-3437931672988989",
   "wcId": 3002,
@@ -414,8 +332,8 @@ const BASSFIT_PRODUCTS = [{
   "stock": 18,
   "sku": "BF-CL-002",
   "saleMode": "direct_cart",
-  "shortDescription": "Chaleco ergon├│mico ajustable para Crossfit, calistenia y running. Reparte el peso equilibradamente entre pecho y espalda sin limitar movilidad.",
-  "technicalSpecs": ["Distribuci├│n sim├®trica de peso frontal y dorsal para proteger la postura", "Opciones disponibles: 10kg con cartuchos de arena (S/ 67) | 20kg con cartuchos de arena (S/ 80)", "Sistema de correas y velcro reforzado que evita balanceos al saltar o correr", "Apto para dominadas, fondos, flexiones, sentadillas y sprints"],
+  "shortDescription": "Chaleco ergonómico ajustable para Crossfit, calistenia y running. Reparte el peso equilibradamente entre pecho y espalda sin limitar movilidad.",
+  "technicalSpecs": ["Distribución simétrica de peso frontal y dorsal para proteger la postura", "Opciones disponibles: 10kg con cartuchos de arena (S/ 67) | 20kg con cartuchos de arena (S/ 80)", "Sistema de correas y velcro reforzado que evita balanceos al saltar o correr", "Apto para dominadas, fondos, flexiones, sentadillas y sprints"],
   "images": ["/images/products/chaleco-de-lastre-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": true,
@@ -433,17 +351,17 @@ const BASSFIT_PRODUCTS = [{
   "stock": 60,
   "sku": "BF-CL-003",
   "saleMode": "direct_cart",
-  "shortDescription": "Pesas para mu├▒ecas y tobillos con doble velcro y hebilla met├ílica de seguridad. Confecci├│n peruana reforzada para rutinas de fuerza y calistenia.",
-  "technicalSpecs": ["Precios por par: 1kg (S/ 14) | 2kg (S/ 18) | 3kg (S/ 28) | 4kg (S/ 38) | 5kg (S/ 48)", "Sistema de DOBLE VELCRO y HEBILLA MET├üLICA para ajuste inamovible", "Costura reforzada industrial de m├íxima durabilidad ÔÇö PRODUCTO PERUANO", "Ajustables tanto para tobillos como para mu├▒ecas", "Ideales para calistenia, b├ísquetbol, f├║tbol, running y desarrollo muscular"],
+  "shortDescription": "Pesas para muñecas y tobillos con doble velcro y hebilla metálica de seguridad. Confección peruana reforzada para rutinas de fuerza y calistenia.",
+  "technicalSpecs": ["Precios por par: 1kg (S/ 14) | 2kg (S/ 18) | 3kg (S/ 28) | 4kg (S/ 38) | 5kg (S/ 48)", "Sistema de DOBLE VELCRO y HEBILLA METÁLICA para ajuste inamovible", "Costura reforzada industrial de máxima durabilidad — PRODUCTO PERUANO", "Ajustables tanto para tobillos como para muñecas", "Ideales para calistenia, básquetbol, fútbol, running y desarrollo muscular"],
   "images": ["/images/products/tobilleras-de-arena-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": false,
   "relatedArticleSlugs": ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
-  "coachTip": "├Üsalas en ejercicios de patada de gl├║teo y elevaciones de piernas en barra para un est├¡mulo abdominal superior."
+  "coachTip": "Úsalas en ejercicios de patada de glúteo y elevaciones de piernas en barra para un estímulo abdominal superior."
 }, {
   "id": "wa-4164573993625069",
   "wcId": 3004,
-  "name": "Push Up Board | Tablero Din├ímico para Flexiones",
+  "name": "Push Up Board | Tablero Dinámico para Flexiones",
   "slug": "push-up-board-tablero-dinamico-para-flexiones",
   "categorySlug": "calistenia",
   "categoryLabel": "Calistenia & Peso Corporal",
@@ -452,17 +370,17 @@ const BASSFIT_PRODUCTS = [{
   "stock": 35,
   "sku": "BF-CL-004",
   "saleMode": "direct_cart",
-  "shortDescription": "Sistema de entrenamiento por c├│digo de colores con 9 posiciones de agarre para espalda, pecho, hombros y brazos sin dolor de mu├▒ecas.",
-  "technicalSpecs": ["9 posiciones biomec├ínicas se├▒alizadas por color para cada grupo muscular", "Base s├│lida de PVC reforzado de alta durabilidad que soporta hasta 200 kg", "2 empu├▒aduras ergon├│micas antideslizantes que protegen las articulaciones de las mu├▒ecas", "F├ícil de ensamblar, plegar, transportar y guardar", "Excelente compa├▒ero para rutinas en casa tanto para principiantes como avanzados"],
+  "shortDescription": "Sistema de entrenamiento por código de colores con 9 posiciones de agarre para espalda, pecho, hombros y brazos sin dolor de muñecas.",
+  "technicalSpecs": ["9 posiciones biomecánicas señalizadas por color para cada grupo muscular", "Base sólida de PVC reforzado de alta durabilidad que soporta hasta 200 kg", "2 empuñaduras ergonómicas antideslizantes que protegen las articulaciones de las muñecas", "Fácil de ensamblar, plegar, transportar y guardar", "Excelente compañero para rutinas en casa tanto para principiantes como avanzados"],
   "images": ["/images/products/push-up-board-tablero-dinamico-para-flexiones-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": true,
   "relatedArticleSlugs": ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
-  "coachTip": "Cambia de ├íngulo de agarre en cada serie para trabajar la porci├│n clavicular (alta) y esternal del pectoral."
+  "coachTip": "Cambia de ángulo de agarre en cada serie para trabajar la porción clavicular (alta) y esternal del pectoral."
 }, {
   "id": "wa-3569619463069016",
   "wcId": 4001,
-  "name": "Kit de Ligas El├ísticas Tubulares (150 lbs / 68 kg)",
+  "name": "Kit de Ligas Elásticas Tubulares (150 lbs / 68 kg)",
   "slug": "kit-ligas-elasticas",
   "categorySlug": "funcional-resistencia",
   "categoryLabel": "Funcional & Resistencia",
@@ -472,12 +390,12 @@ const BASSFIT_PRODUCTS = [{
   "sku": "BF-FN-001",
   "saleMode": "direct_cart",
   "shortDescription": "Sistema completo de 5 bandas tubulares apilables hasta 150 lbs con asas acolchadas, correas de tobillo, anclaje de puerta y bolsa.",
-  "technicalSpecs": ["5 Resistencias: Amarilla (10 lbs), Azul (20 lbs), Verde (30 lbs), Negra (40 lbs), Roja (50 lbs)", "Resistencia acumulable hasta 150 lbs / 68 kg", "Incluye: 2 asas acolchadas de espuma, 2 correas de tobillo, 1 anclaje de puerta, 1 bolsa de viaje y gu├¡a de ejercicios", "Presentaciones: Modelo b├ísico (S/ 32) | Modelo reforzado (S/ 49)", "L├ítex virgen de alta memoria resistente a roturas y tirones bruscos"],
+  "technicalSpecs": ["5 Resistencias: Amarilla (10 lbs), Azul (20 lbs), Verde (30 lbs), Negra (40 lbs), Roja (50 lbs)", "Resistencia acumulable hasta 150 lbs / 68 kg", "Incluye: 2 asas acolchadas de espuma, 2 correas de tobillo, 1 anclaje de puerta, 1 bolsa de viaje y guía de ejercicios", "Presentaciones: Modelo básico (S/ 32) | Modelo reforzado (S/ 49)", "Látex virgen de alta memoria resistente a roturas y tirones bruscos"],
   "images": ["/images/products/kit-ligas-elasticas-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": true,
   "relatedArticleSlugs": ["entrenamiento-fuerza-despues-de-los-40-guia-definitiva"],
-  "coachTip": "Usa el anclaje de puerta para simular poleas de gimnasio en cruces de pecho, jalones de tr├¡ceps y remos dorsales."
+  "coachTip": "Usa el anclaje de puerta para simular poleas de gimnasio en cruces de pecho, jalones de tríceps y remos dorsales."
 }, {
   "id": "wa-3630007350359587",
   "wcId": 5001,
@@ -491,12 +409,12 @@ const BASSFIT_PRODUCTS = [{
   "sku": "BF-BX-001",
   "saleMode": "direct_cart",
   "shortDescription": "Saco de cuero de alto impacto resistente al envejecimiento con costuras reforzadas de doble punto, cadenas de acero incluidas y relleno calibrado.",
-  "technicalSpecs": ["Cuero de alta durabilidad resistente a golpes continuos", "Costuras industriales reforzadas con doble pespunte para alta exigencia", "Incluye cadenas de acero para suspensi├│n segura", "Precios seg├║n tama├▒o: 1.0m lleno (S/ 120) | 1.2m lleno (S/ 140) | 1.5m lleno (S/ 160)", "PROMO EQUIPO COMPLETO: Soporte Rack 200kg + Guantes de Box + Vendas por solo S/ 90 adicionales", "Servicio de instalaci├│n disponible por S/ 30"],
+  "technicalSpecs": ["Cuero de alta durabilidad resistente a golpes continuos", "Costuras industriales reforzadas con doble pespunte para alta exigencia", "Incluye cadenas de acero para suspensión segura", "Precios según tamaño: 1.0m lleno (S/ 120) | 1.2m lleno (S/ 140) | 1.5m lleno (S/ 160)", "PROMO EQUIPO COMPLETO: Soporte Rack 200kg + Guantes de Box + Vendas por solo S/ 90 adicionales", "Servicio de instalación disponible por S/ 30"],
   "images": ["/images/products/saco-de-boxeo-lleno-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": true,
   "relatedArticleSlugs": ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
-  "coachTip": "Golpea siempre con las manos vendadas y los guantes ajustados para proteger mu├▒ecas y metacarpianos."
+  "coachTip": "Golpea siempre con las manos vendadas y los guantes ajustados para proteger muñecas y metacarpianos."
 }, {
   "id": "wa-4002753499753974",
   "wcId": 5002,
@@ -509,13 +427,13 @@ const BASSFIT_PRODUCTS = [{
   "stock": 50,
   "sku": "BF-BX-002",
   "saleMode": "direct_cart",
-  "shortDescription": "Vendas semiel├ísticas de 4 metros de longitud para protecci├│n de nudillos, articulaciones de la mu├▒eca y absorci├│n efectiva del sudor.",
-  "technicalSpecs": ["Medidas oficiales: 4 metros de largo x 4 cm de ancho", "Composici├│n de algod├│n con elastano transpirable y de secado r├ípido", "Cierre con velcro ancho de sujeci├│n firme y ojal de pulgar", "Imprescindibles para boxeo, muay thai, kickboxing y artes marciales mixtas"],
+  "shortDescription": "Vendas semielásticas de 4 metros de longitud para protección de nudillos, articulaciones de la muñeca y absorción efectiva del sudor.",
+  "technicalSpecs": ["Medidas oficiales: 4 metros de largo x 4 cm de ancho", "Composición de algodón con elastano transpirable y de secado rápido", "Cierre con velcro ancho de sujeción firme y ojal de pulgar", "Imprescindibles para boxeo, muay thai, kickboxing y artes marciales mixtas"],
   "images": ["/images/products/vendas-de-boxeo-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": false,
   "relatedArticleSlugs": ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
-  "coachTip": "Aseg├║rate de dar 3 a 4 pasadas firmes en la articulaci├│n de la mu├▒eca antes de pasar a proteger los nudillos."
+  "coachTip": "Asegúrate de dar 3 a 4 pasadas firmes en la articulación de la muñeca antes de pasar a proteger los nudillos."
 }, {
   "id": "wa-4404572482942116",
   "wcId": 5003,
@@ -528,130 +446,62 @@ const BASSFIT_PRODUCTS = [{
   "stock": 35,
   "sku": "BF-BX-003",
   "saleMode": "direct_cart",
-  "shortDescription": "Diadema regulable con pelota el├ística para desarrollar reflejos, timing de golpeo, velocidad visomotora y coordinaci├│n de combate.",
-  "technicalSpecs": ["Banda el├ística ajustable para la cabeza que se amolda a cualquier usuario", "Pelota ligera y suave de espuma que no causa lesiones en manos ni rostro", "Cuerda el├ística calibrada para un rebote din├ímico y constante", "Entrenamiento din├ímico enfocado en velocidad, precisi├│n y agilidad mental"],
+  "shortDescription": "Diadema regulable con pelota elástica para desarrollar reflejos, timing de golpeo, velocidad visomotora y coordinación de combate.",
+  "technicalSpecs": ["Banda elástica ajustable para la cabeza que se amolda a cualquier usuario", "Pelota ligera y suave de espuma que no causa lesiones en manos ni rostro", "Cuerda elástica calibrada para un rebote dinámico y constante", "Entrenamiento dinámico enfocado en velocidad, precisión y agilidad mental"],
   "images": ["/images/products/pelota-de-reflejos-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": false,
   "relatedArticleSlugs": ["boxeo-y-coordinacion-en-casa-beneficios-cardiovasculares"],
-  "coachTip": "Inicia con golpes suaves y continuos como un jab r├¡tmico antes de intentar golpes de mayor velocidad."
+  "coachTip": "Inicia con golpes suaves y continuos como un jab rítmico antes de intentar golpes de mayor velocidad."
 }, {
   "id": "wa-4384233258279412",
   "wcId": 6001,
-  "name": "Tabla de Nataci├│n con Agarraderas",
+  "name": "Tabla de Natación con Agarraderas",
   "slug": "tabla-de-natacion",
   "categorySlug": "natacion-acuaticos",
-  "categoryLabel": "Nataci├│n & Acu├íticos",
+  "categoryLabel": "Natación & Acuáticos",
   "price": 35,
   "compareAtPrice": 45,
   "stock": 30,
   "sku": "BF-NT-001",
   "saleMode": "direct_cart",
-  "shortDescription": "Tabla ergon├│mica en goma EVA virgen de alta flotabilidad para entrenamiento de patada, tonificaci├│n de tren inferior y t├®cnica acu├ítica.",
-  "technicalSpecs": ["Material: Goma EVA de c├®lula cerrada ÔÇö liviano, lavable, impermeable y no t├│xico", "Medidas est├índar: 42 cm x 27 cm x 2.7 cm ÔÇö no se rompe ni se dobla", "Dise├▒o ergon├│mico con agarraderas moldeadas para mayor confort en el ejercicio", "Apto para adultos y ni├▒os que buscan perfeccionar la t├®cnica o ganar confianza", "Ideal para aislar y trabajar gl├║teos, muslos y pantorrillas en el agua"],
+  "shortDescription": "Tabla ergonómica en goma EVA virgen de alta flotabilidad para entrenamiento de patada, tonificación de tren inferior y técnica acuática.",
+  "technicalSpecs": ["Material: Goma EVA de célula cerrada — liviano, lavable, impermeable y no tóxico", "Medidas estándar: 42 cm x 27 cm x 2.7 cm — no se rompe ni se dobla", "Diseño ergonómico con agarraderas moldeadas para mayor confort en el ejercicio", "Apto para adultos y niños que buscan perfeccionar la técnica o ganar confianza", "Ideal para aislar y trabajar glúteos, muslos y pantorrillas en el agua"],
   "images": ["/images/products/tabla-de-natacion-1.jpg"],
   "driveFolderId": "whatsapp-catalog",
   "featured": true,
   "relatedArticleSlugs": ["movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"],
-  "coachTip": "Mant├®n la cabeza alineada con el agua y patea desde la cadera en vez de doblar las rodillas para optimizar la propulsi├│n."
+  "coachTip": "Mantén la cabeza alineada con el agua y patea desde la cadera en vez de doblar las rodillas para optimizar la propulsión."
 }];
-const PRODUCT_CATEGORIES = [{
+const CATEGORIES = [{
   slug: "todos",
-  label: "Todos los Productos (18)"
+  label: "Todos los Implementos",
+  count: 18
 }, {
   slug: "yoga-pilates",
-  label: "Yoga & Pilates (5)"
+  label: "Yoga & Pilates",
+  count: 5
 }, {
   slug: "entrenamiento-fuerza",
-  label: "Fuerza & Levantamiento (4)"
+  label: "Fuerza & Pesas",
+  count: 4
 }, {
   slug: "calistenia",
-  label: "Calistenia & Peso Corporal (4)"
-}, {
-  slug: "boxeo-artes-marciales",
-  label: "Boxeo & Combate (3)"
+  label: "Calistenia & Peso Corporal",
+  count: 4
 }, {
   slug: "funcional-resistencia",
-  label: "Funcional & Resistencia (1)"
+  label: "Funcional & Resistencia",
+  count: 1
+}, {
+  slug: "boxeo-artes-marciales",
+  label: "Boxeo & Combate",
+  count: 3
 }, {
   slug: "natacion-acuaticos",
-  label: "Nataci├│n & Acu├íticos (1)"
+  label: "Natación & Acuáticos",
+  count: 1
 }];
-function buildWhatsAppAdvisorUrl(product, customQuestion) {
-  const phone = "51967581481";
-  const text = customQuestion || `Hola equipo Bassfit ­ƒæï, solicito una evaluaci├│n previa con un asesor para el producto de Venta Consultiva: *${product.name}* (SKU: ${product.sku} - S/ ${product.price}). Mi objetivo actual es: `;
-  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-}
-function buildWhatsAppCoachUrl(programTitle, userData) {
-  const phone = "51967581481";
-  const details = userData?.name ? `Soy *${userData.name}* (${userData.age || "edad no indicada"} a├▒os). Mi objetivo principal es: *${userData.goal || "Entrenamiento personalizado"}*.` : "Me gustar├¡a agendar mi evaluaci├│n inicial.";
-  const text = `Hola entrenadores de Bassfit ­ƒÆ¬ (┬½...fitness sin l├¡mites de edad..┬╗), quiero informaci├│n e inscripci├│n en el programa: *${programTitle}*. ${details}`;
-  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-}
-function resolveStrictSaleMode(categorySlug, wcPurchasable = true, explicitMode) {
-  if (explicitMode === "consultative_whatsapp" || !wcPurchasable) return "consultative_whatsapp";
-  if (["suplementos", "cuidado-y-suplementos", "nutricion"].includes((categorySlug || "").toLowerCase())) {
-    return "consultative_whatsapp";
-  }
-  return "direct_cart";
-}
-function ProductCard({
-  product,
-  onOpenDetail,
-  onAddToCart,
-  onTestBackendGuard
-}) {
-  const isSupplement = product.saleMode === "consultative_whatsapp";
-  return /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden group"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    onClick: onOpenDetail,
-    className: "relative h-52 bg-white flex items-center justify-center p-3 overflow-hidden cursor-pointer border-b border-slate-100"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: resolveImg(product.images[0]),
-    onError: e => {
-      e.currentTarget.onerror = null;
-      e.currentTarget.src = "bassfit-headless/public/" + (product.images[0].startsWith("/") ? product.images[0].slice(1) : product.images[0]);
-    },
-    alt: product.name,
-    className: "max-h-full max-w-full object-contain group-hover:scale-105 transition duration-300"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: `absolute top-3 left-3 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase ${isSupplement ? "bg-[#0F172A] text-white border border-[#FF4A00]" : "bg-[#0F172A]/90 text-white"}`
-  }, isSupplement ? "Venta Consultiva ┬À WhatsApp" : product.categoryLabel), product.relatedArticleSlugs.length > 0 && /*#__PURE__*/React.createElement("span", {
-    className: "absolute bottom-2.5 right-2.5 bg-white/95 text-[#0F172A] text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200"
-  }, "­ƒôû Gu├¡a SEO vinculada")), /*#__PURE__*/React.createElement("div", {
-    className: "p-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-baseline justify-between gap-2"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-lg font-black text-[#0F172A]"
-  }, "S/ ", product.price), product.compareAtPrice && /*#__PURE__*/React.createElement("span", {
-    className: "text-xs text-slate-400 line-through"
-  }, "S/ ", product.compareAtPrice)), /*#__PURE__*/React.createElement("h3", {
-    onClick: onOpenDetail,
-    className: "text-sm font-extrabold text-[#0F172A] hover:text-[#FF4A00] cursor-pointer mt-1 line-clamp-2"
-  }, product.name), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-500 mt-1.5 line-clamp-2"
-  }, product.shortDescription))), /*#__PURE__*/React.createElement("div", {
-    className: "p-4 pt-0 space-y-2"
-  }, isSupplement ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("a", {
-    href: buildWhatsAppAdvisorUrl(product),
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "w-full bg-[#0F172A] hover:bg-[#FF4A00] text-white text-xs font-extrabold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 border border-[#FF4A00] shadow-sm transition"
-  }, /*#__PURE__*/React.createElement("span", null, "Evaluar con Asesor (WhatsApp)"), /*#__PURE__*/React.createElement("span", null, "ÔåÆ")), /*#__PURE__*/React.createElement("button", {
-    onClick: onTestBackendGuard,
-    className: "w-full text-[10px] font-semibold text-slate-400 hover:text-[#FF4A00] text-center block"
-  }, "Verificar bloqueo de carrito en Backend")) : /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-2"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: onOpenDetail,
-    className: "px-3 py-2.5 rounded-xl border border-slate-200 hover:border-slate-400 text-xs font-bold text-slate-700"
-  }, "Ficha"), /*#__PURE__*/React.createElement("button", {
-    onClick: onAddToCart,
-    className: "flex-1 bg-[#FF4A00] hover:bg-[#E04000] text-white text-xs font-extrabold py-2.5 px-3 rounded-xl transition"
-  }, "+ A├▒adir al Carrito"))));
-}
 function App() {
   const [activeTab, setActiveTab] = useState("inicio");
   const [selectedCategory, setSelectedCategory] = useState("todos");
@@ -660,487 +510,793 @@ function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedArticle, setSelectedArticle] = useState(null);
-  const [securityAlert, setSecurityAlert] = useState(null);
-  const [checkoutStep, setCheckoutStep] = useState("cart");
-  const [customerForm, setCustomerForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    dni: "",
-    address: "",
-    city: "Lima"
-  });
-  const [orderConfirmation, setOrderConfirmation] = useState(null);
-  const [coachForm, setCoachForm] = useState({
-    name: "",
-    age: "",
-    goal: "Fuerza & Longevidad Activa (+40 / Salud Articular)",
-    modality: "Entrenamiento en Casa (Home Gym)"
-  });
-  const filteredProducts = useMemo(() => {
-    return BASSFIT_PRODUCTS.filter(p => {
-      const matchesCat = selectedCategory === "todos" || p.categorySlug === selectedCategory;
-      const q = searchQuery.trim().toLowerCase();
-      const matchesSearch = !q || p.name.toLowerCase().includes(q) || p.shortDescription.toLowerCase().includes(q) || p.categoryLabel.toLowerCase().includes(q);
-      return matchesCat && matchesSearch;
-    });
-  }, [selectedCategory, searchQuery]);
-  const cartSubtotal = useMemo(() => cart.reduce((acc, item) => acc + (item && item.product && item.product.price ? item.product.price * item.quantity : 0), 0), [cart]);
-  const shippingCost = cartSubtotal >= 250 || cartSubtotal === 0 ? 0 : 15;
-  const cartTotal = cartSubtotal + shippingCost;
-  const cartCount = useMemo(() => cart.reduce((acc, item) => acc + (item && item.product ? item.quantity : 0), 0), [cart]);
-  function handleAddToCart(product) {
-    const mode = resolveStrictSaleMode(product.categorySlug, product.saleMode === "direct_cart", product.saleMode);
-    if (mode === "consultative_whatsapp") {
-      setSecurityAlert({
-        title: "Restricci├│n Estricta (Backend WooCommerce & API): Venta Consultiva",
-        message: `┬½${product.name}┬╗ pertenece a la categor├¡a de Suplementos. Por seguridad y personalizaci├│n, el backend bloquea su compra directa en carrito (HTTP 403) y te deriva directamente con un especialista por WhatsApp.`,
-        whatsappUrl: buildWhatsAppAdvisorUrl(product)
-      });
-      return;
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = e => {
+      if (e.key === "Escape") {
+        setSelectedProduct(null);
+        setSelectedArticle(null);
+        setIsCartOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Auto-hide toast
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 2500);
+      return () => clearTimeout(timer);
     }
+  }, [toastMessage]);
+
+  // Cart operations
+  const handleAddToCart = product => {
     setCart(prev => {
-      const existing = prev.find(i => i.product.id === product.id);
+      const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
-        return prev.map(i => i.product.id === product.id ? {
-          ...i,
-          quantity: i.quantity + 1
-        } : i);
+        return prev.map(item => item.product.id === product.id ? {
+          ...item,
+          quantity: item.quantity + 1
+        } : item);
       }
       return [...prev, {
         product,
         quantity: 1
       }];
     });
-    setCheckoutStep("cart");
-    setIsCartOpen(true);
-  }
-  function handleTestBackendSupplementGuard(supplement) {
-    setSecurityAlert({
-      title: "Respuesta Real del Servidor (HTTP 403 Forbidden - bassfit_consultative_product_forbidden)",
-      message: `El endpoint POST /api/checkout y el plugin de WordPress (bassfit-headless-rules.php) rechazaron la compra directa de ┬½${supplement.name}┬╗. Los suplementos est├ín bloqueados a nivel de servidor y solo pueden adquirirse tras evaluaci├│n por WhatsApp.`,
-      whatsappUrl: buildWhatsAppAdvisorUrl(supplement)
-    });
-  }
-  function handleProcessEasyPayCheckout(e) {
-    e.preventDefault();
-    setOrderConfirmation({
-      orderReference: `BF-2026-${Math.floor(100000 + Math.random() * 900000)}`,
-      gateway: "Easy Pay Per├║ (HTTPS Encrypted + Webhook HMAC)",
-      summary: {
-        totalAmount: cartTotal
+    setToastMessage(`✓ ${product.name} agregado al carrito`);
+  };
+  const handleUpdateQuantity = (productId, delta) => {
+    setCart(prev => prev.map(item => {
+      if (item.product.id === productId) {
+        const newQty = item.quantity + delta;
+        return newQty > 0 ? {
+          ...item,
+          quantity: newQty
+        } : null;
       }
+      return item;
+    }).filter(Boolean));
+  };
+  const handleRemoveFromCart = productId => {
+    setCart(prev => prev.filter(item => item.product.id !== productId));
+  };
+  const cartCount = useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  }, [cart]);
+  const cartSubtotal = useMemo(() => {
+    return cart.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
+  }, [cart]);
+
+  // WhatsApp cart checkout message
+  const handleWhatsAppCartOrder = () => {
+    if (cart.length === 0) return;
+    let message = "Hola Bassfit 👋, deseo realizar un pedido con los siguientes productos del catálogo oficial:\n\n";
+    cart.forEach((item, idx) => {
+      message += `${idx + 1}. *${item.product.name}* (x${item.quantity}) - S/ ${(item.product.price * item.quantity).toFixed(2)}\n`;
     });
-    setCheckoutStep("success");
-    setCart([]);
-  }
+    message += `\n*TOTAL DEL PEDIDO: S/ ${cartSubtotal.toFixed(2)}*\n\n`;
+    message += "¿Tienen disponibilidad inmediata para envío a mi dirección?";
+    const url = "https://wa.me/51967581481?text=" + encodeURIComponent(message);
+    window.open(url, "_blank");
+  };
+
+  // Filter products
+  const filteredProducts = useMemo(() => {
+    return BASSFIT_PRODUCTS.filter(prod => {
+      const matchesCat = selectedCategory === "todos" || prod.categorySlug === selectedCategory;
+      const matchesSearch = searchQuery === "" || prod.name.toLowerCase().includes(searchQuery.toLowerCase()) || prod.shortDescription.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCat && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery]);
   return /*#__PURE__*/React.createElement("div", {
-    className: "min-h-screen bg-white text-[#0F172A] flex flex-col font-sans"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-[#0F172A] text-white text-xs py-2.5 px-4 border-b border-slate-800"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-3"
+    className: "min-h-screen bg-slate-50 flex flex-col font-sans"
+  }, toastMessage && /*#__PURE__*/React.createElement("div", {
+    className: "fixed bottom-6 right-6 z-50 bg-[#0F172A] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-bold border border-slate-700 animate-bounce"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "inline-flex items-center gap-1.5 bg-[#FF4A00] text-white font-bold px-2.5 py-0.5 rounded-full text-[11px] uppercase"
-  }, "Entrenamiento & Vida Activa ┬À Equipamiento Deportivo"), /*#__PURE__*/React.createElement("span", {
-    className: "hidden sm:inline text-slate-300 font-medium"
-  }, "┬½...fitness sin l├¡mites de edad..┬╗ ÔÇö Asesor├¡as personalizadas & equipamiento deportivo")), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-4 text-slate-300"
+    className: "text-[#FF4A00]"
+  }, "●"), /*#__PURE__*/React.createElement("span", null, toastMessage), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsCartOpen(true),
+    className: "ml-3 bg-[#FF4A00] text-white text-xs px-3 py-1 rounded-lg hover:bg-[#e04100] transition cursor-pointer"
+  }, "Ver Carrito (", cartCount, ")")), /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#0F172A] text-slate-200 text-xs py-2 px-4 text-center font-medium border-b border-slate-800"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "hidden md:inline"
-  }, "Env├¡os a todo el Per├║"), /*#__PURE__*/React.createElement("span", {
-    className: "text-[#FF4A00] font-semibold"
-  }, "Compra 100% Segura ┬À Atenci├│n Personalizada")))), /*#__PURE__*/React.createElement("header", {
+    className: "text-[#FF4A00] font-black mr-2"
+  }, "BASSFIT PERÚ"), /*#__PURE__*/React.createElement("span", null, "Fitness y Rendimiento sin Límites de Edad · Envíos garantizados a todo el Perú · Atención WhatsApp:"), /*#__PURE__*/React.createElement("a", {
+    href: "https://wa.me/51967581481",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "ml-1 text-white font-bold hover:underline"
+  }, "+51 967 581 481")), /*#__PURE__*/React.createElement("header", {
     className: "sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between gap-4"
+    className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => {
+      setActiveTab("inicio");
+      setSelectedCategory("todos");
+    },
+    className: "flex items-center space-x-3 cursor-pointer group"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-11 h-11 rounded-2xl bg-[#0F172A] group-hover:bg-[#FF4A00] text-white font-black flex items-center justify-center text-xl tracking-tighter transition-colors shadow-md"
+  }, "B"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-xl font-black tracking-tight text-slate-900 group-hover:text-[#FF4A00] transition-colors leading-none"
+  }, "BASSFIT"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5"
+  }, "...fitness sin límites de edad.."))), /*#__PURE__*/React.createElement("nav", {
+    className: "hidden md:flex items-center space-x-1 lg:space-x-2"
+  }, [{
+    id: "inicio",
+    label: "Inicio"
+  }, {
+    id: "tienda",
+    label: "Tienda (18 Productos)"
+  }, {
+    id: "entrenamientos",
+    label: "Planes de Entrenamiento"
+  }, {
+    id: "comunidad",
+    label: "Guías & Artículos"
+  }].map(tab => /*#__PURE__*/React.createElement("button", {
+    key: tab.id,
+    onClick: () => setActiveTab(tab.id),
+    className: `px-4 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider transition cursor-pointer ${activeTab === tab.id ? "bg-[#0F172A] text-white shadow-sm" : "text-slate-600 hover:text-black hover:bg-slate-100"}`
+  }, tab.label))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-3"
   }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setActiveTab("inicio"),
-    className: "flex items-center text-left group focus:outline-none"
+    onClick: () => setIsCartOpen(true),
+    className: "inline-flex items-center gap-2 bg-[#0F172A] hover:bg-[#FF4A00] text-white px-4 py-2.5 rounded-full text-xs font-extrabold transition shadow-sm cursor-pointer",
+    title: "Ver carrito de compras"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+  })), /*#__PURE__*/React.createElement("span", null, "Carrito"), /*#__PURE__*/React.createElement("span", {
+    className: "bg-[#FF4A00] text-white text-[11px] font-black px-2 py-0.5 rounded-full"
+  }, cartCount)))), /*#__PURE__*/React.createElement("div", {
+    className: "md:hidden flex overflow-x-auto py-2.5 px-4 bg-slate-50 border-t border-slate-200 gap-2"
+  }, [{
+    id: "inicio",
+    label: "Inicio"
+  }, {
+    id: "tienda",
+    label: "Tienda (18)"
+  }, {
+    id: "entrenamientos",
+    label: "Planes"
+  }, {
+    id: "comunidad",
+    label: "Guías"
+  }].map(tab => /*#__PURE__*/React.createElement("button", {
+    key: tab.id,
+    onClick: () => setActiveTab(tab.id),
+    className: `whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold cursor-pointer ${activeTab === tab.id ? "bg-[#0F172A] text-white" : "bg-white text-slate-700 border border-slate-200"}`
+  }, tab.label)))), /*#__PURE__*/React.createElement("main", {
+    className: "flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
+  }, activeTab === "inicio" && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-12"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#0F172A] rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-xl"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative z-10 max-w-2xl space-y-5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bg-[#FF4A00] text-white text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest inline-block"
+  }, "Catálogo Oficial Bassfit Perú"), /*#__PURE__*/React.createElement("h1", {
+    className: "text-3xl sm:text-5xl font-black tracking-tight leading-tight"
+  }, "Equipamiento deportivo premium sin límites de edad."), /*#__PURE__*/React.createElement("p", {
+    className: "text-slate-300 text-sm sm:text-base leading-relaxed"
+  }, "Implementos de alta resistencia para Yoga, Pilates, Fuerza, Calistenia, Boxeo y Natación. Todos los productos aislados con stock inmediato y envíos a todo el Perú."), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-3 pt-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("tienda"),
+    className: "bg-[#FF4A00] hover:bg-[#e04100] text-white font-extrabold px-6 py-3.5 rounded-xl text-sm transition shadow-lg cursor-pointer"
+  }, "Explorar Tienda (18 Productos) →"), /*#__PURE__*/React.createElement("a", {
+    href: "https://wa.me/51967581481?text=Hola%20Bassfit%20%F0%9F%91%8B%2C%20deseo%20informaci%C3%B3n%20sobre%20sus%20productos%20y%20entrenamientos.",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold px-5 py-3.5 rounded-xl text-sm transition flex items-center space-x-2"
+  }, /*#__PURE__*/React.createElement("span", null, "Atención WhatsApp"))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-baseline mb-6"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    className: "text-2xl font-black text-slate-900 tracking-tight"
+  }, "Categorías Oficiales"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500"
+  }, "Los 18 implementos distribuidos por disciplina deportiva")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("tienda");
+      setSelectedCategory("todos");
+    },
+    className: "text-xs font-bold text-[#FF4A00] hover:underline cursor-pointer"
+  }, "Ver todos los 18 productos →")), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
+  }, CATEGORIES.filter(c => c.slug !== "todos").map(cat => /*#__PURE__*/React.createElement("button", {
+    key: cat.slug,
+    onClick: () => {
+      setSelectedCategory(cat.slug);
+      setActiveTab("tienda");
+    },
+    className: "bg-white p-4 rounded-2xl border border-slate-200 hover:border-[#FF4A00] text-center hover:shadow-md transition group cursor-pointer"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-orange-50 text-[#FF4A00] group-hover:bg-[#FF4A00] group-hover:text-white flex items-center justify-center mx-auto mb-2.5 transition"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-5 h-5",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2",
+    d: "M13 10V3L4 14h7v7l9-11h-7z"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "font-extrabold text-xs text-slate-900 group-hover:text-[#FF4A00] transition"
+  }, cat.label), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-slate-400 mt-0.5"
+  }, cat.count, " ", cat.count === 1 ? "producto" : "productos"))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-baseline mb-6"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+    className: "text-2xl font-black text-slate-900 tracking-tight"
+  }, "Productos Más Solicitados"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500"
+  }, "Calidad garantizada para atletas de alto rendimiento"))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+  }, BASSFIT_PRODUCTS.slice(0, 4).map(product => /*#__PURE__*/React.createElement("div", {
+    key: product.id,
+    className: "bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition flex flex-col justify-between group"
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => setSelectedProduct(product),
+    className: "cursor-pointer p-4 bg-white flex items-center justify-center h-48 relative overflow-hidden"
   }, /*#__PURE__*/React.createElement("img", {
-    src: "./images/brand/logo_bassfit_peru.png",
-    alt: "Bassfit",
-    className: "h-16 md:h-20 w-auto object-contain transition duration-200 group-hover:scale-105"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "hidden lg:flex flex-1 max-w-md mx-4"
+    src: resolveImg(product.images[0]),
+    alt: product.name,
+    className: "max-h-40 w-full object-contain group-hover:scale-105 transition duration-300",
+    onError: e => {
+      e.currentTarget.onerror = null;
+      e.currentTarget.src = "bassfit-headless/public/" + (product.images[0].startsWith("/") ? product.images[0].slice(1) : product.images[0]);
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
+  }, product.categoryLabel)), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    onClick: () => setSelectedProduct(product),
+    className: "font-bold text-sm text-slate-900 line-clamp-2 hover:text-[#FF4A00] cursor-pointer transition"
+  }, product.name), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline space-x-2 mt-1"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-lg font-black text-[#FF4A00]"
+  }, "S/ ", product.price.toFixed(2)), product.compareAtPrice && /*#__PURE__*/React.createElement("span", {
+    className: "text-xs text-slate-400 line-through"
+  }, "S/ ", product.compareAtPrice.toFixed(2)))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-2 pt-1"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSelectedProduct(product),
+    className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
+  }, "Detalles"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => handleAddToCart(product),
+    className: "w-full bg-[#FF4A00] hover:bg-[#e04100] text-white text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
+  }, "+ Añadir")))))))), activeTab === "tienda" && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "text-3xl font-black text-slate-900 tracking-tight"
+  }, "Tienda Oficial Bassfit (", BASSFIT_PRODUCTS.length, " Productos)"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500"
+  }, "Implementos deportivos sobre fondo blanco puro (#FFFFFF), organizados por categorías.")), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-2"
+  }, CATEGORIES.map(cat => /*#__PURE__*/React.createElement("button", {
+    key: cat.slug,
+    onClick: () => setSelectedCategory(cat.slug),
+    className: `px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${selectedCategory === cat.slug ? "bg-[#FF4A00] text-white shadow-sm" : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"}`
+  }, cat.label, " (", cat.count, ")"))), /*#__PURE__*/React.createElement("div", {
+    className: "relative min-w-[260px]"
   }, /*#__PURE__*/React.createElement("input", {
     type: "text",
     value: searchQuery,
-    onChange: e => {
-      setSearchQuery(e.target.value);
-      if (activeTab !== "tienda") setActiveTab("tienda");
-    },
-    placeholder: "Buscar pesas, ligas, guantes, yoga, suplementos...",
-    className: "w-full px-4 py-2.5 text-sm bg-[#F8FAFC] border border-slate-300 rounded-full text-[#0F172A] focus:outline-none focus:border-[#FF4A00]"
-  })), /*#__PURE__*/React.createElement("nav", {
-    className: "hidden md:flex items-center gap-1.5"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setActiveTab("inicio"),
-    className: `px-3.5 py-2 rounded-lg text-sm font-bold transition ${activeTab === "inicio" ? "bg-[#0F172A] text-white" : "text-[#0F172A] hover:bg-[#F8FAFC]"}`
-  }, "Inicio"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setActiveTab("entrenamientos"),
-    className: `px-3.5 py-2 rounded-lg text-sm font-bold transition flex items-center gap-1.5 ${activeTab === "entrenamientos" ? "bg-[#FF4A00] text-white shadow-md" : "text-[#0F172A] hover:bg-orange-50"}`
-  }, /*#__PURE__*/React.createElement("span", null, "Entrenamientos & Asesor├¡as")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setActiveTab("comunidad"),
-    className: `px-3.5 py-2 rounded-lg text-sm font-bold transition ${activeTab === "comunidad" ? "bg-[#0F172A] text-white" : "text-[#0F172A] hover:bg-[#F8FAFC]"}`
-  }, "Comunidad & Gu├¡as SEO"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setActiveTab("tienda"),
-    className: `px-3.5 py-2 rounded-lg text-sm font-bold transition flex items-center gap-1.5 ${activeTab === "tienda" ? "bg-[#0F172A] text-white" : "text-[#0F172A] hover:bg-[#F8FAFC]"}`
-  }, /*#__PURE__*/React.createElement("span", null, "Tienda (47)"))), /*#__PURE__*/React.createElement("button", {
+    onChange: e => setSearchQuery(e.target.value),
+    placeholder: "Buscar producto...",
+    className: "w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-full text-xs font-medium focus:outline-none focus:border-[#FF4A00] transition"
+  }), /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4 text-slate-400 absolute left-3 top-2.5",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2",
+    d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+  })), searchQuery && /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSearchQuery(""),
+    className: "absolute right-3 top-2 text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
+  }, "✕")))), filteredProducts.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "text-center py-16 bg-white rounded-3xl border border-slate-200 space-y-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-3xl"
+  }, "🔍"), /*#__PURE__*/React.createElement("h3", {
+    className: "text-base font-bold text-slate-800"
+  }, "No se encontraron productos"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500"
+  }, "Prueba ajustando el término de búsqueda o la categoría seleccionada."), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      setCheckoutStep("cart");
-      setIsCartOpen(true);
+      setSelectedCategory("todos");
+      setSearchQuery("");
     },
-    className: "inline-flex items-center gap-2 bg-[#F8FAFC] hover:bg-slate-100 text-[#0F172A] border border-slate-300 px-4 py-2.5 rounded-full text-sm font-bold"
-  }, /*#__PURE__*/React.createElement("span", null, "­ƒøÆ Carrito"), /*#__PURE__*/React.createElement("span", {
-    className: "bg-[#FF4A00] text-white text-xs font-extrabold px-2 py-0.5 rounded-full"
-  }, cartCount)))), securityAlert && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border-2 border-[#FF4A00]"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-start justify-between gap-3 mb-3"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "bg-orange-100 text-[#FF4A00] text-xs font-extrabold px-3 py-1 rounded-full uppercase"
-  }, "Validaci├│n Estricta de Backend Activa"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setSecurityAlert(null),
-    className: "text-slate-400 hover:text-slate-700 font-bold text-lg"
-  }, "Ô£ò")), /*#__PURE__*/React.createElement("h3", {
-    className: "text-lg font-extrabold text-[#0F172A] mb-2"
-  }, securityAlert.title), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-slate-600 leading-relaxed mb-5"
-  }, securityAlert.message), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-end gap-3"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setSecurityAlert(null),
-    className: "px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-bold"
-  }, "Cerrar"), securityAlert.whatsappUrl && /*#__PURE__*/React.createElement("a", {
-    href: securityAlert.whatsappUrl,
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "bg-[#0F172A] hover:bg-[#FF4A00] text-white font-extrabold px-5 py-2.5 rounded-xl text-sm border border-[#FF4A00] transition"
-  }, "Evaluar con un Asesor por WhatsApp ÔåÆ")))), /*#__PURE__*/React.createElement("main", {
-    className: "flex-1"
-  }, activeTab === "inicio" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("section", {
-    className: "bg-gradient-to-b from-white via-[#F8FAFC] to-white border-b border-slate-200"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 grid lg:grid-cols-12 gap-10 items-center"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "lg:col-span-7 space-y-6"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "inline-flex items-center gap-2 bg-orange-50 border border-orange-200 text-[#FF4A00] px-4 py-1.5 rounded-full text-xs font-extrabold uppercase"
-  }, "Concepto 2 ┬À Clean Athletic ÔÇó ...Fitness sin l├¡mites de edad.."), /*#__PURE__*/React.createElement("h1", {
-    className: "text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] leading-[1.08] font-display"
-  }, "Entrena con prop├│sito, ", /*#__PURE__*/React.createElement("span", {
-    className: "text-[#FF4A00]"
-  }, "fuerza y salud articular"), " a cualquier edad."), /*#__PURE__*/React.createElement("p", {
-    className: "text-lg text-slate-600 leading-relaxed max-w-2xl"
-  }, "En ", /*#__PURE__*/React.createElement("strong", null, "Bassfit"), " nuestro enfoque principal est├í en transformar tu vida mediante ", /*#__PURE__*/React.createElement("strong", {
-    className: "text-[#FF4A00]"
-  }, "planes de entrenamiento personalizados y asesor├¡a directa con entrenadores"), ", complementados con el mejor ", /*#__PURE__*/React.createElement("strong", null, "equipamiento deportivo y suplementaci├│n"), " seleccionada."), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap gap-4 pt-2"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setActiveTab("entrenamientos"),
-    className: "bg-[#FF4A00] hover:bg-[#E04000] text-white font-extrabold px-7 py-4 rounded-xl text-base shadow-orangeGlow transition"
-  }, "Explorar Planes de Entrenamiento ÔåÆ"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setActiveTab("tienda"),
-    className: "bg-[#0F172A] hover:bg-slate-800 text-white font-bold px-6 py-4 rounded-xl text-base transition"
-  }, "Ver Cat├ílogo de Productos (47)"))), /*#__PURE__*/React.createElement("div", {
-    className: "lg:col-span-5"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white p-4 rounded-3xl shadow-xl border border-slate-200"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 gap-3"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "space-y-3"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "./images/products/kit-ligas-elasticas-1.jpg",
-    className: "w-full h-48 object-cover rounded-2xl"
-  }), /*#__PURE__*/React.createElement("img", {
-    src: "./images/products/pesas-rusas-pvc-1.jpg",
-    className: "w-full h-36 object-cover rounded-2xl"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-3 pt-4"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "./images/products/set-de-mancuernas-1.jpg",
-    className: "w-full h-36 object-cover rounded-2xl"
-  }), /*#__PURE__*/React.createElement("img", {
-    src: "./images/products/promo-barra-manubrios-y-discos-20kg-30kg-40kg-1.jpg",
-    className: "w-full h-48 object-cover rounded-2xl"
-  }))))))), /*#__PURE__*/React.createElement("section", {
-    className: "py-14 bg-white"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "mb-8"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-extrabold uppercase text-[#FF4A00] bg-orange-50 px-3 py-1 rounded-full border border-orange-200"
-  }, "Entrenamientos & Estilo de Vida Activo"), /*#__PURE__*/React.createElement("h2", {
-    className: "text-3xl font-black text-[#0F172A] mt-2 font-display"
-  }, "Programas de Entrenamiento Personalizados")), /*#__PURE__*/React.createElement("div", {
-    className: "grid md:grid-cols-2 gap-6"
-  }, TRAINING_PROGRAMS.map(prog => /*#__PURE__*/React.createElement("div", {
-    key: prog.id,
-    className: "rounded-3xl p-6 border-2 border-slate-200 hover:border-[#FF4A00] bg-[#F8FAFC] flex flex-col justify-between"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    className: "bg-[#0F172A] text-white text-[11px] font-extrabold px-3 py-1 rounded-full uppercase"
-  }, prog.badge), /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl font-black text-[#0F172A] mt-3"
-  }, prog.title), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm font-bold text-[#FF4A00] mt-1"
-  }, prog.subtitle), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-600 mt-2"
-  }, prog.description)), /*#__PURE__*/React.createElement("div", {
-    className: "mt-5 pt-4 border-t border-slate-200 flex items-center justify-between"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-2xl font-black text-[#0F172A]"
-  }, "S/ ", prog.priceMonthly, " ", /*#__PURE__*/React.createElement("small", {
-    className: "text-xs font-normal text-slate-500"
-  }, "/ mes")), /*#__PURE__*/React.createElement("a", {
-    href: buildWhatsAppCoachUrl(prog.title),
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "bg-[#FF4A00] text-white text-xs font-extrabold px-5 py-3 rounded-xl"
-  }, "Hablar con Entrenador ÔåÆ"))))))), /*#__PURE__*/React.createElement("section", {
-    className: "py-14 bg-[#F8FAFC] border-t border-slate-200"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap items-end justify-between mb-8 gap-4"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-extrabold uppercase text-[#0F172A] bg-white px-3 py-1 rounded-full border border-slate-200"
-  }, "Tienda Oficial Bassfit ┬À Equipamiento & Suplementos"), /*#__PURE__*/React.createElement("h2", {
-    className: "text-3xl font-black text-[#0F172A] mt-2 font-display"
-  }, "Todos los Productos Disponibles (", BASSFIT_PRODUCTS.length, ")")), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap gap-2"
-  }, PRODUCT_CATEGORIES.map(cat => /*#__PURE__*/React.createElement("button", {
-    key: cat.slug,
-    onClick: () => setSelectedCategory(cat.slug),
-    className: `px-3 py-1.5 rounded-xl text-xs font-extrabold ${selectedCategory === cat.slug ? "bg-[#0F172A] text-white" : "bg-white text-slate-700 border border-slate-200"}`
-  }, cat.label)))), /*#__PURE__*/React.createElement("div", {
-    className: "grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-  }, filteredProducts.map(product => /*#__PURE__*/React.createElement(ProductCard, {
+    className: "bg-[#0F172A] text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-[#FF4A00] transition cursor-pointer"
+  }, "Restablecer Filtros")) : /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+  }, filteredProducts.map(product => /*#__PURE__*/React.createElement("div", {
     key: product.id,
-    product: product,
-    onOpenDetail: () => setSelectedProduct(product),
-    onAddToCart: () => handleAddToCart(product),
-    onTestBackendGuard: () => handleTestBackendSupplementGuard(product)
-  })))))), activeTab === "entrenamientos" && /*#__PURE__*/React.createElement("div", {
-    className: "py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10"
+    className: "bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between group"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-[#0F172A] text-white rounded-3xl p-8"
+    onClick: () => setSelectedProduct(product),
+    className: "cursor-pointer p-4 bg-white flex items-center justify-center h-52 relative overflow-hidden"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: resolveImg(product.images[0]),
+    alt: product.name,
+    className: "max-h-44 w-full object-contain group-hover:scale-105 transition duration-300",
+    onError: e => {
+      e.currentTarget.onerror = null;
+      e.currentTarget.src = "bassfit-headless/public/" + (product.images[0].startsWith("/") ? product.images[0].slice(1) : product.images[0]);
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
+  }, product.categoryLabel)), /*#__PURE__*/React.createElement("div", {
+    className: "p-5 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    onClick: () => setSelectedProduct(product),
+    className: "font-bold text-sm text-slate-900 line-clamp-2 hover:text-[#FF4A00] cursor-pointer transition leading-snug"
+  }, product.name), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed"
+  }, product.shortDescription)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline space-x-2 mb-3"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "bg-[#FF4A00] text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase"
-  }, "Entrenamiento & Bienestar Activo"), /*#__PURE__*/React.createElement("h1", {
-    className: "text-3xl sm:text-4xl font-black mt-3 font-display"
-  }, "Planes de Entrenamiento & Derivaci├│n Directa a Entrenadores"), /*#__PURE__*/React.createElement("p", {
-    className: "text-slate-300 text-sm mt-2"
-  }, "Selecciona tu programa o llena el formulario para comunicarte con tu coach de Bassfit.")), /*#__PURE__*/React.createElement("div", {
-    className: "grid md:grid-cols-2 gap-6"
+    className: "text-xl font-black text-[#FF4A00]"
+  }, "S/ ", product.price.toFixed(2)), product.compareAtPrice && /*#__PURE__*/React.createElement("span", {
+    className: "text-xs text-slate-400 line-through"
+  }, "S/ ", product.compareAtPrice.toFixed(2))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSelectedProduct(product),
+    className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
+  }, "Ver Ficha"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => handleAddToCart(product),
+    className: "w-full bg-[#FF4A00] hover:bg-[#e04100] text-white text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center flex items-center justify-center space-x-1"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-3.5 h-3.5",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M12 4v16m8-8H4"
+  })), /*#__PURE__*/React.createElement("span", null, "Añadir"))), /*#__PURE__*/React.createElement("a", {
+    href: buildWhatsAppProductUrl(product),
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 text-center cursor-pointer"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-3.5 h-3.5",
+    fill: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z"
+  })), /*#__PURE__*/React.createElement("span", null, "WhatsApp"))))))))), activeTab === "entrenamientos" && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-8"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "text-3xl font-black text-slate-900"
+  }, "Programas de Entrenamiento Bassfit"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-500"
+  }, "Planes personalizados y estructurados según tus objetivos y equipamiento disponible.")), /*#__PURE__*/React.createElement("div", {
+    className: "grid md:grid-cols-3 gap-6"
   }, TRAINING_PROGRAMS.map(prog => /*#__PURE__*/React.createElement("div", {
     key: prog.id,
-    className: "bg-[#F8FAFC] p-6 rounded-3xl border border-slate-200 flex flex-col justify-between"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    className: "bg-[#FF4A00] text-white text-xs font-extrabold px-3 py-1 rounded-full"
-  }, prog.badge), /*#__PURE__*/React.createElement("h2", {
-    className: "text-2xl font-black mt-3"
+    className: "bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-4"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[10px] font-extrabold bg-orange-100 text-[#FF4A00] px-3 py-1 rounded-full uppercase tracking-wider inline-block"
+  }, prog.badge), /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-black text-slate-900 leading-snug"
   }, prog.title), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-slate-600 mt-2"
-  }, prog.description), /*#__PURE__*/React.createElement("ul", {
-    className: "mt-4 space-y-1.5"
+    className: "text-xs text-slate-600 leading-relaxed"
+  }, prog.subtitle), /*#__PURE__*/React.createElement("div", {
+    className: "border-t border-b border-slate-100 py-3 my-2 space-y-1 text-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-400"
+  }, "Modalidad:"), " ", /*#__PURE__*/React.createElement("span", {
+    className: "font-bold text-slate-700"
+  }, prog.modality)), /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-400"
+  }, "Duración:"), " ", /*#__PURE__*/React.createElement("span", {
+    className: "font-bold text-slate-700"
+  }, prog.duration)), /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-baseline pt-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-400"
+  }, "Inversión:"), /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl font-black text-[#FF4A00]"
+  }, "S/ ", prog.priceMonthly, " ", /*#__PURE__*/React.createElement("span", {
+    className: "text-xs text-slate-400 font-normal"
+  }, "/mes")))), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-1.5 text-xs text-slate-600"
   }, prog.includes.map((inc, i) => /*#__PURE__*/React.createElement("li", {
     key: i,
-    className: "text-xs text-slate-700"
-  }, "Ô£ô ", inc)))), /*#__PURE__*/React.createElement("div", {
-    className: "mt-6 pt-4 border-t border-slate-200 flex justify-between items-center"
+    className: "flex items-start"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-2xl font-black"
-  }, "S/ ", prog.priceMonthly, "/mes"), /*#__PURE__*/React.createElement("a", {
-    href: buildWhatsAppCoachUrl(prog.title, coachForm),
+    className: "text-[#FF4A00] mr-2 font-bold"
+  }, "✓"), /*#__PURE__*/React.createElement("span", null, inc))))), /*#__PURE__*/React.createElement("div", {
+    className: "pt-6"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: `https://wa.me/51967581481?text=${encodeURIComponent(`Hola Coach Bassfit 💪, deseo inscribirme en el programa: *${prog.title}* (S/ ${prog.priceMonthly} mensual). ¿Cómo coordinamos mi evaluación inicial?`)}`,
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "bg-[#0F172A] hover:bg-[#FF4A00] text-white font-extrabold px-5 py-3 rounded-xl text-xs border border-[#FF4A00] transition"
-  }, "Derivar con Coach por WhatsApp ÔåÆ")))))), activeTab === "tienda" && /*#__PURE__*/React.createElement("div", {
-    className: "py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap gap-2 mb-6"
-  }, PRODUCT_CATEGORIES.map(cat => /*#__PURE__*/React.createElement("button", {
-    key: cat.slug,
-    onClick: () => setSelectedCategory(cat.slug),
-    className: `px-3.5 py-2 rounded-xl text-xs font-extrabold ${selectedCategory === cat.slug ? "bg-[#0F172A] text-white" : "bg-[#F8FAFC] text-slate-700 border border-slate-200"}`
-  }, cat.label))), /*#__PURE__*/React.createElement("div", {
-    className: "grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-  }, filteredProducts.map(product => /*#__PURE__*/React.createElement(ProductCard, {
-    key: product.id,
-    product: product,
-    onOpenDetail: () => setSelectedProduct(product),
-    onAddToCart: () => handleAddToCart(product),
-    onTestBackendGuard: () => handleTestBackendSupplementGuard(product)
-  })))), activeTab === "comunidad" && /*#__PURE__*/React.createElement("div", {
-    className: "py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-[#F8FAFC] p-8 rounded-3xl border border-slate-200"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "bg-orange-100 text-[#FF4A00] text-xs font-extrabold px-3 py-1 rounded-full"
-  }, "Formato Evergreen SEO ┬À Sin Fechas ┬À Sin Comentarios"), /*#__PURE__*/React.createElement("h1", {
-    className: "text-3xl font-black mt-2 font-display"
-  }, "Comunidad & Tribu Bassfit")), /*#__PURE__*/React.createElement("div", {
+    className: "w-full bg-[#0F172A] hover:bg-[#FF4A00] text-white font-extrabold py-3.5 rounded-xl text-xs text-center block transition cursor-pointer"
+  }, "Inscribirme por WhatsApp →")))))), activeTab === "comunidad" && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-8"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "text-3xl font-black text-slate-900"
+  }, "Guías Técnicas y Longevidad Activa"), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-500"
+  }, "Artículos respaldados por ciencia del deporte para entrenar con técnica y sin lesiones.")), /*#__PURE__*/React.createElement("div", {
     className: "grid md:grid-cols-2 gap-6"
   }, EVERGREEN_ARTICLES.map(art => /*#__PURE__*/React.createElement("div", {
     key: art.id,
-    className: "bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm p-6 space-y-4"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: art.heroImage,
-    className: "w-full h-52 object-cover rounded-2xl"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "text-xs font-extrabold text-[#FF4A00]"
-  }, "­ƒÄ¼ Video Intro (", art.shortVideoDuration, "): ", art.shortVideoTitle), /*#__PURE__*/React.createElement("h2", {
-    className: "text-xl font-black"
-  }, art.title), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-slate-600"
-  }, art.seoExcerpt), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setSelectedArticle(art),
-    className: "bg-[#0F172A] text-white text-xs font-extrabold px-4 py-2.5 rounded-xl"
-  }, "Ver Gu├¡a + Productos Vinculados ÔåÆ")))))), selectedProduct && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+    className: "bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl my-8"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center border-b pb-3 mb-5"
+    className: "space-y-3"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "bg-[#0F172A] text-white text-xs font-bold px-3 py-1 rounded-full"
+    className: "text-[11px] font-bold text-[#FF4A00] uppercase tracking-wider"
+  }, art.pillarCategory, " · ", art.readingTime), /*#__PURE__*/React.createElement("h3", {
+    className: "text-lg font-black text-slate-900 leading-snug"
+  }, art.title), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-600 leading-relaxed"
+  }, art.seoExcerpt)), /*#__PURE__*/React.createElement("div", {
+    className: "pt-4"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSelectedArticle(art),
+    className: "text-xs font-bold text-[#0F172A] hover:text-[#FF4A00] transition cursor-pointer"
+  }, "Leer artículo completo →"))))))), /*#__PURE__*/React.createElement("footer", {
+    className: "bg-[#0F172A] text-slate-400 text-xs py-12 border-t border-slate-800 mt-16"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 md:grid-cols-4 gap-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3 md:col-span-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-white font-black text-lg tracking-wider"
+  }, "BASSFIT PERÚ"), /*#__PURE__*/React.createElement("p", {
+    className: "text-slate-400 max-w-sm leading-relaxed"
+  }, "Comunidad y equipamiento deportivo de alta exigencia para atletas de todas las edades. Fitness inteligente, funcional y sin límites de edad.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
+    className: "text-white font-bold mb-3 uppercase tracking-wider text-[11px]"
+  }, "Disciplinas"), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setSelectedCategory("yoga-pilates");
+      setActiveTab("tienda");
+    },
+    className: "hover:text-white cursor-pointer"
+  }, "Yoga & Pilates (5)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setSelectedCategory("entrenamiento-fuerza");
+      setActiveTab("tienda");
+    },
+    className: "hover:text-white cursor-pointer"
+  }, "Fuerza & Pesas (4)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setSelectedCategory("calistenia");
+      setActiveTab("tienda");
+    },
+    className: "hover:text-white cursor-pointer"
+  }, "Calistenia (4)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setSelectedCategory("boxeo-artes-marciales");
+      setActiveTab("tienda");
+    },
+    className: "hover:text-white cursor-pointer"
+  }, "Boxeo & Combate (3)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setSelectedCategory("natacion-acuaticos");
+      setActiveTab("tienda");
+    },
+    className: "hover:text-white cursor-pointer"
+  }, "Natación (1)")))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
+    className: "text-white font-bold mb-3 uppercase tracking-wider text-[11px]"
+  }, "Contacto Oficial"), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("li", null, "WhatsApp: ", /*#__PURE__*/React.createElement("a", {
+    href: "https://wa.me/51967581481",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "text-white font-bold hover:underline"
+  }, "+51 967 581 481")), /*#__PURE__*/React.createElement("li", null, "Envíos: Lima y todas las provincias del Perú"), /*#__PURE__*/React.createElement("li", null, "Compra: 100% Protegida y Garantizada")))), /*#__PURE__*/React.createElement("div", {
+    className: "border-t border-slate-800 pt-6 text-center text-slate-500"
+  }, "© ", new Date().getFullYear(), " BASSFIT PERÚ. Todos los derechos reservados."))), selectedProduct && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center p-3 sm:p-6 items-start",
+    onClick: () => setSelectedProduct(null)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-8 shadow-2xl my-3 sm:my-6 relative border border-slate-100",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-center border-b border-slate-100 pb-3 mb-5 sticky -top-5 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-10"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bg-[#0F172A] text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider"
   }, selectedProduct.categoryLabel), /*#__PURE__*/React.createElement("button", {
     onClick: () => setSelectedProduct(null),
-    className: "font-bold text-lg"
-  }, "Ô£ò")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3.5 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shadow-sm border border-slate-200",
+    title: "Cerrar ventana (Esc)"
+  }, /*#__PURE__*/React.createElement("span", null, "Cerrar"), /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M6 18L18 6M6 6l12 12"
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "grid md:grid-cols-2 gap-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-center"
   }, /*#__PURE__*/React.createElement("img", {
     src: resolveImg(selectedProduct.images[0]),
+    alt: selectedProduct.name,
+    className: "max-h-72 w-full object-contain",
     onError: e => {
       e.currentTarget.onerror = null;
       e.currentTarget.src = "bassfit-headless/public/" + (selectedProduct.images[0].startsWith("/") ? selectedProduct.images[0].slice(1) : selectedProduct.images[0]);
-    },
-    className: "w-full h-64 object-contain rounded-2xl border border-slate-200 bg-white p-4"
-  }), /*#__PURE__*/React.createElement("div", {
+    }
+  })), /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("h2", {
-    className: "text-2xl font-black"
+    className: "text-2xl font-black text-slate-900 leading-tight"
   }, selectedProduct.name), /*#__PURE__*/React.createElement("div", {
     className: "flex items-baseline space-x-3"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-3xl font-black text-[#FF4A00]"
-  }, "S/ ", selectedProduct.price), selectedProduct.compareAtPrice && /*#__PURE__*/React.createElement("span", {
+  }, "S/ ", selectedProduct.price.toFixed(2)), selectedProduct.compareAtPrice && /*#__PURE__*/React.createElement("span", {
     className: "text-base text-slate-400 line-through"
-  }, "S/ ", selectedProduct.compareAtPrice)), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-slate-600 leading-relaxed"
+  }, "S/ ", selectedProduct.compareAtPrice.toFixed(2))), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 leading-relaxed whitespace-pre-line"
   }, selectedProduct.shortDescription), selectedProduct.technicalSpecs && selectedProduct.technicalSpecs.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs space-y-2"
   }, /*#__PURE__*/React.createElement("strong", {
     className: "text-slate-900 block font-bold uppercase tracking-wider text-[11px]"
-  }, "­ƒôï Caracter├¡sticas y Especificaciones:"), /*#__PURE__*/React.createElement("ul", {
+  }, "Ficha Técnica y Especificaciones:"), /*#__PURE__*/React.createElement("ul", {
     className: "space-y-1.5 text-slate-700"
   }, selectedProduct.technicalSpecs.map((spec, idx) => /*#__PURE__*/React.createElement("li", {
     key: idx,
     className: "flex items-start"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-[#FF4A00] font-bold mr-2"
-  }, "Ô£ô"), /*#__PURE__*/React.createElement("span", null, spec))))), /*#__PURE__*/React.createElement("div", {
-    className: "bg-orange-50 border border-orange-200 p-3 rounded-xl text-xs text-orange-950"
-  }, /*#__PURE__*/React.createElement("strong", null, "­ƒÆí Tip del Coach Bassfit:"), " ", selectedProduct.coachTip), /*#__PURE__*/React.createElement("div", {
+  }, "✓"), /*#__PURE__*/React.createElement("span", null, spec))))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-orange-50 border border-orange-200 p-3.5 rounded-xl text-xs text-orange-950"
+  }, /*#__PURE__*/React.createElement("strong", null, "Tip del Coach Bassfit:"), " ", selectedProduct.coachTip), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2 pt-2"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       handleAddToCart(selectedProduct);
       setSelectedProduct(null);
     },
-    className: "w-full bg-[#FF4A00] hover:bg-[#e04100] text-white font-extrabold py-3.5 rounded-xl text-sm shadow-md transition flex items-center justify-center space-x-2"
-  }, /*#__PURE__*/React.createElement("span", null, "­ƒøÆ A├▒adir al Carrito Easy Pay (S/ ", selectedProduct.price, ")")), /*#__PURE__*/React.createElement("a", {
-    href: `https://wa.me/51967581481?text=${encodeURIComponent(`Hola Bassfit ­ƒæï, deseo consultar y comprar: *${selectedProduct.name}* (S/ ${selectedProduct.price}). ┬┐Tienen disponibilidad inmediata y env├¡os?`)}`,
+    className: "w-full bg-[#FF4A00] hover:bg-[#e04100] text-white font-extrabold py-3.5 rounded-xl text-sm shadow-md transition flex items-center justify-center space-x-2 cursor-pointer"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+  })), /*#__PURE__*/React.createElement("span", null, "Añadir al Carrito (S/ ", selectedProduct.price.toFixed(2), ")")), /*#__PURE__*/React.createElement("a", {
+    href: buildWhatsAppProductUrl(selectedProduct),
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold py-3 rounded-xl text-sm shadow-sm transition flex items-center justify-center space-x-2 text-center"
-  }, /*#__PURE__*/React.createElement("span", null, "­ƒÆ¼ Consultar por WhatsApp (+51 967 581 481)"))))))), selectedArticle && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+    className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold py-3.5 rounded-xl text-sm shadow-sm transition flex items-center justify-center space-x-2 text-center cursor-pointer"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z"
+  })), /*#__PURE__*/React.createElement("span", null, "Consultar por WhatsApp (+51 967 581 481)")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSelectedProduct(null),
+    className: "w-full text-center text-slate-500 hover:text-slate-800 text-xs font-bold py-2.5 mt-2 transition cursor-pointer"
+  }, "← Seguir viendo productos del catálogo")))))), selectedArticle && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center p-3 sm:p-6 items-start",
+    onClick: () => setSelectedArticle(null)
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl my-8 space-y-4"
+    className: "bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl my-4 sm:my-8 relative",
+    onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center border-b pb-3"
+    className: "flex justify-between items-center border-b pb-4 mb-6 sticky -top-6 bg-white/95 backdrop-blur-md pt-2 z-10"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "bg-orange-50 text-[#0F172A] text-xs font-bold px-3 py-1 rounded-full"
-  }, "Art├¡culo Evergreen SEO ┬À Sin fechas ┬À Sin comentarios"), /*#__PURE__*/React.createElement("button", {
+    className: "text-xs font-bold text-[#FF4A00] uppercase tracking-wider"
+  }, selectedArticle.pillarCategory, " · ", selectedArticle.readingTime), /*#__PURE__*/React.createElement("button", {
     onClick: () => setSelectedArticle(null),
-    className: "font-bold text-lg"
-  }, "Ô£ò")), /*#__PURE__*/React.createElement("h2", {
-    className: "text-2xl font-black"
-  }, selectedArticle.title), selectedArticle.contentSections.map((s, i) => /*#__PURE__*/React.createElement("div", {
-    key: i
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "font-extrabold text-base"
-  }, s.heading), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-slate-600"
-  }, s.body))))), isCartOpen && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-end"
+    className: "flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
+  }, /*#__PURE__*/React.createElement("span", null, "Cerrar"), /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M6 18L18 6M6 6l12 12"
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "text-2xl sm:text-3xl font-black text-slate-900 leading-tight"
+  }, selectedArticle.title), selectedArticle.contentSections.map((sec, idx) => /*#__PURE__*/React.createElement("div", {
+    key: idx,
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("h4", {
+    className: "text-base font-bold text-slate-900"
+  }, sec.heading), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm text-slate-600 leading-relaxed"
+  }, sec.body))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSelectedArticle(null),
+    className: "w-full text-center text-slate-500 hover:text-slate-800 text-xs font-bold py-3 mt-4 transition cursor-pointer"
+  }, "← Volver a guías")))), isCartOpen && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-end",
+    onClick: () => setIsCartOpen(false)
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto"
+    className: "bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto",
+    onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center border-b pb-4 mb-4"
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "text-lg font-black"
-  }, "Carrito Directo Easy Pay"), /*#__PURE__*/React.createElement("button", {
+    className: "flex justify-between items-center border-b border-slate-100 pb-4 mb-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-2"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-5 h-5 text-[#FF4A00]",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2",
+    d: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+  })), /*#__PURE__*/React.createElement("h3", {
+    className: "text-lg font-black text-slate-900"
+  }, "Tu Carrito"), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs text-slate-400 font-bold"
+  }, "(", cartCount, " items)")), /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsCartOpen(false),
-    className: "font-bold"
-  }, "Ô£ò")), checkoutStep === "cart" && cart.map(item => /*#__PURE__*/React.createElement("div", {
-    key: item.product.id,
-    className: "flex items-center justify-between gap-3 py-3 border-b"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: item.product.images[0],
-    className: "w-14 h-14 rounded-xl object-cover"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1"
+    className: "w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer",
+    title: "Cerrar carrito"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M6 18L18 6M6 6l12 12"
+  })))), cart.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "text-center py-16 space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-xs font-bold"
-  }, item.product.name), /*#__PURE__*/React.createElement("div", {
-    className: "text-xs text-[#FF4A00] font-bold"
-  }, "S/ ", item.product.price, " x ", item.quantity)), /*#__PURE__*/React.createElement("div", {
-    className: "font-black text-sm"
-  }, "S/ ", item.product.price * item.quantity))), checkoutStep === "form" && /*#__PURE__*/React.createElement("form", {
-    onSubmit: handleProcessEasyPayCheckout,
+    className: "w-16 h-16 bg-orange-50 text-[#FF4A00] rounded-full flex items-center justify-center mx-auto"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-8 h-8",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2",
+    d: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+  }))), /*#__PURE__*/React.createElement("h4", {
+    className: "text-base font-bold text-slate-900"
+  }, "Tu carrito está vacío"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 max-w-xs mx-auto"
+  }, "Aún no has agregado productos. Explora nuestro catálogo con los 18 implementos oficiales."), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("tienda");
+      setIsCartOpen(false);
+    },
+    className: "bg-[#FF4A00] text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-[#e04100] transition cursor-pointer"
+  }, "Ver Catálogo de Productos")) : /*#__PURE__*/React.createElement("div", {
     className: "space-y-3"
-  }, /*#__PURE__*/React.createElement("input", {
-    required: true,
-    placeholder: "Nombre Completo",
-    className: "w-full px-3 py-2 border rounded-xl text-sm"
-  }), /*#__PURE__*/React.createElement("input", {
-    required: true,
-    type: "email",
-    placeholder: "Correo Electr├│nico",
-    className: "w-full px-3 py-2 border rounded-xl text-sm"
-  }), /*#__PURE__*/React.createElement("input", {
-    required: true,
-    placeholder: "Direcci├│n de Entrega",
-    className: "w-full px-3 py-2 border rounded-xl text-sm"
-  }), /*#__PURE__*/React.createElement("button", {
-    type: "submit",
-    className: "w-full bg-[#FF4A00] text-white font-extrabold py-3 rounded-xl text-sm"
-  }, "Confirmar Pago S/ ", cartTotal, " en Easy Pay ÔåÆ")), checkoutStep === "success" && orderConfirmation && /*#__PURE__*/React.createElement("div", {
-    className: "bg-orange-50 border border-orange-400 p-4 rounded-2xl text-center space-y-2"
+  }, cart.map(item => /*#__PURE__*/React.createElement("div", {
+    key: item.product.id,
+    className: "flex items-center gap-3 py-3 border-b border-slate-100"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: resolveImg(item.product.images[0]),
+    alt: item.product.name,
+    className: "w-14 h-14 rounded-xl object-contain bg-white border border-slate-100 p-1 flex-shrink-0",
+    onError: e => {
+      e.currentTarget.onerror = null;
+      e.currentTarget.src = "bassfit-headless/public/" + (item.product.images[0].startsWith("/") ? item.product.images[0].slice(1) : item.product.images[0]);
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 min-w-0"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "font-black text-[#0F172A]"
-  }, "┬íPedido Confirmado!"), /*#__PURE__*/React.createElement("div", {
-    className: "text-xs"
-  }, "Orden: ", orderConfirmation.orderReference))), checkoutStep === "cart" && cart.length > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "pt-4 border-t space-y-3"
+    className: "text-xs font-bold text-slate-900 truncate"
+  }, item.product.name), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-[#FF4A00] font-black mt-0.5"
+  }, "S/ ", item.product.price.toFixed(2)), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-2 mt-1.5"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => handleUpdateQuantity(item.product.id, -1),
+    className: "w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer"
+  }, "-"), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold text-slate-800 px-1"
+  }, item.quantity), /*#__PURE__*/React.createElement("button", {
+    onClick: () => handleUpdateQuantity(item.product.id, 1),
+    className: "w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer"
+  }, "+"))), /*#__PURE__*/React.createElement("div", {
+    className: "text-right"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between font-black text-base"
-  }, /*#__PURE__*/React.createElement("span", null, "Total Easy Pay"), /*#__PURE__*/React.createElement("span", null, "S/ ", cartTotal)), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setCheckoutStep("form"),
-    className: "w-full bg-[#FF4A00] text-white font-extrabold py-3.5 rounded-xl text-sm"
-  }, "Proceder al Pago Easy Pay ÔåÆ")))));
+    className: "font-black text-sm text-slate-900"
+  }, "S/ ", (item.product.price * item.quantity).toFixed(2)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => handleRemoveFromCart(item.product.id),
+    className: "text-xs text-slate-400 hover:text-red-500 mt-1 block ml-auto cursor-pointer",
+    title: "Eliminar producto"
+  }, "✕")))))), cart.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "pt-4 border-t border-slate-100 space-y-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-1.5 text-xs text-slate-600"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between"
+  }, /*#__PURE__*/React.createElement("span", null, "Subtotal:"), /*#__PURE__*/React.createElement("span", {
+    className: "font-bold text-slate-800"
+  }, "S/ ", cartSubtotal.toFixed(2))), /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between"
+  }, /*#__PURE__*/React.createElement("span", null, "Envío:"), /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-500"
+  }, "A coordinar (Lima y Provincias)"))), /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-baseline font-black text-lg border-t border-slate-100 pt-2 text-slate-900"
+  }, /*#__PURE__*/React.createElement("span", null, "Total a Pagar:"), /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl text-[#FF4A00]"
+  }, "S/ ", cartSubtotal.toFixed(2))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2 pt-1"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: handleWhatsAppCartOrder,
+    className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold py-3.5 rounded-xl text-sm transition shadow-sm flex items-center justify-center space-x-2 cursor-pointer"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-5 h-5",
+    fill: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z"
+  })), /*#__PURE__*/React.createElement("span", null, "Pedir Pedido por WhatsApp")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setIsCartOpen(false),
+    className: "w-full text-center text-slate-500 hover:text-slate-800 text-xs font-bold py-2 transition cursor-pointer"
+  }, "← Seguir agregando productos"))))));
 }
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(/*#__PURE__*/React.createElement(App, null));
-</script>
+  </script>
 </body>
 </html>
