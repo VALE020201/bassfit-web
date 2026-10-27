@@ -23,9 +23,19 @@
       }
     };
   </script>
-  <!-- React 18: Soporte Local Offline con Fallback CDN automático -->
-  <script src="./vendor/react.production.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/react@18/umd/react.production.min.js'"></script>
-  <script src="./vendor/react-dom.production.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/react-dom@18/umd/react-dom.production.min.js'"></script>
+  <!-- React 18 & ReactDOM 18 -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script>
+    if (typeof React === 'undefined') {
+      document.write('<script src="./vendor/react.production.min.js"><\/script>');
+    }
+  </script>
+  <script>
+    if (typeof ReactDOM === 'undefined') {
+      document.write('<script src="./vendor/react-dom.production.min.js"><\/script>');
+    }
+  </script>
 </head>
 <body class="bg-white text-[#0F172A] antialiased">
   <div id="root"></div>
@@ -759,7 +769,7 @@ const BASSFIT_PRODUCTS = [{
   "images": ["/images/products/guantes-de-neopreno-1.jpg"],
   "coachTip": "La muñequera integrada previene la hiperextensión en press de banca militar y mancuernas pesadas."
 }];
-const CATEGORIES = [{
+const PRODUCT_CATEGORIES = CATEGORIES = [{
   slug: "todos",
   label: "Todos los Implementos",
   count: 33
