@@ -153,24 +153,19 @@ export default function BassfitClientApp() {
 
       {/* STICKY HEADER */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          {/* Logo & Brand Slogan */}
-          <div
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 md:h-24 flex items-center justify-between">
+          {/* Logo Oficial de Bassfit Perú */}
+          <button
             onClick={() => { setActiveTab("inicio"); setSelectedCategory("todos"); }}
-            className="flex items-center space-x-3 cursor-pointer group"
+            className="flex items-center text-left group focus:outline-none cursor-pointer"
+            title="Bassfit Perú - Inicio"
           >
-            <div className="w-11 h-11 rounded-2xl bg-[#0F172A] group-hover:bg-[#FF4A00] text-white font-black flex items-center justify-center text-xl tracking-tighter transition-colors shadow-md">
-              B
-            </div>
-            <div>
-              <div className="text-xl font-black tracking-tight text-slate-900 group-hover:text-[#FF4A00] transition-colors leading-none">
-                BASSFIT
-              </div>
-              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">
-                ...fitness sin límites de edad..
-              </div>
-            </div>
-          </div>
+            <img
+              src="/images/brand/logo_bassfit_peru.png"
+              alt="Bassfit Perú - Fitness sin límites de edad"
+              className="h-14 sm:h-16 md:h-20 w-auto object-contain transition duration-200 group-hover:scale-105"
+            />
+          </button>
 
           {/* Desktop Navigation Tabs */}
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
@@ -619,7 +614,11 @@ export default function BassfitClientApp() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3 md:col-span-2">
-              <div className="text-white font-black text-lg tracking-wider">BASSFIT PERÚ</div>
+              <img
+                src="/images/brand/logo_bassfit_peru_dark.png"
+                alt="Bassfit Perú"
+                className="h-14 md:h-16 w-auto object-contain mb-1"
+              />
               <p className="text-slate-400 max-w-sm leading-relaxed">
                 Comunidad y equipamiento deportivo de alta exigencia para atletas de todas las edades. Fitness inteligente, funcional y sin límites de edad.
               </p>
