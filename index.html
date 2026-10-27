@@ -42,9 +42,13 @@ function resolveImg(src) {
   const clean = src.startsWith('/') ? src.slice(1) : src;
   return clean;
 }
-function buildWhatsAppProductUrl(product) {
+function buildWhatsAppProductUrl(product, variant) {
   if (!product) return 'https://wa.me/51967581481';
-  const text = 'Hola Bassfit 👋, deseo consultar y comprar: *' + product.name + '* (S/ ' + product.price + '). ¿Tienen disponibilidad inmediata y envíos?';
+  let title = product.name;
+  if (variant && variant.name) {
+    title += ' [Variedad: ' + variant.name + ']';
+  }
+  const text = 'Hola Bassfit 👋, deseo consultar y comprar: *' + title + '* (S/ ' + product.price.toFixed(2) + '). ¿Tienen disponibilidad inmediata y envíos a mi dirección?';
   return 'https://wa.me/51967581481?text=' + encodeURIComponent(text);
 }
 const TRAINING_PROGRAMS = [{
@@ -58,8 +62,8 @@ const TRAINING_PROGRAMS = [{
   targetAudience: "Adultos de 35 a 70+ años que buscan salud articular, fuerza funcional y vitalidad sin lesiones.",
   priceMonthly: 180,
   description: "Fieles a nuestro lema «...fitness sin límites de edad..», este programa combina entrenamiento de fuerza progresivo en casa o gimnasio con trabajo de estabilidad y movilidad articular.",
-  includes: ["Evaluación funcional inicial por videollamada", "Rutina semanal estructurada con videos paso a paso", "Corrección de técnica por video vía WhatsApp directo", "Guía de equipamiento óptimo en casa"],
-  recommendedProductSlugs: ["kit-ligas-elasticas", "mat-de-yoga-6mm-10mm-15mm", "pesas-rusas-pvc", "pelota-pilates-inflador"],
+  includes: ["Evaluación funcional inicial por videollamada", "Rutina semanal estructurada con videos paso a paso", "Corrección de técnica por video vía WhatsApp directo", "Guía de equipamiento básico recomendado"],
+  recommendedProductSlugs: ["kit-ligas-elasticas-resistencia", "foam-roller-recuperacion-muscular", "pesa-rusa-kettlebell-ergonomica"],
   coachName: "Head Coach Bassfit",
   coachSpecialty: "Especialista en Fuerza Funcional & Salud Articular",
   image: "./images/products/kit-ligas-elasticas-1.jpg",
@@ -76,7 +80,7 @@ const TRAINING_PROGRAMS = [{
   priceMonthly: 210,
   description: "Periodización científica del entrenamiento de fuerza. Diseñamos tu microciclo según el equipamiento que tengas disponible.",
   includes: ["Planificación de cargas, repeticiones en recámara (RIR) y tempos", "Ajustes semanales basados en tu progreso", "Protocolos específicos para piernas, torso y brazos", "Soporte directo con el entrenador por WhatsApp"],
-  recommendedProductSlugs: ["promo-barra-manubrios-y-discos-20kg-30kg-40kg", "set-de-mancuernas", "cinturon-de-lastre", "chaleco-de-lastre"],
+  recommendedProductSlugs: ["barras-8en1-multifuncional", "promo-barra-manubrios-y-discos-20kg-30kg-40kg", "set-de-mancuernas", "cinturon-de-lastre", "chaleco-de-lastre"],
   coachName: "Coach de Hipertrofia Bassfit",
   coachSpecialty: "Biomecánica y Sobrecarga Progresiva",
   image: "./images/products/set-de-mancuernas-1.jpg",
@@ -93,7 +97,7 @@ const TRAINING_PROGRAMS = [{
   priceMonthly: 160,
   description: "Aprende combinaciones reales de boxeo, trabajo de saco, reflejos y pliometría funcional desde casa. No necesitas experiencia previa.",
   includes: ["4 sesiones semanales de 35 a 45 minutos de alta intensidad", "Módulos progresivos de técnica de guardia y golpes", "Rounds específicos con saco de boxeo y pelota de reflejos", "Comunidad privada de motivación y retos mensuales"],
-  recommendedProductSlugs: ["saco-de-boxeo-lleno", "vendas-de-boxeo", "pelota-de-reflejos"],
+  recommendedProductSlugs: ["saco-de-boxeo-lleno", "vendas-de-boxeo", "pelota-de-reflejos", "escalera-pliometrica-agilidad"],
   coachName: "Coach de Combate Bassfit",
   coachSpecialty: "Técnica de Boxeo y Preparación Física",
   image: "./images/products/saco-de-boxeo-lleno-1.jpg",
@@ -506,7 +510,7 @@ const BASSFIT_PRODUCTS = [{
 }, {
   "id": "wa-3708939919127923",
   "wcId": 1021,
-  "name": "Crema Corporal Caliente / Lipo Cream",
+  "name": "Crema Corporal Reductora / Lipo Cream (Variedades)",
   "slug": "crema-corporal-caliente",
   "categorySlug": "fajas-reductoras",
   "categoryLabel": "Fajas Reductoras",
@@ -515,10 +519,47 @@ const BASSFIT_PRODUCTS = [{
   "stock": 50,
   "sku": "BF-CR-001",
   "saleMode": "direct_cart",
-  "shortDescription": "Excelente crema caliente para complementar con el uso de fajas y conseguir resultados reductores más rápidos y efectivos en menor tiempo.",
-  "technicalSpecs": ["Fórmula termoactiva con efecto calor que estimula la microcirculación cutánea", "Complemento ideal para fajas de neopreno y chalecos sauna Sweat Shaper", "Variedades disponibles: Lipo Cream termoactiva, reductora y reafirmante", "Fácil absorción, no mancha la ropa ni deja sensación pegajosa", "Presentación en pote hermético de alta duración (Fondo blanco puro)"],
-  "images": ["/images/products/crema-corporal-caliente-1.jpg", "/images/products/crema-corporal-caliente-2.jpg", "/images/products/crema-corporal-caliente-3.jpg"],
-  "coachTip": "Aplica con masajes circulares ascendentes sobre el abdomen antes de colocarte la faja cinturilla o chaleco sauna."
+  "shortDescription": "Excelente crema corporal reductora para complementar con el uso de fajas y conseguir resultados ms rpidos y efectivos.\\n\\nDesliza para elegir tu variedad: Lipo Cream Caliente, Blue Sky Fra Criognesis, Oligoelementos, LipoSlim 500g o Gel Corps Modelador.",
+  "technicalSpecs": ["Fondo blanco puro (#FFFFFF) de alta definicin en todas las presentaciones", "Variedad 1: Lipo Cream Caliente con fosfatidilcolina termoactiva", "Variedad 2: Lipo Cream Blue Sky con frmula criognica (efecto fro), mentol y alcanfor", "Variedad 3: Lipo Cream Oligoelementos termohidratante con cola de caballo y algas", "Variedad 4: LipoSlim Thermognesis en pote de 500g de alta concentracin", "Variedad 5: Corps Lignea Body Contour Hinode 500g gel modelador crioterpico", "Complemento ideal para fajas cinturilla, faja avispa y chalecos sauna Sweat Shaper"],
+  "images": ["/images/products/crema-corporal-caliente-1.jpg", "/images/products/crema-corporal-caliente-2.jpg", "/images/products/crema-corporal-caliente-3.jpg", "/images/products/crema-corporal-caliente-4.jpg", "/images/products/crema-corporal-caliente-5.jpg", "/images/products/crema-corporal-caliente-6.jpg"],
+  "coachTip": "Aplica con masajes circulares ascendentes sobre el abdomen antes de colocarte la faja cinturilla o chaleco sauna.",
+  "variants": [{
+    "id": "lipo-caliente",
+    "name": "Lipo Cream Caliente (Fosfatidilcolina)",
+    "subtitle": "Efecto calor termoactivo intensivo",
+    "imageIndex": 0,
+    "tag": "🔥 Caliente"
+  }, {
+    "id": "lipo-fria",
+    "name": "Lipo Cream Blue Sky (Criognesis Fra)",
+    "subtitle": "Efecto fro reafirmante con mentol y colgeno",
+    "imageIndex": 1,
+    "tag": "❄️ Fra"
+  }, {
+    "id": "lipo-oligo",
+    "name": "Lipo Cream Oligoelementos (Thermohidratante)",
+    "subtitle": "Extractos botnicos y oligoelementos",
+    "imageIndex": 2,
+    "tag": "🌿 Oligoelementos"
+  }, {
+    "id": "liposlim-500",
+    "name": "LipoSlim 500g (Crema Thermognesis)",
+    "subtitle": "Pote 500g reductor de medidas",
+    "imageIndex": 3,
+    "tag": "⚡ Pote 500g"
+  }, {
+    "id": "corps-500",
+    "name": "Corps Body Contour 500g (Gel Modelador)",
+    "subtitle": "Gel modelador corporal crioterpico",
+    "imageIndex": 4,
+    "tag": "✨ Gel Corps"
+  }, {
+    "id": "comparativa",
+    "name": "Catlogo Comparativo (4 Presentaciones)",
+    "subtitle": "Gua completa de variedades Bassfit",
+    "imageIndex": 5,
+    "tag": "📋 Comparativa"
+  }]
 }, {
   "id": "wa-6149196268485392",
   "wcId": 1022,
@@ -567,42 +608,186 @@ const BASSFIT_PRODUCTS = [{
   "technicalSpecs": ["4 cabezales intercambiables: bola grande, bala concentrada, tenedor y plano", "6 velocidades regulables para calentamiento, descarga muscular y percusión profunda", "Motor silencioso de alto torque con batería recargable de litio", "Agarre ergonómico y liviano para autoaplicación en espalda, piernas y hombros", "Acelera la recuperación muscular post-entrenamiento y descontractura la fascia"],
   "images": ["/images/products/fascialgun-pistola-masaje-1.jpg"],
   "coachTip": "Dedica 60 segundos por grupo muscular con el cabezal plano después de entrenar para disipar la acumulación de ácido láctico."
+}, {
+  "id": "wa-3421408384612748",
+  "wcId": 1024,
+  "name": "Barras 8en1 Multifuncional para Pared",
+  "slug": "barras-8en1-multifuncional",
+  "categorySlug": "calistenia",
+  "categoryLabel": "Calistenia & Peso Corporal",
+  "price": 178.0,
+  "compareAtPrice": 220.0,
+  "stock": 35,
+  "sku": "BF-BAR-8EN1",
+  "saleMode": "direct_cart",
+  "shortDescription": "Entrena con intensidad desde la comodidad de tu casa con nuestras Barras 8en1. Permite realizar dominadas prono y supino, fondos en paralelas, elevaciones de piernas y múltiples agarres biomecánicos para tren superior completo.",
+  "technicalSpecs": ["Estructura reforzada de acero tubular de alta resistencia con pintura electrostática anticorrosiva", "Fondo blanco puro (#FFFFFF) de alta definición sin recorte ni corte de piezas metálicas", "Cojines acolchados de alta densidad en respaldo y antebrazos forrados en vinilo de uso rudo", "8 modalidades de ejercicio en una sola estación: dominadas abiertas, neutras, cerradas, fondos y abdomen", "Incluye ganchos de anclaje de pared con pernos de expansión de seguridad para carga hasta 250 kg"],
+  "images": ["/images/products/barras-8en1-multifuncional-1.jpg"],
+  "coachTip": "Instala sobre pared de ladrillo o concreto sólido. Realiza 4 series de fondos y dominadas combinadas para congestión total del tren superior."
+}, {
+  "id": "wa-8267944463277129",
+  "wcId": 1025,
+  "name": "Escalera Pliométrica de Agilidad y Velocidad",
+  "slug": "escalera-pliometrica-agilidad",
+  "categorySlug": "funcional-resistencia",
+  "categoryLabel": "Funcional & Resistencia",
+  "price": 40.0,
+  "compareAtPrice": 52.0,
+  "stock": 50,
+  "sku": "BF-ESC-001",
+  "saleMode": "direct_cart",
+  "shortDescription": "Con la estable escalera pliométrica podrás mejorar tu coordinación, velocidad, tiempo de reacción y agilidad en cualquier deporte o preparación atlética.",
+  "technicalSpecs": ["Peldaños planos de polipropileno de alta resistencia ajustables en separación", "Cintas laterales de nylon reforzado con costuras de alta durabilidad", "Longitud estándar de competencia con estacas de fijación para césped", "Incluye funda de transporte impermeable con cordón de ajuste", "Ideal para atletas de fútbol, básquet, boxeo, crossfit y running"],
+  "images": ["/images/products/escalera-pliometrica-1.jpg"],
+  "coachTip": "Mantén el centro de gravedad bajo y el peso en la punta de los pies para transiciones ultrarrápidas entre peldaños."
+}, {
+  "id": "wa-7157272380981446",
+  "wcId": 1026,
+  "name": "Rodilleras de Potencia para Levantamiento Pesado (Par)",
+  "slug": "rodilleras-de-potencia",
+  "categorySlug": "entrenamiento-fuerza",
+  "categoryLabel": "Fuerza & Pesas",
+  "price": 38.0,
+  "compareAtPrice": 48.0,
+  "stock": 45,
+  "sku": "BF-ROD-001",
+  "saleMode": "direct_cart",
+  "shortDescription": "Al momento de hacer levantamientos pesados para nuestro cuerpo, es crucial brindar soporte a las rodillas. Diseñadas para compresión anatómica y calor articular en sentadillas y powerlifting.",
+  "technicalSpecs": ["Neopreno de compresión de 7 mm de espesor grado competición", "Diseño ergonómico 3D que previene el desplazamiento de la rótula", "Mantiene la articulación caliente para aumentar la síntesis de líquido sinovial", "Costuras reforzadas de 4 hilos resistentes a la máxima tensión", "Presentación por par (2 unidades) aptas para powerlifting y crossfit"],
+  "images": ["/images/products/rodilleras-de-potencia-1.jpg"],
+  "coachTip": "Úsalas en series efectivas pesadas (más del 75% de tu RM) para maximizar la estabilidad y confianza al salir del fondo de la sentadilla."
+}, {
+  "id": "wa-3627432107346962",
+  "wcId": 1027,
+  "name": "Almohadilla / Cojín de Espuma para Barra Gym",
+  "slug": "almohadilla-para-barra-gym",
+  "categorySlug": "entrenamiento-fuerza",
+  "categoryLabel": "Fuerza & Pesas",
+  "price": 28.0,
+  "compareAtPrice": 36.0,
+  "stock": 60,
+  "sku": "BF-ALM-001",
+  "saleMode": "direct_cart",
+  "shortDescription": "Almohadilla de espuma gruesa y ergonómica que garantiza comodidad absoluta en el cuello, hombros y cadera durante sentadillas pesadas y empujes de cadera (Hip Thrust).",
+  "technicalSpecs": ["Espuma de alta densidad NBR con memoria antichoque de 3.5 cm de grosor", "Canal anatómico central para liberar la presión en la columna cervical y coxis", "Recubrimiento antideslizante con correas de seguridad de doble velcro", "Compatible con barras olímpicas de 50 mm y barras estándar de 28 mm", "Material impermeable de fácil limpieza que no absorbe sudor"],
+  "images": ["/images/products/almohadilla-para-barra-1.jpg"],
+  "coachTip": "Esencial para progresar en Hip Thrust con cargas pesadas protegiendo la cresta ilíaca sin molestias articulares."
+}, {
+  "id": "wa-8885746581543321",
+  "wcId": 1028,
+  "name": "Conos y Vallas de Pliometría y Coordinación",
+  "slug": "conos-y-vallas-pliometria",
+  "categorySlug": "funcional-resistencia",
+  "categoryLabel": "Funcional & Resistencia",
+  "price": 45.0,
+  "compareAtPrice": 58.0,
+  "stock": 40,
+  "sku": "BF-CON-001",
+  "saleMode": "direct_cart",
+  "shortDescription": "Todo lo necesario para entrenamientos de velocidad, potencia de salto y coordinación. Conos perforados con vallas regulables en múltiples alturas para circuitos deportivos.",
+  "technicalSpecs": ["Conos cónicos de alta visibilidad con perforaciones para travesaños a tres alturas", "Material plástico flexible indestructible que recupera su forma al pisarlo", "Varillas o vallas ligeras encajables para armar circuitos de salto vertical y lateral", "Apto para césped sintético, losa deportiva, parquet y arena", "Fácil apilamiento y almacenamiento compacto"],
+  "images": ["/images/products/conos-y-vallas-pliometria-1.jpg"],
+  "coachTip": "Organiza progresiones de saltos reactivos con mínimo tiempo de contacto en suelo para desarrollar potencia explosiva de despegue."
+}, {
+  "id": "wa-5056991387697011",
+  "wcId": 1029,
+  "name": "Colchoneta de Ejercicios y Fitness de Alta Densidad",
+  "slug": "colchoneta-ejercicios-fitness",
+  "categorySlug": "yoga-pilates",
+  "categoryLabel": "Yoga & Pilates",
+  "price": 56.0,
+  "compareAtPrice": 70.0,
+  "stock": 40,
+  "sku": "BF-COL-001",
+  "saleMode": "direct_cart",
+  "shortDescription": "Ahora podrás realizar tus ejercicios cómodamente con nuestras colchonetas de alta densidad. Superficie reforzada impermeable, fácil de lavar y acolchado amortiguador para suelo.",
+  "technicalSpecs": ["Relleno de espuma aglomerada de alta densidad que no se deforma con el uso continuo", "Funda exterior de lona bagun impermeable con costuras dobles reforzadas", "Dimensiones amplias para trabajo de abdominales, planchas, estiramientos y calistenia", "Cierre perimetral oculto para facilitar desinfección rápida", "Superficie antideslizante con gran estabilidad en suelos lisos"],
+  "images": ["/images/products/colchoneta-de-ejercicios-1.jpg"],
+  "coachTip": "Excelente para proteger rodillas y espalda baja en rutinas de core, hipopresivos y ejercicios de peso corporal."
+}, {
+  "id": "wa-4953754921367246",
+  "wcId": 1030,
+  "name": "Guantes Deportivos de Licra Transpirables",
+  "slug": "guantes-de-licra-deportivos",
+  "categorySlug": "entrenamiento-fuerza",
+  "categoryLabel": "Fuerza & Pesas",
+  "price": 19.0,
+  "compareAtPrice": 26.0,
+  "stock": 55,
+  "sku": "BF-GUA-LIC",
+  "saleMode": "direct_cart",
+  "shortDescription": "Es tiempo de proteger tus manos de las lesiones por fricción y mejorar tu agarre. Tejido elástico de licra transpirable con palma acolchada antideslizante para pesas y ciclismo.",
+  "technicalSpecs": ["Tejido elástico de licra de alta transpirabilidad y secado rápido", "Palma acolchada con inserciones de gel de sílice antideslizante de microfibra", "Ajuste en muñeca con velcro de sujeción firme", "Tiradores en dedos para extracción rápida después de entrenar", "Unisex, tallas adaptables con diseño moderno deportivo"],
+  "images": ["/images/products/guantes-de-licra-1.jpg"],
+  "coachTip": "Ideales para personas que prefieren máxima ventilación en las manos y ligereza durante sesiones de gimnasio y cardio."
+}, {
+  "id": "wa-6294300543931698",
+  "wcId": 1031,
+  "name": "Straps Muñequeras con Gancho de Acero para Gimnasio",
+  "slug": "straps-munequeras-gancho",
+  "categorySlug": "entrenamiento-fuerza",
+  "categoryLabel": "Fuerza & Pesas",
+  "price": 26.0,
+  "compareAtPrice": 35.0,
+  "stock": 50,
+  "sku": "BF-STR-GAN",
+  "saleMode": "direct_cart",
+  "shortDescription": "Los straps con gancho te permiten incrementar el peso que levantas inmediatamente. La fatiga del agarre del antebrazo deja de ser el factor limitante en peso muerto, dominadas y remos.",
+  "technicalSpecs": ["Ganchos de acero sólido recubiertos en goma antideslizante que protegen el moleteado de la barra", "Muñequera con almohadilla de neopreno gruesa de 8 mm para cero presión ósea", "Cierre de velcro extra largo de grado industrial con anilla metálica de fijación", "Capacidad de tracción probada hasta 200 kg por mano", "Permite concentrarse 100% en la activación de dorsales y glúteos"],
+  "images": ["/images/products/straps-munequeras-gancho-1.jpg"],
+  "coachTip": "Engancha directamente la barra sin necesidad de enrollar cintas. Ideal para tus series pesadas de jalón al pecho y peso muerto."
+}, {
+  "id": "wa-3841580875964456",
+  "wcId": 1032,
+  "name": "Guantes de Neopreno con Muñequera Reforzada",
+  "slug": "guantes-de-neopreno-reforzados",
+  "categorySlug": "entrenamiento-fuerza",
+  "categoryLabel": "Fuerza & Pesas",
+  "price": 26.0,
+  "compareAtPrice": 35.0,
+  "stock": 50,
+  "sku": "BF-GUA-NEO",
+  "saleMode": "direct_cart",
+  "shortDescription": "Protege tus manos de callosidades y brinda máxima firmeza a tus muñecas con guantes de neopreno reforzado y banda elástica compresiva de soporte.",
+  "technicalSpecs": ["Fabricados en neopreno térmico de alta densidad con refuerzos de cuero sintético en zonas de fricción", "Banda elástica compresiva integrada de 40 cm que envuelve y estabiliza la muñeca", "Palma con textura de panal de abeja antideslizante de alta adherencia a mancuernas y barras", "Costuras reforzadas dobles en entretela para uso intensivo de levantamiento", "Apertura transpirable en el dorso que disipa el exceso de calor"],
+  "images": ["/images/products/guantes-de-neopreno-1.jpg"],
+  "coachTip": "La muñequera integrada previene la hiperextensión en press de banca militar y mancuernas pesadas."
 }];
 const CATEGORIES = [{
   slug: "todos",
   label: "Todos los Implementos",
-  count: 24
-}, {
-  slug: "yoga-pilates",
-  label: "Yoga & Pilates",
-  count: 5
+  count: 33
 }, {
   slug: "entrenamiento-fuerza",
   label: "Fuerza & Pesas",
-  count: 4
+  count: 9
+}, {
+  slug: "yoga-pilates",
+  label: "Yoga & Pilates",
+  count: 6
 }, {
   slug: "calistenia",
   label: "Calistenia & Peso Corporal",
-  count: 4
+  count: 5
 }, {
-  slug: "fajas-reductoras",
-  label: "Fajas Reductoras & Cuidado",
-  count: 3
-}, {
-  slug: "natacion-acuaticos",
-  label: "Natación & Acuáticos",
+  slug: "funcional-resistencia",
+  label: "Funcional & Resistencia",
   count: 3
 }, {
   slug: "boxeo-artes-marciales",
   label: "Boxeo & Combate",
   count: 3
 }, {
-  slug: "electronicos",
-  label: "Electrónicos",
-  count: 1
+  slug: "natacion-acuaticos",
+  label: "Natación & Acuáticos",
+  count: 3
 }, {
-  slug: "funcional-resistencia",
-  label: "Funcional & Resistencia",
+  slug: "fajas-reductoras",
+  label: "Fajas Reductoras & Cuidado",
+  count: 3
+}, {
+  slug: "electronicos",
+  label: "Electrónicos & Recuperación",
   count: 1
 }];
 function App() {
@@ -614,6 +799,8 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [activeImgIdx, setActiveImgIdx] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [cardActiveIndices, setCardActiveIndices] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
 
   // Close modals on Escape key
@@ -637,26 +824,45 @@ function App() {
     }
   }, [toastMessage]);
 
-  // Cart operations
-  const handleAddToCart = product => {
+  // Open product modal with synced card state
+  const openProductModal = product => {
+    const cardIdx = cardActiveIndices[product.id] || 0;
+    const safeIdx = cardIdx % (product.images.length || 1);
+    setActiveImgIdx(safeIdx);
+    if (product.variants && product.variants.length > 0) {
+      const match = product.variants.find(v => v.imageIndex === safeIdx) || product.variants[0];
+      setSelectedVariant(match);
+    } else {
+      setSelectedVariant(null);
+    }
+    setSelectedProduct(product);
+  };
+
+  // Cart operations with variant support
+  const handleAddToCart = (product, variant = null) => {
+    const chosenVariant = variant || (product.variants ? product.variants[0] : null);
+    const cartItemId = chosenVariant ? `${product.id}-${chosenVariant.id}` : product.id;
     setCart(prev => {
-      const existing = prev.find(item => item.product.id === product.id);
+      const existing = prev.find(item => item.cartItemId === cartItemId);
       if (existing) {
-        return prev.map(item => item.product.id === product.id ? {
+        return prev.map(item => item.cartItemId === cartItemId ? {
           ...item,
           quantity: item.quantity + 1
         } : item);
       }
       return [...prev, {
+        cartItemId,
         product,
+        variant: chosenVariant,
         quantity: 1
       }];
     });
-    setToastMessage(`✓ ${product.name} agregado al carrito`);
+    const label = chosenVariant ? `${product.name} (${chosenVariant.name})` : product.name;
+    setToastMessage(`✓ ${label} agregado al carrito`);
   };
-  const handleUpdateQuantity = (productId, delta) => {
+  const handleUpdateQuantity = (cartItemId, delta) => {
     setCart(prev => prev.map(item => {
-      if (item.product.id === productId) {
+      if (item.cartItemId === cartItemId || item.product.id === cartItemId) {
         const newQty = item.quantity + delta;
         return newQty > 0 ? {
           ...item,
@@ -666,8 +872,8 @@ function App() {
       return item;
     }).filter(Boolean));
   };
-  const handleRemoveFromCart = productId => {
-    setCart(prev => prev.filter(item => item.product.id !== productId));
+  const handleRemoveFromCart = cartItemId => {
+    setCart(prev => prev.filter(item => item.cartItemId !== cartItemId && item.product.id !== cartItemId));
   };
   const cartCount = useMemo(() => {
     return cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -681,7 +887,8 @@ function App() {
     if (cart.length === 0) return;
     let message = "Hola Bassfit 👋, deseo realizar un pedido con los siguientes productos del catálogo oficial:\n\n";
     cart.forEach((item, idx) => {
-      message += `${idx + 1}. *${item.product.name}* (x${item.quantity}) - S/ ${(item.product.price * item.quantity).toFixed(2)}\n`;
+      const varTxt = item.variant ? ` [Variedad: ${item.variant.name}]` : "";
+      message += `${idx + 1}. *${item.product.name}*${varTxt} (x${item.quantity}) - S/ ${(item.product.price * item.quantity).toFixed(2)}\n`;
     });
     message += `\n*TOTAL DEL PEDIDO: S/ ${cartSubtotal.toFixed(2)}*\n\n`;
     message += "¿Tienen disponibilidad inmediata para envío a mi dirección?";
@@ -693,71 +900,107 @@ function App() {
   const filteredProducts = useMemo(() => {
     return BASSFIT_PRODUCTS.filter(prod => {
       const matchesCat = selectedCategory === "todos" || prod.categorySlug === selectedCategory;
-      const matchesSearch = searchQuery === "" || prod.name.toLowerCase().includes(searchQuery.toLowerCase()) || prod.shortDescription.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = searchQuery === "" || prod.name.toLowerCase().includes(searchQuery.toLowerCase()) || prod.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()) || prod.categoryLabel.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCat && matchesSearch;
     });
   }, [selectedCategory, searchQuery]);
   return /*#__PURE__*/React.createElement("div", {
-    className: "min-h-screen bg-slate-50 flex flex-col font-sans"
+    className: "min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans"
   }, toastMessage && /*#__PURE__*/React.createElement("div", {
-    className: "fixed bottom-6 right-6 z-50 bg-[#0F172A] text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-bold border border-slate-700 animate-bounce"
+    className: "fixed bottom-6 right-6 z-50 bg-[#0F172A] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 border border-slate-700 animate-bounce"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[#FF4A00]"
-  }, "●"), /*#__PURE__*/React.createElement("span", null, toastMessage), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setIsCartOpen(true),
-    className: "ml-3 bg-[#FF4A00] text-white text-xs px-3 py-1 rounded-lg hover:bg-[#e04100] transition cursor-pointer"
-  }, "Ver Carrito (", cartCount, ")")), /*#__PURE__*/React.createElement("div", {
-    className: "bg-[#0F172A] text-slate-200 text-xs py-2 px-4 text-center font-medium border-b border-slate-800"
+    className: "text-[#FF4A00] font-black"
+  }, "●"), /*#__PURE__*/React.createElement("span", null, toastMessage)), /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#0F172A] text-slate-300 text-xs py-2 px-4 border-b border-slate-800"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-1.5 text-center sm:text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-2"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[#FF4A00] font-black mr-2"
-  }, "BASSFIT PERÚ"), /*#__PURE__*/React.createElement("span", null, "Fitness y Rendimiento sin Límites de Edad · Envíos garantizados a todo el Perú · Atención WhatsApp:"), /*#__PURE__*/React.createElement("a", {
+    className: "bg-[#FF4A00] text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider"
+  }, "OFICIAL"), /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-200 font-medium text-[11px] sm:text-xs"
+  }, "Catálogo Oficial Bassfit Perú 🇵🇪 · Implementos de Calidad Profesional y Entrenamientos")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-4 text-[11px] text-slate-400"
+  }, /*#__PURE__*/React.createElement("span", null, "Envíos a todo el Perú"), /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-600"
+  }, "|"), /*#__PURE__*/React.createElement("a", {
     href: "https://wa.me/51967581481",
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "ml-1 text-white font-bold hover:underline"
-  }, "+51 967 581 481")), /*#__PURE__*/React.createElement("header", {
-    className: "sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm"
+    className: "hover:text-white transition flex items-center space-x-1 text-[#25D366] font-bold"
+  }, /*#__PURE__*/React.createElement("span", null, "Asesoría WhatsApp: +51 967 581 481"))))), /*#__PURE__*/React.createElement("header", {
+    className: "sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 md:h-24 flex items-center justify-between"
+    className: "max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => setActiveTab("inicio"),
+    className: "flex items-center space-x-3 cursor-pointer select-none group"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl sm:text-3xl font-black tracking-tight text-[#0F172A] uppercase"
+  }, "BASS", /*#__PURE__*/React.createElement("span", {
+    className: "text-[#FF4A00]"
+  }, "FIT")), /*#__PURE__*/React.createElement("span", {
+    className: "bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase"
+  }, "PERÚ")), /*#__PURE__*/React.createElement("span", {
+    className: "hidden md:inline-block text-[11px] text-slate-500 font-semibold border-l border-slate-200 pl-3"
+  }, "Fitness sin límites de edad")), /*#__PURE__*/React.createElement("nav", {
+    className: "hidden lg:flex items-center space-x-1"
   }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("inicio");
-      setSelectedCategory("todos");
+    onClick: () => setActiveTab("inicio"),
+    className: `px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${activeTab === "inicio" ? "bg-[#0F172A] text-white" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"}`
+  }, "Inicio"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("tienda"),
+    className: `px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-1 ${activeTab === "tienda" ? "bg-[#0F172A] text-white" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"}`
+  }, /*#__PURE__*/React.createElement("span", null, "Catálogo (", BASSFIT_PRODUCTS.length, ")")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("programas"),
+    className: `px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${activeTab === "programas" ? "bg-[#0F172A] text-white" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"}`
+  }, "Planes de Entrenamiento"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("guias"),
+    className: `px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${activeTab === "guias" ? "bg-[#0F172A] text-white" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"}`
+  }, "Guías y Salud")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-2 sm:space-x-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative hidden sm:block w-48 md:w-60"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "Buscar implemento...",
+    value: searchQuery,
+    onChange: e => {
+      setSearchQuery(e.target.value);
+      if (activeTab !== "tienda") setActiveTab("tienda");
     },
-    className: "flex items-center text-left group focus:outline-none cursor-pointer",
-    title: "Bassfit Perú - Inicio"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: resolveImg("/images/brand/logo_bassfit_peru.png"),
-    alt: "Bassfit Perú - Fitness sin límites de edad",
-    className: "h-14 sm:h-16 md:h-20 w-auto object-contain transition duration-200 group-hover:scale-105",
-    onError: e => {
-      e.currentTarget.onerror = null;
-      e.currentTarget.src = "./images/brand/logo_bassfit_peru.png";
-    }
-  })), /*#__PURE__*/React.createElement("nav", {
-    className: "hidden md:flex items-center space-x-1 lg:space-x-2"
-  }, [{
-    id: "inicio",
-    label: "Inicio"
-  }, {
-    id: "tienda",
-    label: "Tienda (24 Productos)"
-  }, {
-    id: "entrenamientos",
-    label: "Planes de Entrenamiento"
-  }, {
-    id: "comunidad",
-    label: "Guías & Artículos"
-  }].map(tab => /*#__PURE__*/React.createElement("button", {
-    key: tab.id,
-    onClick: () => setActiveTab(tab.id),
-    className: `px-4 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider transition cursor-pointer ${activeTab === tab.id ? "bg-[#0F172A] text-white shadow-sm" : "text-slate-600 hover:text-black hover:bg-slate-100"}`
-  }, tab.label))), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-3"
-  }, /*#__PURE__*/React.createElement("button", {
+    className: "w-full bg-slate-100 text-xs text-slate-800 placeholder-slate-400 pl-8 pr-3 py-2 rounded-xl border border-transparent focus:border-[#FF4A00] focus:bg-white focus:outline-hidden transition"
+  }), /*#__PURE__*/React.createElement("svg", {
+    className: "w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+  }))), /*#__PURE__*/React.createElement("a", {
+    href: "https://wa.me/51967581481",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "bg-[#25D366] hover:bg-[#20ba59] text-white font-bold p-2 sm:px-3 sm:py-2 rounded-xl text-xs transition flex items-center space-x-1.5 shadow-xs cursor-pointer",
+    title: "Chatear por WhatsApp"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline"
+  }, "WhatsApp")), /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsCartOpen(true),
-    className: "inline-flex items-center gap-2 bg-[#0F172A] hover:bg-[#FF4A00] text-white px-4 py-2.5 rounded-full text-xs font-extrabold transition shadow-sm cursor-pointer",
-    title: "Ver carrito de compras"
+    className: "bg-[#0F172A] hover:bg-[#FF4A00] text-white font-bold px-3 py-2 rounded-xl text-xs transition flex items-center space-x-2 shadow-xs cursor-pointer relative",
+    title: "Ver Carrito de Compras"
   }, /*#__PURE__*/React.createElement("svg", {
     className: "w-4 h-4",
     fill: "none",
@@ -768,177 +1011,149 @@ function App() {
     strokeLinejoin: "round",
     strokeWidth: "2.5",
     d: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-  })), /*#__PURE__*/React.createElement("span", null, "Carrito"), /*#__PURE__*/React.createElement("span", {
-    className: "bg-[#FF4A00] text-white text-[11px] font-black px-2 py-0.5 rounded-full"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline"
+  }, "Carrito"), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "bg-[#FF4A00] text-white text-[10px] font-black px-1.5 py-0.2 rounded-full"
   }, cartCount)))), /*#__PURE__*/React.createElement("div", {
-    className: "md:hidden flex overflow-x-auto py-2.5 px-4 bg-slate-50 border-t border-slate-200 gap-2"
-  }, [{
-    id: "inicio",
-    label: "Inicio"
-  }, {
-    id: "tienda",
-    label: "Tienda (24)"
-  }, {
-    id: "entrenamientos",
-    label: "Planes"
-  }, {
-    id: "comunidad",
-    label: "Guías"
-  }].map(tab => /*#__PURE__*/React.createElement("button", {
-    key: tab.id,
-    onClick: () => setActiveTab(tab.id),
-    className: `whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold cursor-pointer ${activeTab === tab.id ? "bg-[#0F172A] text-white" : "bg-white text-slate-700 border border-slate-200"}`
-  }, tab.label)))), /*#__PURE__*/React.createElement("main", {
-    className: "flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
+    className: "lg:hidden flex border-t border-slate-100 overflow-x-auto px-4 py-2 gap-2 text-xs font-bold scrollbar-none"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("inicio"),
+    className: `px-3 py-1 rounded-lg shrink-0 transition ${activeTab === "inicio" ? "bg-[#0F172A] text-white" : "text-slate-600 bg-slate-100"}`
+  }, "Inicio"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("tienda"),
+    className: `px-3 py-1 rounded-lg shrink-0 transition ${activeTab === "tienda" ? "bg-[#0F172A] text-white" : "text-slate-600 bg-slate-100"}`
+  }, "Catálogo (", BASSFIT_PRODUCTS.length, ")"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("programas"),
+    className: `px-3 py-1 rounded-lg shrink-0 transition ${activeTab === "programas" ? "bg-[#0F172A] text-white" : "text-slate-600 bg-slate-100"}`
+  }, "Entrenamiento"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("guias"),
+    className: `px-3 py-1 rounded-lg shrink-0 transition ${activeTab === "guias" ? "bg-[#0F172A] text-white" : "text-slate-600 bg-slate-100"}`
+  }, "Guías"))), /*#__PURE__*/React.createElement("main", {
+    className: "flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8"
   }, activeTab === "inicio" && /*#__PURE__*/React.createElement("div", {
     className: "space-y-12"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-[#0F172A] rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-xl"
+    className: "relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white p-8 sm:p-14 shadow-xl"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "relative z-10 max-w-2xl space-y-5"
+    className: "relative z-10 max-w-2xl space-y-4"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "bg-[#FF4A00] text-white text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest inline-block"
-  }, "Catálogo Oficial Bassfit Perú"), /*#__PURE__*/React.createElement("h1", {
-    className: "text-3xl sm:text-5xl font-black tracking-tight leading-tight"
-  }, "Equipamiento deportivo premium sin límites de edad."), /*#__PURE__*/React.createElement("p", {
-    className: "text-slate-300 text-sm sm:text-base leading-relaxed"
-  }, "Implementos de alta resistencia para Yoga, Pilates, Fuerza, Calistenia, Boxeo y Natación. Todos los productos aislados con stock inmediato y envíos a todo el Perú."), /*#__PURE__*/React.createElement("div", {
+    className: "inline-block bg-[#FF4A00] text-white text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider"
+  }, "EQUIPAMIENTO & ASESORÍA PROFESIONAL"), /*#__PURE__*/React.createElement("h1", {
+    className: "text-3xl sm:text-5xl font-black leading-tight tracking-tight"
+  }, "Entrena sin excusas.", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+    className: "text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-[#FF4A00]"
+  }, "Fitness sin límites de edad.")), /*#__PURE__*/React.createElement("p", {
+    className: "text-sm sm:text-base text-slate-300 leading-relaxed"
+  }, "Implementos deportivos oficiales seleccionados para fuerza, yoga, calistenia, natación y recuperación muscular. Envíos directos a todo el Perú y asesoría directa por WhatsApp."), /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap gap-3 pt-2"
   }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setActiveTab("tienda"),
-    className: "bg-[#FF4A00] hover:bg-[#e04100] text-white font-extrabold px-6 py-3.5 rounded-xl text-sm transition shadow-lg cursor-pointer"
-  }, "Explorar Tienda (24 Productos) →"), /*#__PURE__*/React.createElement("a", {
-    href: "https://wa.me/51967581481?text=Hola%20Bassfit%20%F0%9F%91%8B%2C%20deseo%20informaci%C3%B3n%20sobre%20sus%20productos%20y%20entrenamientos.",
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold px-5 py-3.5 rounded-xl text-sm transition flex items-center space-x-2"
-  }, /*#__PURE__*/React.createElement("span", null, "Atención WhatsApp"))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-baseline mb-6"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
-    className: "text-2xl font-black text-slate-900 tracking-tight"
-  }, "Categorías Oficiales"), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-500"
-  }, "Los 18 implementos distribuidos por disciplina deportiva")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      setActiveTab("tienda");
       setSelectedCategory("todos");
-    },
-    className: "text-xs font-bold text-[#FF4A00] hover:underline cursor-pointer"
-  }, "Ver todos los 24 productos →")), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
-  }, CATEGORIES.filter(c => c.slug !== "todos").map(cat => /*#__PURE__*/React.createElement("button", {
-    key: cat.slug,
-    onClick: () => {
-      setSelectedCategory(cat.slug);
       setActiveTab("tienda");
     },
-    className: "bg-white p-4 rounded-2xl border border-slate-200 hover:border-[#FF4A00] text-center hover:shadow-md transition group cursor-pointer"
+    className: "bg-[#FF4A00] hover:bg-[#e04100] text-white text-xs sm:text-sm font-extrabold px-6 py-3 rounded-xl shadow-lg hover:shadow-orange-500/30 transition cursor-pointer flex items-center space-x-2"
+  }, /*#__PURE__*/React.createElement("span", null, "Ver Catálogo Completo (", BASSFIT_PRODUCTS.length, ")"), /*#__PURE__*/React.createElement("span", null, "→")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("programas"),
+    className: "bg-slate-800 hover:bg-slate-700 text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl border border-slate-700 transition cursor-pointer"
+  }, "Planes de Entrenamiento")))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 md:grid-cols-3 gap-6"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "w-10 h-10 rounded-xl bg-orange-50 text-[#FF4A00] group-hover:bg-[#FF4A00] group-hover:text-white flex items-center justify-center mx-auto mb-2.5 transition"
-  }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-5 h-5",
-    fill: "none",
-    stroke: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2",
-    d: "M13 10V3L4 14h7v7l9-11h-7z"
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "font-extrabold text-xs text-slate-900 group-hover:text-[#FF4A00] transition"
-  }, cat.label), /*#__PURE__*/React.createElement("div", {
-    className: "text-[11px] text-slate-400 mt-0.5"
-  }, cat.count, " ", cat.count === 1 ? "producto" : "productos"))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-baseline mb-6"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
-    className: "text-2xl font-black text-slate-900 tracking-tight"
-  }, "Productos Más Solicitados"), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-500"
-  }, "Calidad garantizada para atletas de alto rendimiento"))), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-  }, BASSFIT_PRODUCTS.slice(0, 4).map(product => /*#__PURE__*/React.createElement("div", {
-    key: product.id,
-    className: "bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition flex flex-col justify-between group"
+    className: "bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2"
   }, /*#__PURE__*/React.createElement("div", {
-    onClick: () => {
-      setActiveImgIdx(0);
-      setSelectedProduct(product);
-    },
-    className: "cursor-pointer p-4 bg-white flex items-center justify-center h-48 relative overflow-hidden"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: resolveImg(product.images[0]),
-    alt: product.name,
-    className: "max-h-40 w-full object-contain group-hover:scale-105 transition duration-300",
-    onError: e => {
-      e.currentTarget.onerror = null;
-      e.currentTarget.src = "bassfit-headless/public/" + (product.images[0].startsWith("/") ? product.images[0].slice(1) : product.images[0]);
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
-  }, product.categoryLabel)), /*#__PURE__*/React.createElement("div", {
-    className: "p-4 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-3"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-    onClick: () => {
-      setActiveImgIdx(0);
-      setSelectedProduct(product);
-    },
-    className: "font-bold text-sm text-slate-900 line-clamp-2 hover:text-[#FF4A00] cursor-pointer transition"
-  }, product.name), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-baseline space-x-2 mt-1"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-lg font-black text-[#FF4A00]"
-  }, "S/ ", product.price.toFixed(2)), product.compareAtPrice && /*#__PURE__*/React.createElement("span", {
-    className: "text-xs text-slate-400 line-through"
-  }, "S/ ", product.compareAtPrice.toFixed(2)))), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 gap-2 pt-1"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveImgIdx(0);
-      setSelectedProduct(product);
-    },
-    className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
-  }, "Detalles"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => handleAddToCart(product),
-    className: "w-full bg-[#FF4A00] hover:bg-[#e04100] text-white text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
-  }, "+ Añadir")))))))), activeTab === "tienda" && /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-orange-100 text-[#FF4A00] flex items-center justify-center font-black text-lg"
+  }, "🛡️"), /*#__PURE__*/React.createElement("h3", {
+    className: "font-bold text-slate-900 text-sm"
+  }, "Calidad Garantizada"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 leading-relaxed"
+  }, "Todos los implementos cumplen estándares de uso continuo en Home Gym y entrenamiento funcional.")), /*#__PURE__*/React.createElement("div", {
+    className: "bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-green-100 text-[#25D366] flex items-center justify-center font-black text-lg"
+  }, "💬"), /*#__PURE__*/React.createElement("h3", {
+    className: "font-bold text-slate-900 text-sm"
+  }, "Atención Personalizada"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 leading-relaxed"
+  }, "Resolvemos dudas técnicas y coordinamos pedidos en tiempo real a través de nuestro canal de WhatsApp.")), /*#__PURE__*/React.createElement("div", {
+    className: "bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-black text-lg"
+  }, "🚚"), /*#__PURE__*/React.createElement("h3", {
+    className: "font-bold text-slate-900 text-sm"
+  }, "Envíos a Todo el Perú"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 leading-relaxed"
+  }, "Despachos seguros en Lima Metropolitana y envíos a provincias vía agencias autorizadas."))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between items-end"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "text-[#FF4A00] text-xs font-black uppercase tracking-wider"
+  }, "DESTACADOS"), /*#__PURE__*/React.createElement("h2", {
+    className: "text-2xl font-black text-slate-900"
+  }, "Implementos Más Populares")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setActiveTab("tienda"),
+    className: "text-xs font-bold text-[#FF4A00] hover:underline cursor-pointer"
+  }, "Ver todos los ", BASSFIT_PRODUCTS.length, " productos →")), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+  }, BASSFIT_PRODUCTS.slice(0, 8).map(product => {
+    const cardIdx = cardActiveIndices[product.id] || 0;
+    const safeIdx = cardIdx % (product.images.length || 1);
+    const activeImgSrc = product.images[safeIdx];
+    const hasMulti = product.images && product.images.length > 1;
+    const activeVar = product.variants ? product.variants.find(v => v.imageIndex === safeIdx) || product.variants[0] : null;
+    return /*#__PURE__*/React.createElement("div", {
+      key: product.id,
+      className: "bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between group"
+    }, /*#__PURE__*/React.createElement("div", {
+      onClick: () => openProductModal(product),
+      className: "cursor-pointer p-4 bg-white flex items-center justify-center h-48 relative overflow-hidden"
+    }, /*#__PURE__*/React.createElement("img", {
+      src: resolveImg(activeImgSrc),
+      alt: product.name,
+      className: "max-h-40 w-full object-contain group-hover:scale-105 transition duration-300"
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
+    }, product.categoryLabel), hasMulti && /*#__PURE__*/React.createElement("span", {
+      className: "absolute top-3 right-3 bg-slate-900/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+    }, activeVar ? activeVar.tag || `${safeIdx + 1}/${product.images.length}` : `${safeIdx + 1}/${product.images.length}`)), /*#__PURE__*/React.createElement("div", {
+      className: "p-4 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-3"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+      onClick: () => openProductModal(product),
+      className: "font-bold text-sm text-slate-900 line-clamp-2 hover:text-[#FF4A00] cursor-pointer transition"
+    }, product.name), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-baseline space-x-2 mt-1"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-lg font-black text-[#FF4A00]"
+    }, "S/ ", product.price.toFixed(2)), product.compareAtPrice && /*#__PURE__*/React.createElement("span", {
+      className: "text-xs text-slate-400 line-through"
+    }, "S/ ", product.compareAtPrice.toFixed(2)))), /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-2 gap-2 pt-1"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => openProductModal(product),
+      className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
+    }, "Detalles"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => handleAddToCart(product, activeVar),
+      className: "w-full bg-[#FF4A00] hover:bg-[#e04100] text-white text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
+    }, "+ Añadir"))));
+  })))), activeTab === "tienda" && /*#__PURE__*/React.createElement("div", {
     className: "space-y-8"
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
-    className: "text-3xl font-black text-slate-900 tracking-tight"
-  }, "Tienda Oficial Bassfit (", BASSFIT_PRODUCTS.length, " Productos)"), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-500"
-  }, "Implementos deportivos sobre fondo blanco puro (#FFFFFF), organizados por categorías.")), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap gap-2"
+    className: "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "text-2xl sm:text-3xl font-black text-slate-900"
+  }, "Catálogo Oficial Bassfit Perú"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-500 mt-0.5"
+  }, "Mostrando ", filteredProducts.length, " de ", BASSFIT_PRODUCTS.length, " productos verificados"))), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-2 pt-2"
   }, CATEGORIES.map(cat => /*#__PURE__*/React.createElement("button", {
     key: cat.slug,
     onClick: () => setSelectedCategory(cat.slug),
-    className: `px-3.5 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${selectedCategory === cat.slug ? "bg-[#FF4A00] text-white shadow-sm" : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"}`
-  }, cat.label, " (", cat.count, ")"))), /*#__PURE__*/React.createElement("div", {
-    className: "relative min-w-[260px]"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    value: searchQuery,
-    onChange: e => setSearchQuery(e.target.value),
-    placeholder: "Buscar producto...",
-    className: "w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-full text-xs font-medium focus:outline-none focus:border-[#FF4A00] transition"
-  }), /*#__PURE__*/React.createElement("svg", {
-    className: "w-4 h-4 text-slate-400 absolute left-3 top-2.5",
-    fill: "none",
-    stroke: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2",
-    d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-  })), searchQuery && /*#__PURE__*/React.createElement("button", {
-    onClick: () => setSearchQuery(""),
-    className: "absolute right-3 top-2 text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
-  }, "✕")))), filteredProducts.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: `px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${selectedCategory === cat.slug ? "bg-[#0F172A] text-white shadow-md shadow-slate-900/20 scale-102" : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80"}`
+  }, /*#__PURE__*/React.createElement("span", null, cat.label), /*#__PURE__*/React.createElement("span", {
+    className: `text-[10px] px-1.5 py-0.2 rounded-full font-black ${selectedCategory === cat.slug ? "bg-[#FF4A00] text-white" : "bg-slate-100 text-slate-500"}`
+  }, cat.count))))), filteredProducts.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "text-center py-16 bg-white rounded-3xl border border-slate-200 space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "text-3xl"
@@ -954,243 +1169,324 @@ function App() {
     className: "bg-[#0F172A] text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-[#FF4A00] transition cursor-pointer"
   }, "Restablecer Filtros")) : /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-  }, filteredProducts.map(product => /*#__PURE__*/React.createElement("div", {
-    key: product.id,
-    className: "bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between group"
-  }, /*#__PURE__*/React.createElement("div", {
-    onClick: () => {
-      setActiveImgIdx(0);
-      setSelectedProduct(product);
-    },
-    className: "cursor-pointer p-4 bg-white flex items-center justify-center h-52 relative overflow-hidden"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: resolveImg(product.images[0]),
-    alt: product.name,
-    className: "max-h-44 w-full object-contain group-hover:scale-105 transition duration-300",
-    onError: e => {
-      e.currentTarget.onerror = null;
-      e.currentTarget.src = "bassfit-headless/public/" + (product.images[0].startsWith("/") ? product.images[0].slice(1) : product.images[0]);
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
-  }, product.categoryLabel)), /*#__PURE__*/React.createElement("div", {
-    className: "p-5 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-3"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-    onClick: () => {
-      setActiveImgIdx(0);
-      setSelectedProduct(product);
-    },
-    className: "font-bold text-sm text-slate-900 line-clamp-2 hover:text-[#FF4A00] cursor-pointer transition leading-snug"
-  }, product.name), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed"
-  }, product.shortDescription)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-baseline space-x-2 mb-3"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-xl font-black text-[#FF4A00]"
-  }, "S/ ", product.price.toFixed(2)), product.compareAtPrice && /*#__PURE__*/React.createElement("span", {
-    className: "text-xs text-slate-400 line-through"
-  }, "S/ ", product.compareAtPrice.toFixed(2))), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-2"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 gap-2"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveImgIdx(0);
-      setSelectedProduct(product);
-    },
-    className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
-  }, "Ver Ficha"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => handleAddToCart(product),
-    className: "w-full bg-[#FF4A00] hover:bg-[#e04100] text-white text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center flex items-center justify-center space-x-1"
-  }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-3.5 h-3.5",
-    fill: "none",
-    stroke: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2.5",
-    d: "M12 4v16m8-8H4"
-  })), /*#__PURE__*/React.createElement("span", null, "Añadir"))), /*#__PURE__*/React.createElement("a", {
-    href: buildWhatsAppProductUrl(product),
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 text-center cursor-pointer"
-  }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-3.5 h-3.5",
-    fill: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z"
-  })), /*#__PURE__*/React.createElement("span", null, "WhatsApp"))))))))), activeTab === "entrenamientos" && /*#__PURE__*/React.createElement("div", {
+  }, filteredProducts.map(product => {
+    const cardIdx = cardActiveIndices[product.id] || 0;
+    const hasMulti = product.images && product.images.length > 1;
+    const safeIdx = cardIdx % (product.images.length || 1);
+    const activeImgSrc = product.images[safeIdx];
+    const activeCardVar = product.variants ? product.variants.find(v => v.imageIndex === safeIdx) || product.variants[0] : null;
+    return /*#__PURE__*/React.createElement("div", {
+      key: product.id,
+      className: "bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between group"
+    }, /*#__PURE__*/React.createElement("div", {
+      onClick: () => openProductModal(product),
+      className: "cursor-pointer p-4 bg-white flex items-center justify-center h-52 relative overflow-hidden"
+    }, /*#__PURE__*/React.createElement("img", {
+      src: resolveImg(activeImgSrc),
+      alt: product.name,
+      className: "max-h-44 w-full object-contain group-hover:scale-105 transition duration-300",
+      onError: e => {
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = "bassfit-headless/public/" + (activeImgSrc.startsWith("/") ? activeImgSrc.slice(1) : activeImgSrc);
+      }
+    }), /*#__PURE__*/React.createElement("span", {
+      className: "absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10"
+    }, product.categoryLabel), hasMulti && /*#__PURE__*/React.createElement("span", {
+      className: "absolute top-3 right-3 bg-slate-900/85 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-full z-10 shadow-xs"
+    }, activeCardVar ? activeCardVar.tag || `${safeIdx + 1}/${product.images.length}` : `${safeIdx + 1}/${product.images.length}`), hasMulti && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: e => {
+        e.stopPropagation();
+        setCardActiveIndices(prev => {
+          const cur = prev[product.id] || 0;
+          return {
+            ...prev,
+            [product.id]: (cur - 1 + product.images.length) % product.images.length
+          };
+        });
+      },
+      className: "absolute left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-900/60 hover:bg-[#FF4A00] text-white flex items-center justify-center text-sm font-bold shadow-md transition z-10 cursor-pointer",
+      title: "Anterior foto"
+    }, "‹"), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: e => {
+        e.stopPropagation();
+        setCardActiveIndices(prev => {
+          const cur = prev[product.id] || 0;
+          return {
+            ...prev,
+            [product.id]: (cur + 1) % product.images.length
+          };
+        });
+      },
+      className: "absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-900/60 hover:bg-[#FF4A00] text-white flex items-center justify-center text-sm font-bold shadow-md transition z-10 cursor-pointer",
+      title: "Siguiente foto"
+    }, "›"), /*#__PURE__*/React.createElement("div", {
+      className: "absolute bottom-2 left-0 right-0 flex justify-center items-center space-x-1.5 z-10",
+      onClick: e => e.stopPropagation()
+    }, product.images.map((_, dotIdx) => /*#__PURE__*/React.createElement("button", {
+      key: dotIdx,
+      type: "button",
+      onClick: e => {
+        e.stopPropagation();
+        setCardActiveIndices(prev => ({
+          ...prev,
+          [product.id]: dotIdx
+        }));
+      },
+      className: `rounded-full transition-all cursor-pointer ${safeIdx === dotIdx ? 'w-4 h-1.5 bg-[#FF4A00]' : 'w-1.5 h-1.5 bg-slate-300 hover:bg-slate-400'}`,
+      title: `Ver imagen ${dotIdx + 1}`
+    }))))), /*#__PURE__*/React.createElement("div", {
+      className: "p-5 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-3"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+      onClick: () => openProductModal(product),
+      className: "font-bold text-sm text-slate-900 line-clamp-2 hover:text-[#FF4A00] cursor-pointer transition leading-snug"
+    }, product.name), /*#__PURE__*/React.createElement("p", {
+      className: "text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed"
+    }, product.shortDescription), product.variants && /*#__PURE__*/React.createElement("div", {
+      className: "mt-2.5 pt-2 border-t border-slate-100 space-y-1"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between"
+    }, /*#__PURE__*/React.createElement("span", null, "Variedades (", product.variants.length, "):"), /*#__PURE__*/React.createElement("span", {
+      className: "text-[#FF4A00] font-extrabold text-[9px]"
+    }, "Toca para ver ⇄")), /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-wrap gap-1"
+    }, product.variants.map(v => /*#__PURE__*/React.createElement("button", {
+      key: v.id,
+      type: "button",
+      onClick: e => {
+        e.stopPropagation();
+        setCardActiveIndices(prev => ({
+          ...prev,
+          [product.id]: v.imageIndex
+        }));
+      },
+      className: `text-[9px] font-bold px-2 py-0.5 rounded-md transition cursor-pointer ${safeIdx === v.imageIndex ? 'bg-[#FF4A00] text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`,
+      title: v.subtitle || v.name
+    }, v.tag || v.name))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-baseline space-x-2 mb-3"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-xl font-black text-[#FF4A00]"
+    }, "S/ ", product.price.toFixed(2)), product.compareAtPrice && /*#__PURE__*/React.createElement("span", {
+      className: "text-xs text-slate-400 line-through"
+    }, "S/ ", product.compareAtPrice.toFixed(2))), /*#__PURE__*/React.createElement("div", {
+      className: "space-y-2"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-2 gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => openProductModal(product),
+      className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
+    }, "Ver Ficha"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => handleAddToCart(product, activeCardVar),
+      className: "w-full bg-[#FF4A00] hover:bg-[#e04100] text-white text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center flex items-center justify-center space-x-1"
+    }, /*#__PURE__*/React.createElement("svg", {
+      className: "w-3.5 h-3.5",
+      fill: "none",
+      stroke: "currentColor",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      strokeWidth: "2.5",
+      d: "M12 4v16m8-8H4"
+    })), /*#__PURE__*/React.createElement("span", null, "Añadir"))), /*#__PURE__*/React.createElement("a", {
+      href: buildWhatsAppProductUrl(product, activeCardVar),
+      target: "_blank",
+      rel: "noopener noreferrer",
+      className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 text-center cursor-pointer"
+    }, /*#__PURE__*/React.createElement("svg", {
+      className: "w-3.5 h-3.5",
+      fill: "currentColor",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z"
+    })), /*#__PURE__*/React.createElement("span", null, "WhatsApp"))))));
+  }))), activeTab === "programas" && /*#__PURE__*/React.createElement("div", {
     className: "space-y-8"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
-    className: "text-3xl font-black text-slate-900"
-  }, "Programas de Entrenamiento Bassfit"), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-slate-500"
-  }, "Planes personalizados y estructurados según tus objetivos y equipamiento disponible.")), /*#__PURE__*/React.createElement("div", {
-    className: "grid md:grid-cols-3 gap-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-center max-w-2xl mx-auto space-y-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[#FF4A00] text-xs font-black uppercase tracking-wider"
+  }, "COACHING & ASESORÍA PERSONALIZADA"), /*#__PURE__*/React.createElement("h1", {
+    className: "text-2xl sm:text-4xl font-black text-slate-900"
+  }, "Planes de Entrenamiento Bassfit"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs sm:text-sm text-slate-500"
+  }, "Programaciones estructuradas bajo la filosofía «Fitness sin límites de edad», adaptadas a tu nivel, objetivos y equipamiento.")), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 md:grid-cols-3 gap-8"
   }, TRAINING_PROGRAMS.map(prog => /*#__PURE__*/React.createElement("div", {
     key: prog.id,
-    className: "bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between"
+    className: `bg-white rounded-3xl border overflow-hidden flex flex-col justify-between transition-all hover:shadow-xl ${prog.highlighted ? "border-[#FF4A00] ring-2 ring-[#FF4A00]/20 shadow-lg" : "border-slate-200"}`
   }, /*#__PURE__*/React.createElement("div", {
-    className: "space-y-4"
+    className: "p-6 space-y-4"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[10px] font-extrabold bg-orange-100 text-[#FF4A00] px-3 py-1 rounded-full uppercase tracking-wider inline-block"
+    className: "inline-block bg-slate-900 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider"
   }, prog.badge), /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl font-black text-slate-900 leading-snug"
+    className: "text-xl font-black text-slate-900 leading-tight"
   }, prog.title), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-600 leading-relaxed"
+    className: "text-xs text-slate-500 leading-relaxed"
   }, prog.subtitle), /*#__PURE__*/React.createElement("div", {
-    className: "border-t border-b border-slate-100 py-3 my-2 space-y-1 text-xs"
+    className: "bg-slate-50 rounded-2xl p-4 space-y-2 border border-slate-100 text-xs"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex justify-between"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-slate-400"
-  }, "Modalidad:"), " ", /*#__PURE__*/React.createElement("span", {
+  }, "Nivel:"), /*#__PURE__*/React.createElement("span", {
+    className: "font-bold text-slate-700"
+  }, prog.level)), /*#__PURE__*/React.createElement("div", {
+    className: "flex justify-between"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-400"
+  }, "Modalidad:"), /*#__PURE__*/React.createElement("span", {
     className: "font-bold text-slate-700"
   }, prog.modality)), /*#__PURE__*/React.createElement("div", {
     className: "flex justify-between"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-slate-400"
-  }, "Duración:"), " ", /*#__PURE__*/React.createElement("span", {
+  }, "Duración:"), /*#__PURE__*/React.createElement("span", {
     className: "font-bold text-slate-700"
-  }, prog.duration)), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-baseline pt-2"
+  }, prog.duration))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2 pt-2"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-slate-400"
-  }, "Inversión:"), /*#__PURE__*/React.createElement("span", {
-    className: "text-2xl font-black text-[#FF4A00]"
-  }, "S/ ", prog.priceMonthly, " ", /*#__PURE__*/React.createElement("span", {
-    className: "text-xs text-slate-400 font-normal"
-  }, "/mes")))), /*#__PURE__*/React.createElement("ul", {
+    className: "text-[11px] font-bold text-slate-700 uppercase tracking-wider block"
+  }, "Qué incluye el plan:"), /*#__PURE__*/React.createElement("ul", {
     className: "space-y-1.5 text-xs text-slate-600"
-  }, prog.includes.map((inc, i) => /*#__PURE__*/React.createElement("li", {
-    key: i,
+  }, prog.includes.map((inc, idx) => /*#__PURE__*/React.createElement("li", {
+    key: idx,
     className: "flex items-start"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[#FF4A00] mr-2 font-bold"
-  }, "✓"), /*#__PURE__*/React.createElement("span", null, inc))))), /*#__PURE__*/React.createElement("div", {
-    className: "pt-6"
-  }, /*#__PURE__*/React.createElement("a", {
-    href: `https://wa.me/51967581481?text=${encodeURIComponent(`Hola Coach Bassfit 💪, deseo inscribirme en el programa: *${prog.title}* (S/ ${prog.priceMonthly} mensual). ¿Cómo coordinamos mi evaluación inicial?`)}`,
+    className: "text-[#FF4A00] font-black mr-2"
+  }, "✓"), /*#__PURE__*/React.createElement("span", null, inc)))))), /*#__PURE__*/React.createElement("div", {
+    className: "p-6 bg-slate-50/80 border-t border-slate-100 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline justify-between"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs text-slate-400"
+  }, "Inversión mensual:"), /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl font-black text-[#FF4A00]"
+  }, "S/ ", prog.priceMonthly.toFixed(2))), /*#__PURE__*/React.createElement("a", {
+    href: `https://wa.me/51967581481?text=${encodeURIComponent(`Hola Bassfit 👋, deseo inscribirme o pedir información del programa: *${prog.title}*.`)}`,
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "w-full bg-[#0F172A] hover:bg-[#FF4A00] text-white font-extrabold py-3.5 rounded-xl text-xs text-center block transition cursor-pointer"
-  }, "Inscribirme por WhatsApp →")))))), activeTab === "comunidad" && /*#__PURE__*/React.createElement("div", {
+    className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center space-x-2 text-center shadow-xs cursor-pointer"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z"
+  })), /*#__PURE__*/React.createElement("span", null, "Inscribirme por WhatsApp"))))))), activeTab === "guias" && /*#__PURE__*/React.createElement("div", {
     className: "space-y-8"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
-    className: "text-3xl font-black text-slate-900"
-  }, "Guías Técnicas y Longevidad Activa"), /*#__PURE__*/React.createElement("p", {
-    className: "text-sm text-slate-500"
-  }, "Artículos respaldados por ciencia del deporte para entrenar con técnica y sin lesiones.")), /*#__PURE__*/React.createElement("div", {
-    className: "grid md:grid-cols-2 gap-6"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-center max-w-2xl mx-auto space-y-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[#FF4A00] text-xs font-black uppercase tracking-wider"
+  }, "BLOG & CIENCIA DEL MOVIMIENTO"), /*#__PURE__*/React.createElement("h1", {
+    className: "text-2xl sm:text-4xl font-black text-slate-900"
+  }, "Guías de Entrenamiento y Longevidad"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs sm:text-sm text-slate-500"
+  }, "Artículos basados en evidencia científica para maximizar el uso de tus implementos deportivos y prevenir lesiones.")), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 md:grid-cols-2 gap-8"
   }, EVERGREEN_ARTICLES.map(art => /*#__PURE__*/React.createElement("div", {
     key: art.id,
-    className: "bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between"
+    className: "bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-4 hover:shadow-xl transition flex flex-col justify-between"
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-3"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[11px] font-bold text-[#FF4A00] uppercase tracking-wider"
+    className: "text-[#FF4A00] text-xs font-bold uppercase tracking-wider"
   }, art.pillarCategory, " · ", art.readingTime), /*#__PURE__*/React.createElement("h3", {
-    className: "text-lg font-black text-slate-900 leading-snug"
+    className: "text-xl sm:text-2xl font-black text-slate-900 leading-tight"
   }, art.title), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-600 leading-relaxed"
-  }, art.seoExcerpt)), /*#__PURE__*/React.createElement("div", {
-    className: "pt-4"
-  }, /*#__PURE__*/React.createElement("button", {
+    className: "text-xs sm:text-sm text-slate-600 leading-relaxed"
+  }, art.seoExcerpt)), /*#__PURE__*/React.createElement("button", {
     onClick: () => setSelectedArticle(art),
-    className: "text-xs font-bold text-[#0F172A] hover:text-[#FF4A00] transition cursor-pointer"
-  }, "Leer artículo completo →"))))))), /*#__PURE__*/React.createElement("footer", {
-    className: "bg-[#0F172A] text-slate-400 text-xs py-12 border-t border-slate-800 mt-16"
+    className: "w-full bg-slate-100 hover:bg-[#0F172A] hover:text-white text-slate-800 text-xs font-bold py-3 rounded-xl transition cursor-pointer text-center"
+  }, "Leer Artículo Completo →")))))), /*#__PURE__*/React.createElement("footer", {
+    className: "bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 mt-16"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 md:grid-cols-4 gap-8"
+    className: "max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8"
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-3 md:col-span-2"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: resolveImg("/images/brand/logo_bassfit_peru_dark.png"),
-    alt: "Bassfit Perú",
-    className: "h-14 md:h-16 w-auto object-contain mb-1",
-    onError: e => {
-      e.currentTarget.onerror = null;
-      e.currentTarget.src = "./images/brand/logo_bassfit_peru_dark.png";
-    }
-  }), /*#__PURE__*/React.createElement("p", {
-    className: "text-slate-400 max-w-sm leading-relaxed"
-  }, "Comunidad y equipamiento deportivo de alta exigencia para atletas de todas las edades. Fitness inteligente, funcional y sin límites de edad.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
-    className: "text-white font-bold mb-3 uppercase tracking-wider text-[11px]"
-  }, "Disciplinas"), /*#__PURE__*/React.createElement("ul", {
-    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl font-black text-white tracking-tight"
+  }, "BASS", /*#__PURE__*/React.createElement("span", {
+    className: "text-[#FF4A00]"
+  }, "FIT")), /*#__PURE__*/React.createElement("span", {
+    className: "bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase"
+  }, "PERÚ")), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-400 leading-relaxed max-w-md"
+  }, "Comercializadora líder de implementos fitness y planes de entrenamiento personalizado. Creemos firmemente en el fitness sin límites de edad, promoviendo salud articular, fuerza funcional y bienestar duradero."), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs text-slate-500 pt-1"
+  }, "RUC: 10452368921 · Bassfit Perú S.A.C. · Lima, Perú")), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement("h4", {
+    className: "text-white font-bold text-xs uppercase tracking-wider"
+  }, "Categorías"), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-1.5 text-xs"
   }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setSelectedCategory("yoga-pilates");
       setActiveTab("tienda");
     },
-    className: "hover:text-white cursor-pointer"
-  }, "Yoga & Pilates (5)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    className: "hover:text-white transition"
+  }, "Yoga & Pilates")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setSelectedCategory("entrenamiento-fuerza");
       setActiveTab("tienda");
     },
-    className: "hover:text-white cursor-pointer"
-  }, "Fuerza & Pesas (4)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    className: "hover:text-white transition"
+  }, "Fuerza & Pesas")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setSelectedCategory("calistenia");
       setActiveTab("tienda");
     },
-    className: "hover:text-white cursor-pointer"
-  }, "Calistenia (4)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    className: "hover:text-white transition"
+  }, "Calistenia & Barras")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setSelectedCategory("fajas-reductoras");
       setActiveTab("tienda");
     },
-    className: "hover:text-white cursor-pointer"
-  }, "Fajas Reductoras & Cuidado (3)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    className: "hover:text-white transition"
+  }, "Fajas & Cremas Reductoras")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setSelectedCategory("natacion-acuaticos");
       setActiveTab("tienda");
     },
-    className: "hover:text-white cursor-pointer"
-  }, "Natación & Acuáticos (3)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setSelectedCategory("boxeo-artes-marciales");
-      setActiveTab("tienda");
-    },
-    className: "hover:text-white cursor-pointer"
-  }, "Boxeo & Combate (3)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setSelectedCategory("electronicos");
-      setActiveTab("tienda");
-    },
-    className: "hover:text-white cursor-pointer"
-  }, "Electrónicos (1)")))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
-    className: "text-white font-bold mb-3 uppercase tracking-wider text-[11px]"
-  }, "Contacto Oficial"), /*#__PURE__*/React.createElement("ul", {
-    className: "space-y-2"
-  }, /*#__PURE__*/React.createElement("li", null, "WhatsApp: ", /*#__PURE__*/React.createElement("a", {
+    className: "hover:text-white transition"
+  }, "Natación & Acuáticos")))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement("h4", {
+    className: "text-white font-bold text-xs uppercase tracking-wider"
+  }, "Contacto & Soporte"), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-1.5 text-xs"
+  }, /*#__PURE__*/React.createElement("li", {
+    className: "flex items-center space-x-2"
+  }, /*#__PURE__*/React.createElement("span", null, "📱"), /*#__PURE__*/React.createElement("a", {
     href: "https://wa.me/51967581481",
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "text-white font-bold hover:underline"
-  }, "+51 967 581 481")), /*#__PURE__*/React.createElement("li", null, "Envíos: Lima y todas las provincias del Perú"), /*#__PURE__*/React.createElement("li", null, "Compra: 100% Protegida y Garantizada")))), /*#__PURE__*/React.createElement("div", {
-    className: "border-t border-slate-800 pt-6 text-center text-slate-500"
-  }, "© ", new Date().getFullYear(), " BASSFIT PERÚ. Todos los derechos reservados."))), selectedProduct && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center p-3 sm:p-6 items-start",
+    className: "hover:text-white transition font-bold text-[#25D366]"
+  }, "+51 967 581 481")), /*#__PURE__*/React.createElement("li", {
+    className: "flex items-center space-x-2"
+  }, /*#__PURE__*/React.createElement("span", null, "📍"), /*#__PURE__*/React.createElement("span", null, "Envíos a todo el Perú")), /*#__PURE__*/React.createElement("li", {
+    className: "flex items-center space-x-2"
+  }, /*#__PURE__*/React.createElement("span", null, "🕒"), /*#__PURE__*/React.createElement("span", null, "Lun - Sáb: 8:00 am - 8:00 pm"))))), /*#__PURE__*/React.createElement("div", {
+    className: "border-t border-slate-800/80 py-4 text-center text-[11px] text-slate-500"
+  }, "© ", new Date().getFullYear(), " Bassfit Perú. Todos los derechos reservados. Desarrollado con tecnología headless de alto rendimiento.")), selectedProduct && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center p-3 sm:p-6 items-start animate-fade-in",
     onClick: () => setSelectedProduct(null)
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl max-w-3xl w-full p-5 sm:p-8 shadow-2xl my-3 sm:my-6 relative border border-slate-100",
+    className: "bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl my-4 sm:my-8 relative",
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center border-b border-slate-100 pb-3 mb-5 sticky -top-5 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-10"
+    className: "flex justify-between items-center border-b pb-4 mb-6 sticky -top-6 bg-white/95 backdrop-blur-md pt-2 z-10"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "bg-[#0F172A] text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider"
-  }, selectedProduct.categoryLabel), /*#__PURE__*/React.createElement("button", {
+    className: "text-xs font-bold text-[#FF4A00] uppercase tracking-wider"
+  }, selectedProduct.categoryLabel, " · SKU: ", selectedProduct.sku), /*#__PURE__*/React.createElement("button", {
     onClick: () => setSelectedProduct(null),
-    className: "flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3.5 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shadow-sm border border-slate-200",
-    title: "Cerrar ventana (Esc)"
+    className: "flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer",
+    title: "Cerrar modal (Esc)"
   }, /*#__PURE__*/React.createElement("span", null, "Cerrar"), /*#__PURE__*/React.createElement("svg", {
     className: "w-4 h-4",
     fill: "none",
@@ -1202,24 +1498,25 @@ function App() {
     strokeWidth: "2.5",
     d: "M6 18L18 6M6 6l12 12"
   })))), /*#__PURE__*/React.createElement("div", {
-    className: "grid md:grid-cols-2 gap-6"
+    className: "space-y-6"
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-center relative min-h-[260px]"
+    className: "h-72 sm:h-84 bg-white rounded-2xl flex items-center justify-center p-4 relative border border-slate-100 overflow-hidden group"
   }, /*#__PURE__*/React.createElement("img", {
     src: resolveImg(selectedProduct.images[activeImgIdx % selectedProduct.images.length]),
     alt: selectedProduct.name,
-    className: "max-h-72 w-full object-contain",
-    onError: e => {
-      e.currentTarget.onerror = null;
-      e.currentTarget.src = "bassfit-headless/public/" + (selectedProduct.images[activeImgIdx % selectedProduct.images.length].startsWith("/") ? selectedProduct.images[activeImgIdx % selectedProduct.images.length].slice(1) : selectedProduct.images[activeImgIdx % selectedProduct.images.length]);
-    }
+    className: "max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
   }), selectedProduct.images.length > 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: e => {
       e.stopPropagation();
-      setActiveImgIdx(prev => prev > 0 ? prev - 1 : selectedProduct.images.length - 1);
+      const nextIdx = activeImgIdx > 0 ? activeImgIdx - 1 : selectedProduct.images.length - 1;
+      setActiveImgIdx(nextIdx);
+      if (selectedProduct.variants) {
+        const match = selectedProduct.variants.find(v => v.imageIndex === nextIdx);
+        if (match) setSelectedVariant(match);
+      }
     },
     className: "absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-900/70 hover:bg-[#FF4A00] text-white flex items-center justify-center text-base font-bold shadow-md transition cursor-pointer",
     title: "Foto anterior"
@@ -1227,7 +1524,12 @@ function App() {
     type: "button",
     onClick: e => {
       e.stopPropagation();
-      setActiveImgIdx(prev => (prev + 1) % selectedProduct.images.length);
+      const nextIdx = (activeImgIdx + 1) % selectedProduct.images.length;
+      setActiveImgIdx(nextIdx);
+      if (selectedProduct.variants) {
+        const match = selectedProduct.variants.find(v => v.imageIndex === nextIdx);
+        if (match) setSelectedVariant(match);
+      }
     },
     className: "absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-900/70 hover:bg-[#FF4A00] text-white flex items-center justify-center text-base font-bold shadow-md transition cursor-pointer",
     title: "Siguiente foto"
@@ -1238,7 +1540,13 @@ function App() {
   }, selectedProduct.images.map((imgSrc, idx) => /*#__PURE__*/React.createElement("button", {
     key: idx,
     type: "button",
-    onClick: () => setActiveImgIdx(idx),
+    onClick: () => {
+      setActiveImgIdx(idx);
+      if (selectedProduct.variants) {
+        const match = selectedProduct.variants.find(v => v.imageIndex === idx);
+        if (match) setSelectedVariant(match);
+      }
+    },
     className: `w-14 h-14 rounded-xl border-2 p-1 bg-white cursor-pointer transition ${activeImgIdx % selectedProduct.images.length === idx ? "border-[#FF4A00] shadow-sm scale-105" : "border-slate-200 hover:border-slate-400 opacity-70"}`,
     title: `Ver foto ${idx + 1}`
   }, /*#__PURE__*/React.createElement("img", {
@@ -1255,7 +1563,38 @@ function App() {
     className: "text-3xl font-black text-[#FF4A00]"
   }, "S/ ", selectedProduct.price.toFixed(2)), selectedProduct.compareAtPrice && /*#__PURE__*/React.createElement("span", {
     className: "text-base text-slate-400 line-through"
-  }, "S/ ", selectedProduct.compareAtPrice.toFixed(2))), /*#__PURE__*/React.createElement("p", {
+  }, "S/ ", selectedProduct.compareAtPrice.toFixed(2))), selectedProduct.variants && selectedProduct.variants.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "bg-slate-50 border border-slate-200/90 rounded-2xl p-4 space-y-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", null, "🧴 Variedad:"), /*#__PURE__*/React.createElement("span", {
+    className: "text-[#FF4A00] font-extrabold"
+  }, selectedVariant?.name || selectedProduct.variants[0].name)), /*#__PURE__*/React.createElement("span", {
+    className: "text-[10px] text-slate-500 font-bold bg-white px-2 py-0.5 rounded-full border border-slate-200"
+  }, "Desliza o toca ⇄")), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-2"
+  }, selectedProduct.variants.map(v => {
+    const isSelected = activeImgIdx % selectedProduct.images.length === v.imageIndex;
+    return /*#__PURE__*/React.createElement("button", {
+      key: v.id,
+      type: "button",
+      onClick: () => {
+        setActiveImgIdx(v.imageIndex);
+        setSelectedVariant(v);
+      },
+      className: `p-2.5 rounded-xl text-left border-2 transition-all cursor-pointer flex items-center gap-2.5 ${isSelected ? "border-[#FF4A00] bg-orange-50/70 shadow-xs" : "border-slate-200 hover:border-slate-300 bg-white"}`
+    }, /*#__PURE__*/React.createElement("div", {
+      className: `w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${isSelected ? "bg-[#FF4A00] text-white" : "bg-slate-100 text-slate-700"}`
+    }, v.tag ? v.tag.split(" ")[0] : "🧴"), /*#__PURE__*/React.createElement("div", {
+      className: "min-w-0 flex-1"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs font-bold text-slate-900 leading-tight truncate"
+    }, v.name), v.subtitle && /*#__PURE__*/React.createElement("div", {
+      className: "text-[10px] text-slate-500 leading-tight mt-0.5 line-clamp-1"
+    }, v.subtitle)));
+  }))), /*#__PURE__*/React.createElement("p", {
     className: "text-sm text-slate-600 leading-relaxed whitespace-pre-line"
   }, selectedProduct.shortDescription), selectedProduct.technicalSpecs && selectedProduct.technicalSpecs.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs space-y-2"
@@ -1274,7 +1613,8 @@ function App() {
     className: "space-y-2 pt-2"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      handleAddToCart(selectedProduct);
+      const curVar = selectedVariant || (selectedProduct.variants ? selectedProduct.variants[activeImgIdx % selectedProduct.images.length] : null);
+      handleAddToCart(selectedProduct, curVar);
       setSelectedProduct(null);
     },
     className: "w-full bg-[#FF4A00] hover:bg-[#e04100] text-white font-extrabold py-3.5 rounded-xl text-sm shadow-md transition flex items-center justify-center space-x-2 cursor-pointer"
@@ -1288,8 +1628,8 @@ function App() {
     strokeLinejoin: "round",
     strokeWidth: "2.5",
     d: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-  })), /*#__PURE__*/React.createElement("span", null, "Añadir al Carrito (S/ ", selectedProduct.price.toFixed(2), ")")), /*#__PURE__*/React.createElement("a", {
-    href: buildWhatsAppProductUrl(selectedProduct),
+  })), /*#__PURE__*/React.createElement("span", null, "Añadir al Carrito ", selectedVariant ? `· ${selectedVariant.name}` : "", " (S/ ", selectedProduct.price.toFixed(2), ")")), /*#__PURE__*/React.createElement("a", {
+    href: buildWhatsAppProductUrl(selectedProduct, selectedVariant || (selectedProduct.variants ? selectedProduct.variants[activeImgIdx % selectedProduct.images.length] : null)),
     target: "_blank",
     rel: "noopener noreferrer",
     className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold py-3.5 rounded-xl text-sm shadow-sm transition flex items-center justify-center space-x-2 text-center cursor-pointer"
@@ -1340,62 +1680,35 @@ function App() {
     onClick: () => setSelectedArticle(null),
     className: "w-full text-center text-slate-500 hover:text-slate-800 text-xs font-bold py-3 mt-4 transition cursor-pointer"
   }, "← Volver a guías")))), isCartOpen && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-end",
+    className: "fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex justify-end",
     onClick: () => setIsCartOpen(false)
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto",
+    className: "bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between",
     onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center border-b border-slate-100 pb-4 mb-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-5 border-b border-slate-100 flex items-center justify-between"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center space-x-2"
-  }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-5 h-5 text-[#FF4A00]",
-    fill: "none",
-    stroke: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2",
-    d: "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-  })), /*#__PURE__*/React.createElement("h3", {
-    className: "text-lg font-black text-slate-900"
-  }, "Tu Carrito"), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs text-slate-400 font-bold"
-  }, "(", cartCount, " items)")), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xl"
+  }, "🛒"), /*#__PURE__*/React.createElement("h3", {
+    className: "font-black text-slate-900 text-base"
+  }, "Carrito de Compras"), /*#__PURE__*/React.createElement("span", {
+    className: "bg-[#FF4A00] text-white text-[10px] font-black px-2 py-0.5 rounded-full"
+  }, cartCount)), /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsCartOpen(false),
-    className: "w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer",
-    title: "Cerrar carrito"
-  }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-4 h-4",
-    fill: "none",
-    stroke: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2.5",
-    d: "M6 18L18 6M6 6l12 12"
-  })))), cart.length === 0 ? /*#__PURE__*/React.createElement("div", {
-    className: "text-center py-16 space-y-4"
+    className: "text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+  }, "✕")), /*#__PURE__*/React.createElement("div", {
+    className: "p-5 overflow-y-auto flex-1"
+  }, cart.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "text-center py-12 space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "w-16 h-16 bg-orange-50 text-[#FF4A00] rounded-full flex items-center justify-center mx-auto"
-  }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-8 h-8",
-    fill: "none",
-    stroke: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2",
-    d: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-  }))), /*#__PURE__*/React.createElement("h4", {
+    className: "w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mx-auto"
+  }, "🛒"), /*#__PURE__*/React.createElement("h4", {
     className: "text-base font-bold text-slate-900"
   }, "Tu carrito está vacío"), /*#__PURE__*/React.createElement("p", {
     className: "text-xs text-slate-500 max-w-xs mx-auto"
-  }, "Aún no has agregado productos. Explora nuestro catálogo con los 18 implementos oficiales."), /*#__PURE__*/React.createElement("button", {
+  }, "Aún no has agregado productos. Explora nuestro catálogo oficial con ", BASSFIT_PRODUCTS.length, " implementos."), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setActiveTab("tienda");
       setIsCartOpen(false);
@@ -1403,75 +1716,69 @@ function App() {
     className: "bg-[#FF4A00] text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-[#e04100] transition cursor-pointer"
   }, "Ver Catálogo de Productos")) : /*#__PURE__*/React.createElement("div", {
     className: "space-y-3"
-  }, cart.map(item => /*#__PURE__*/React.createElement("div", {
-    key: item.product.id,
-    className: "flex items-center gap-3 py-3 border-b border-slate-100"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: resolveImg(item.product.images[0]),
-    alt: item.product.name,
-    className: "w-14 h-14 rounded-xl object-contain bg-white border border-slate-100 p-1 flex-shrink-0",
-    onError: e => {
-      e.currentTarget.onerror = null;
-      e.currentTarget.src = "bassfit-headless/public/" + (item.product.images[0].startsWith("/") ? item.product.images[0].slice(1) : item.product.images[0]);
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 min-w-0"
+  }, cart.map(item => {
+    const itemImg = item.variant && item.product.images[item.variant.imageIndex] ? item.product.images[item.variant.imageIndex] : item.product.images[0];
+    return /*#__PURE__*/React.createElement("div", {
+      key: item.cartItemId || item.product.id,
+      className: "flex items-center gap-3 py-3 border-b border-slate-100"
+    }, /*#__PURE__*/React.createElement("img", {
+      src: resolveImg(itemImg),
+      alt: item.product.name,
+      className: "w-14 h-14 rounded-xl object-contain bg-white border border-slate-100 p-1 shrink-0",
+      onError: e => {
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = "bassfit-headless/public/" + (itemImg.startsWith("/") ? itemImg.slice(1) : itemImg);
+      }
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "flex-1 min-w-0"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs font-bold text-slate-900 truncate"
+    }, item.product.name), item.variant && /*#__PURE__*/React.createElement("div", {
+      className: "inline-block mt-0.5 text-[10px] font-bold text-[#FF4A00] bg-orange-50 px-1.5 py-0.2 rounded"
+    }, "Variedad: ", item.variant.name), /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-[#FF4A00] font-black mt-0.5"
+    }, "S/ ", item.product.price.toFixed(2)), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center space-x-2 mt-1.5"
+    }, /*#__PURE__*/React.createElement("button", {
+      onClick: () => handleUpdateQuantity(item.cartItemId || item.product.id, -1),
+      className: "w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer"
+    }, "-"), /*#__PURE__*/React.createElement("span", {
+      className: "text-xs font-bold text-slate-800 px-1"
+    }, item.quantity), /*#__PURE__*/React.createElement("button", {
+      onClick: () => handleUpdateQuantity(item.cartItemId || item.product.id, 1),
+      className: "w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer"
+    }, "+"))), /*#__PURE__*/React.createElement("div", {
+      className: "text-right"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "font-black text-sm text-slate-900"
+    }, "S/ ", (item.product.price * item.quantity).toFixed(2)), /*#__PURE__*/React.createElement("button", {
+      onClick: () => handleRemoveFromCart(item.cartItemId || item.product.id),
+      className: "text-xs text-slate-400 hover:text-red-500 mt-1 block ml-auto cursor-pointer",
+      title: "Eliminar producto"
+    }, "✕")));
+  }))), cart.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "p-5 border-t border-slate-100 bg-slate-50 space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "text-xs font-bold text-slate-900 truncate"
-  }, item.product.name), /*#__PURE__*/React.createElement("div", {
-    className: "text-xs text-[#FF4A00] font-black mt-0.5"
-  }, "S/ ", item.product.price.toFixed(2)), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2 mt-1.5"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => handleUpdateQuantity(item.product.id, -1),
-    className: "w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer"
-  }, "-"), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-bold text-slate-800 px-1"
-  }, item.quantity), /*#__PURE__*/React.createElement("button", {
-    onClick: () => handleUpdateQuantity(item.product.id, 1),
-    className: "w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer"
-  }, "+"))), /*#__PURE__*/React.createElement("div", {
-    className: "text-right"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "font-black text-sm text-slate-900"
-  }, "S/ ", (item.product.price * item.quantity).toFixed(2)), /*#__PURE__*/React.createElement("button", {
-    onClick: () => handleRemoveFromCart(item.product.id),
-    className: "text-xs text-slate-400 hover:text-red-500 mt-1 block ml-auto cursor-pointer",
-    title: "Eliminar producto"
-  }, "✕")))))), cart.length > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "pt-4 border-t border-slate-100 space-y-3"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "space-y-1.5 text-xs text-slate-600"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, "Subtotal:"), /*#__PURE__*/React.createElement("span", {
-    className: "font-bold text-slate-800"
-  }, "S/ ", cartSubtotal.toFixed(2))), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, "Envío:"), /*#__PURE__*/React.createElement("span", {
-    className: "text-slate-500"
-  }, "A coordinar (Lima y Provincias)"))), /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-baseline font-black text-lg border-t border-slate-100 pt-2 text-slate-900"
-  }, /*#__PURE__*/React.createElement("span", null, "Total a Pagar:"), /*#__PURE__*/React.createElement("span", {
-    className: "text-2xl text-[#FF4A00]"
-  }, "S/ ", cartSubtotal.toFixed(2))), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-2 pt-1"
-  }, /*#__PURE__*/React.createElement("button", {
+    className: "flex justify-between items-baseline"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs text-slate-500"
+  }, "Subtotal del pedido:"), /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl font-black text-[#FF4A00]"
+  }, "S/ ", cartSubtotal.toFixed(2))), /*#__PURE__*/React.createElement("button", {
     onClick: handleWhatsAppCartOrder,
-    className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold py-3.5 rounded-xl text-sm transition shadow-sm flex items-center justify-center space-x-2 cursor-pointer"
+    className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold py-3.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 text-center shadow-md cursor-pointer"
   }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-5 h-5",
+    className: "w-4 h-4",
     fill: "currentColor",
     viewBox: "0 0 24 24"
   }, /*#__PURE__*/React.createElement("path", {
     d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z"
-  })), /*#__PURE__*/React.createElement("span", null, "Pedir Pedido por WhatsApp")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setIsCartOpen(false),
-    className: "w-full text-center text-slate-500 hover:text-slate-800 text-xs font-bold py-2 transition cursor-pointer"
-  }, "← Seguir agregando productos"))))));
+  })), /*#__PURE__*/React.createElement("span", null, "Pedir por WhatsApp (S/ ", cartSubtotal.toFixed(2), ")")), /*#__PURE__*/React.createElement("div", {
+    className: "text-center text-[10px] text-slate-400"
+  }, "Coordinarás la dirección de entrega y forma de pago directamente por WhatsApp")))));
 }
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(/*#__PURE__*/React.createElement(App, null));
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
   </script>
 </body>
 </html>

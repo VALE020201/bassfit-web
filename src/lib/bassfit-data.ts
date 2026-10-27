@@ -34,7 +34,14 @@ export interface BassfitProduct {
   shortDescription: string;
   technicalSpecs: string[];
   images: string[];
-  driveFolderId: string;
+  variants?: {
+    id: string;
+    name: string;
+    subtitle?: string;
+    imageIndex: number;
+    tag?: string;
+  }[];
+  driveFolderId?: string;
   featured?: boolean;
   relatedArticleSlugs: string[];
   coachTip: string;
@@ -910,7 +917,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
   {
     "id": "wa-3708939919127923",
     "wcId": 1021,
-    "name": "Crema Corporal Caliente / Lipo Cream",
+    "name": "Crema Corporal Reductora / Lipo Cream (Variedades)",
     "slug": "crema-corporal-caliente",
     "categorySlug": "fajas-reductoras",
     "categoryLabel": "Fajas Reductoras",
@@ -919,20 +926,69 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
     "stock": 50,
     "sku": "BF-CR-001",
     "saleMode": "direct_cart",
-    "shortDescription": "Excelente crema caliente para complementar con el uso de fajas y conseguir resultados reductores más rápidos y efectivos en menor tiempo.",
+    "shortDescription": "Excelente crema corporal reductora para complementar con el uso de fajas y conseguir resultados ms rpidos y efectivos.\\n\\nDesliza para elegir tu variedad: Lipo Cream Caliente, Blue Sky Fra Criognesis, Oligoelementos, LipoSlim 500g o Gel Corps Modelador.",
     "technicalSpecs": [
-      "Fórmula termoactiva con efecto calor que estimula la microcirculación cutánea",
-      "Complemento ideal para fajas de neopreno y chalecos sauna Sweat Shaper",
-      "Variedades disponibles: Lipo Cream termoactiva, reductora y reafirmante",
-      "Fácil absorción, no mancha la ropa ni deja sensación pegajosa",
-      "Presentación en pote hermético de alta duración (Fondo blanco puro)"
+      "Fondo blanco puro (#FFFFFF) de alta definicin en todas las presentaciones",
+      "Variedad 1: Lipo Cream Caliente con fosfatidilcolina termoactiva",
+      "Variedad 2: Lipo Cream Blue Sky con frmula criognica (efecto fro), mentol y alcanfor",
+      "Variedad 3: Lipo Cream Oligoelementos termohidratante con cola de caballo y algas",
+      "Variedad 4: LipoSlim Thermognesis en pote de 500g de alta concentracin",
+      "Variedad 5: Corps Lignea Body Contour Hinode 500g gel modelador crioterpico",
+      "Complemento ideal para fajas cinturilla, faja avispa y chalecos sauna Sweat Shaper"
     ],
     "images": [
       "/images/products/crema-corporal-caliente-1.jpg",
       "/images/products/crema-corporal-caliente-2.jpg",
-      "/images/products/crema-corporal-caliente-3.jpg"
+      "/images/products/crema-corporal-caliente-3.jpg",
+      "/images/products/crema-corporal-caliente-4.jpg",
+      "/images/products/crema-corporal-caliente-5.jpg",
+      "/images/products/crema-corporal-caliente-6.jpg"
     ],
-    "coachTip": "Aplica con masajes circulares ascendentes sobre el abdomen antes de colocarte la faja cinturilla o chaleco sauna."
+    "coachTip": "Aplica con masajes circulares ascendentes sobre el abdomen antes de colocarte la faja cinturilla o chaleco sauna.",
+    "variants": [
+      {
+        "id": "lipo-caliente",
+        "name": "Lipo Cream Caliente (Fosfatidilcolina)",
+        "subtitle": "Efecto calor termoactivo intensivo",
+        "imageIndex": 0,
+        "tag": "🔥 Caliente"
+      },
+      {
+        "id": "lipo-fria",
+        "name": "Lipo Cream Blue Sky (Criognesis Fra)",
+        "subtitle": "Efecto fro reafirmante con mentol y colgeno",
+        "imageIndex": 1,
+        "tag": "❄️ Fra"
+      },
+      {
+        "id": "lipo-oligo",
+        "name": "Lipo Cream Oligoelementos (Thermohidratante)",
+        "subtitle": "Extractos botnicos y oligoelementos",
+        "imageIndex": 2,
+        "tag": "🌿 Oligoelementos"
+      },
+      {
+        "id": "liposlim-500",
+        "name": "LipoSlim 500g (Crema Thermognesis)",
+        "subtitle": "Pote 500g reductor de medidas",
+        "imageIndex": 3,
+        "tag": "⚡ Pote 500g"
+      },
+      {
+        "id": "corps-500",
+        "name": "Corps Body Contour 500g (Gel Modelador)",
+        "subtitle": "Gel modelador corporal crioterpico",
+        "imageIndex": 4,
+        "tag": "✨ Gel Corps"
+      },
+      {
+        "id": "comparativa",
+        "name": "Catlogo Comparativo (4 Presentaciones)",
+        "subtitle": "Gua completa de variedades Bassfit",
+        "imageIndex": 5,
+        "tag": "📋 Comparativa"
+      }
+    ]
   },
   {
     "id": "wa-6149196268485392",
@@ -1008,6 +1064,231 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "/images/products/fascialgun-pistola-masaje-1.jpg"
     ],
     "coachTip": "Dedica 60 segundos por grupo muscular con el cabezal plano después de entrenar para disipar la acumulación de ácido láctico."
+  },
+  {
+    "id": "wa-3421408384612748",
+    "wcId": 1024,
+    "name": "Barras 8en1 Multifuncional para Pared",
+    "slug": "barras-8en1-multifuncional",
+    "categorySlug": "calistenia",
+    "categoryLabel": "Calistenia & Peso Corporal",
+    "price": 178.0,
+    "compareAtPrice": 220.0,
+    "stock": 35,
+    "sku": "BF-BAR-8EN1",
+    "saleMode": "direct_cart",
+    "shortDescription": "Entrena con intensidad desde la comodidad de tu casa con nuestras Barras 8en1. Permite realizar dominadas prono y supino, fondos en paralelas, elevaciones de piernas y múltiples agarres biomecánicos para tren superior completo.",
+    "technicalSpecs": [
+      "Estructura reforzada de acero tubular de alta resistencia con pintura electrostática anticorrosiva",
+      "Fondo blanco puro (#FFFFFF) de alta definición sin recorte ni corte de piezas metálicas",
+      "Cojines acolchados de alta densidad en respaldo y antebrazos forrados en vinilo de uso rudo",
+      "8 modalidades de ejercicio en una sola estación: dominadas abiertas, neutras, cerradas, fondos y abdomen",
+      "Incluye ganchos de anclaje de pared con pernos de expansión de seguridad para carga hasta 250 kg"
+    ],
+    "images": [
+      "/images/products/barras-8en1-multifuncional-1.jpg"
+    ],
+    "coachTip": "Instala sobre pared de ladrillo o concreto sólido. Realiza 4 series de fondos y dominadas combinadas para congestión total del tren superior."
+  },
+  {
+    "id": "wa-8267944463277129",
+    "wcId": 1025,
+    "name": "Escalera Pliométrica de Agilidad y Velocidad",
+    "slug": "escalera-pliometrica-agilidad",
+    "categorySlug": "funcional-resistencia",
+    "categoryLabel": "Funcional & Resistencia",
+    "price": 40.0,
+    "compareAtPrice": 52.0,
+    "stock": 50,
+    "sku": "BF-ESC-001",
+    "saleMode": "direct_cart",
+    "shortDescription": "Con la estable escalera pliométrica podrás mejorar tu coordinación, velocidad, tiempo de reacción y agilidad en cualquier deporte o preparación atlética.",
+    "technicalSpecs": [
+      "Peldaños planos de polipropileno de alta resistencia ajustables en separación",
+      "Cintas laterales de nylon reforzado con costuras de alta durabilidad",
+      "Longitud estándar de competencia con estacas de fijación para césped",
+      "Incluye funda de transporte impermeable con cordón de ajuste",
+      "Ideal para atletas de fútbol, básquet, boxeo, crossfit y running"
+    ],
+    "images": [
+      "/images/products/escalera-pliometrica-1.jpg"
+    ],
+    "coachTip": "Mantén el centro de gravedad bajo y el peso en la punta de los pies para transiciones ultrarrápidas entre peldaños."
+  },
+  {
+    "id": "wa-7157272380981446",
+    "wcId": 1026,
+    "name": "Rodilleras de Potencia para Levantamiento Pesado (Par)",
+    "slug": "rodilleras-de-potencia",
+    "categorySlug": "entrenamiento-fuerza",
+    "categoryLabel": "Fuerza & Pesas",
+    "price": 38.0,
+    "compareAtPrice": 48.0,
+    "stock": 45,
+    "sku": "BF-ROD-001",
+    "saleMode": "direct_cart",
+    "shortDescription": "Al momento de hacer levantamientos pesados para nuestro cuerpo, es crucial brindar soporte a las rodillas. Diseñadas para compresión anatómica y calor articular en sentadillas y powerlifting.",
+    "technicalSpecs": [
+      "Neopreno de compresión de 7 mm de espesor grado competición",
+      "Diseño ergonómico 3D que previene el desplazamiento de la rótula",
+      "Mantiene la articulación caliente para aumentar la síntesis de líquido sinovial",
+      "Costuras reforzadas de 4 hilos resistentes a la máxima tensión",
+      "Presentación por par (2 unidades) aptas para powerlifting y crossfit"
+    ],
+    "images": [
+      "/images/products/rodilleras-de-potencia-1.jpg"
+    ],
+    "coachTip": "Úsalas en series efectivas pesadas (más del 75% de tu RM) para maximizar la estabilidad y confianza al salir del fondo de la sentadilla."
+  },
+  {
+    "id": "wa-3627432107346962",
+    "wcId": 1027,
+    "name": "Almohadilla / Cojín de Espuma para Barra Gym",
+    "slug": "almohadilla-para-barra-gym",
+    "categorySlug": "entrenamiento-fuerza",
+    "categoryLabel": "Fuerza & Pesas",
+    "price": 28.0,
+    "compareAtPrice": 36.0,
+    "stock": 60,
+    "sku": "BF-ALM-001",
+    "saleMode": "direct_cart",
+    "shortDescription": "Almohadilla de espuma gruesa y ergonómica que garantiza comodidad absoluta en el cuello, hombros y cadera durante sentadillas pesadas y empujes de cadera (Hip Thrust).",
+    "technicalSpecs": [
+      "Espuma de alta densidad NBR con memoria antichoque de 3.5 cm de grosor",
+      "Canal anatómico central para liberar la presión en la columna cervical y coxis",
+      "Recubrimiento antideslizante con correas de seguridad de doble velcro",
+      "Compatible con barras olímpicas de 50 mm y barras estándar de 28 mm",
+      "Material impermeable de fácil limpieza que no absorbe sudor"
+    ],
+    "images": [
+      "/images/products/almohadilla-para-barra-1.jpg"
+    ],
+    "coachTip": "Esencial para progresar en Hip Thrust con cargas pesadas protegiendo la cresta ilíaca sin molestias articulares."
+  },
+  {
+    "id": "wa-8885746581543321",
+    "wcId": 1028,
+    "name": "Conos y Vallas de Pliometría y Coordinación",
+    "slug": "conos-y-vallas-pliometria",
+    "categorySlug": "funcional-resistencia",
+    "categoryLabel": "Funcional & Resistencia",
+    "price": 45.0,
+    "compareAtPrice": 58.0,
+    "stock": 40,
+    "sku": "BF-CON-001",
+    "saleMode": "direct_cart",
+    "shortDescription": "Todo lo necesario para entrenamientos de velocidad, potencia de salto y coordinación. Conos perforados con vallas regulables en múltiples alturas para circuitos deportivos.",
+    "technicalSpecs": [
+      "Conos cónicos de alta visibilidad con perforaciones para travesaños a tres alturas",
+      "Material plástico flexible indestructible que recupera su forma al pisarlo",
+      "Varillas o vallas ligeras encajables para armar circuitos de salto vertical y lateral",
+      "Apto para césped sintético, losa deportiva, parquet y arena",
+      "Fácil apilamiento y almacenamiento compacto"
+    ],
+    "images": [
+      "/images/products/conos-y-vallas-pliometria-1.jpg"
+    ],
+    "coachTip": "Organiza progresiones de saltos reactivos con mínimo tiempo de contacto en suelo para desarrollar potencia explosiva de despegue."
+  },
+  {
+    "id": "wa-5056991387697011",
+    "wcId": 1029,
+    "name": "Colchoneta de Ejercicios y Fitness de Alta Densidad",
+    "slug": "colchoneta-ejercicios-fitness",
+    "categorySlug": "yoga-pilates",
+    "categoryLabel": "Yoga & Pilates",
+    "price": 56.0,
+    "compareAtPrice": 70.0,
+    "stock": 40,
+    "sku": "BF-COL-001",
+    "saleMode": "direct_cart",
+    "shortDescription": "Ahora podrás realizar tus ejercicios cómodamente con nuestras colchonetas de alta densidad. Superficie reforzada impermeable, fácil de lavar y acolchado amortiguador para suelo.",
+    "technicalSpecs": [
+      "Relleno de espuma aglomerada de alta densidad que no se deforma con el uso continuo",
+      "Funda exterior de lona bagun impermeable con costuras dobles reforzadas",
+      "Dimensiones amplias para trabajo de abdominales, planchas, estiramientos y calistenia",
+      "Cierre perimetral oculto para facilitar desinfección rápida",
+      "Superficie antideslizante con gran estabilidad en suelos lisos"
+    ],
+    "images": [
+      "/images/products/colchoneta-de-ejercicios-1.jpg"
+    ],
+    "coachTip": "Excelente para proteger rodillas y espalda baja en rutinas de core, hipopresivos y ejercicios de peso corporal."
+  },
+  {
+    "id": "wa-4953754921367246",
+    "wcId": 1030,
+    "name": "Guantes Deportivos de Licra Transpirables",
+    "slug": "guantes-de-licra-deportivos",
+    "categorySlug": "entrenamiento-fuerza",
+    "categoryLabel": "Fuerza & Pesas",
+    "price": 19.0,
+    "compareAtPrice": 26.0,
+    "stock": 55,
+    "sku": "BF-GUA-LIC",
+    "saleMode": "direct_cart",
+    "shortDescription": "Es tiempo de proteger tus manos de las lesiones por fricción y mejorar tu agarre. Tejido elástico de licra transpirable con palma acolchada antideslizante para pesas y ciclismo.",
+    "technicalSpecs": [
+      "Tejido elástico de licra de alta transpirabilidad y secado rápido",
+      "Palma acolchada con inserciones de gel de sílice antideslizante de microfibra",
+      "Ajuste en muñeca con velcro de sujeción firme",
+      "Tiradores en dedos para extracción rápida después de entrenar",
+      "Unisex, tallas adaptables con diseño moderno deportivo"
+    ],
+    "images": [
+      "/images/products/guantes-de-licra-1.jpg"
+    ],
+    "coachTip": "Ideales para personas que prefieren máxima ventilación en las manos y ligereza durante sesiones de gimnasio y cardio."
+  },
+  {
+    "id": "wa-6294300543931698",
+    "wcId": 1031,
+    "name": "Straps Muñequeras con Gancho de Acero para Gimnasio",
+    "slug": "straps-munequeras-gancho",
+    "categorySlug": "entrenamiento-fuerza",
+    "categoryLabel": "Fuerza & Pesas",
+    "price": 26.0,
+    "compareAtPrice": 35.0,
+    "stock": 50,
+    "sku": "BF-STR-GAN",
+    "saleMode": "direct_cart",
+    "shortDescription": "Los straps con gancho te permiten incrementar el peso que levantas inmediatamente. La fatiga del agarre del antebrazo deja de ser el factor limitante en peso muerto, dominadas y remos.",
+    "technicalSpecs": [
+      "Ganchos de acero sólido recubiertos en goma antideslizante que protegen el moleteado de la barra",
+      "Muñequera con almohadilla de neopreno gruesa de 8 mm para cero presión ósea",
+      "Cierre de velcro extra largo de grado industrial con anilla metálica de fijación",
+      "Capacidad de tracción probada hasta 200 kg por mano",
+      "Permite concentrarse 100% en la activación de dorsales y glúteos"
+    ],
+    "images": [
+      "/images/products/straps-munequeras-gancho-1.jpg"
+    ],
+    "coachTip": "Engancha directamente la barra sin necesidad de enrollar cintas. Ideal para tus series pesadas de jalón al pecho y peso muerto."
+  },
+  {
+    "id": "wa-3841580875964456",
+    "wcId": 1032,
+    "name": "Guantes de Neopreno con Muñequera Reforzada",
+    "slug": "guantes-de-neopreno-reforzados",
+    "categorySlug": "entrenamiento-fuerza",
+    "categoryLabel": "Fuerza & Pesas",
+    "price": 26.0,
+    "compareAtPrice": 35.0,
+    "stock": 50,
+    "sku": "BF-GUA-NEO",
+    "saleMode": "direct_cart",
+    "shortDescription": "Protege tus manos de callosidades y brinda máxima firmeza a tus muñecas con guantes de neopreno reforzado y banda elástica compresiva de soporte.",
+    "technicalSpecs": [
+      "Fabricados en neopreno térmico de alta densidad con refuerzos de cuero sintético en zonas de fricción",
+      "Banda elástica compresiva integrada de 40 cm que envuelve y estabiliza la muñeca",
+      "Palma con textura de panal de abeja antideslizante de alta adherencia a mancuernas y barras",
+      "Costuras reforzadas dobles en entretela para uso intensivo de levantamiento",
+      "Apertura transpirable en el dorso que disipa el exceso de calor"
+    ],
+    "images": [
+      "/images/products/guantes-de-neopreno-1.jpg"
+    ],
+    "coachTip": "La muñequera integrada previene la hiperextensión en press de banca militar y mancuernas pesadas."
   }
 ];
 
