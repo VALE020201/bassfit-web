@@ -32,7 +32,7 @@ export default function BassfitClientApp() {
 
   // Carrito de compras (Exclusivo para Implementos y Accesorios - Easy Pay)
   const [cart, setCart] = useState<CartItem[]>([
-    { product: BASSFIT_PRODUCTS.find((p) => p.slug === "kit-de-5-ligas-elasticas")!, quantity: 1 },
+    { product: BASSFIT_PRODUCTS[0], quantity: 1 },
   ]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -503,7 +503,7 @@ export default function BassfitClientApp() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-3">
                         <img
-                          src="/images/products/kit-de-5-ligas-elasticas-1.jpg"
+                          src="/images/products/kit-ligas-elasticas-1.jpg"
                           alt="Entrenamiento personalizado Bassfit"
                           className="w-full h-48 object-cover rounded-2xl border border-slate-100"
                         />
@@ -520,7 +520,7 @@ export default function BassfitClientApp() {
                           className="w-full h-36 object-cover rounded-2xl border border-slate-100"
                         />
                         <img
-                          src="/images/products/maleta-de-pesas-1.jpg"
+                          src="/images/products/set-de-mancuernas-1.jpg"
                           alt="Comunidad Bassfit sin límites de edad"
                           className="w-full h-48 object-cover rounded-2xl border border-slate-100"
                         />
