@@ -13,9 +13,11 @@ export type ProductCategorySlug =
   | "yoga-pilates"
   | "entrenamiento-fuerza"
   | "calistenia"
+  | "fajas-reductoras"
+  | "natacion-acuaticos"
   | "boxeo-artes-marciales"
-  | "funcional-resistencia"
-  | "natacion-acuaticos";
+  | "electronicos"
+  | "funcional-resistencia";
 
 export interface BassfitProduct {
   id: string;
@@ -853,17 +855,172 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "movilidad-columnar-y-propiocepcion-secreto-entrenar-sin-dolor"
     ],
     "coachTip": "Mantén la cabeza alineada con el agua y patea desde la cadera en vez de doblar las rodillas para optimizar la propulsión."
+  },
+  {
+    "id": "wa-4858382410901998",
+    "wcId": 1019,
+    "name": "Faja Cinturilla Avispa",
+    "slug": "faja-cinturilla-avispa",
+    "categorySlug": "fajas-reductoras",
+    "categoryLabel": "Fajas Reductoras",
+    "price": 44.0,
+    "compareAtPrice": 55.0,
+    "stock": 40,
+    "sku": "BF-FJ-001",
+    "saleMode": "direct_cart",
+    "shortDescription": "Faja cinturilla avispa con material de neopreno y varillas de silicona confortables. Reduce tallas, moldea la cintura y aplana el vientre.",
+    "technicalSpecs": [
+      "Primera capa: Neopreno térmico para sudoración y reducción de medidas",
+      "Segunda capa: Banda elástica de doble ajuste para moldear cintura de avispa",
+      "Varillas de silicona ergonómicas que corrigen la postura y brindan soporte lumbar",
+      "Apta para uso directo sobre la piel y durante entrenamientos en el gimnasio",
+      "Tallas disponibles: S, M, L, XL",
+      "Colores de bordes: Negro, Morado, Fucsia y Azul"
+    ],
+    "images": [
+      "/images/products/faja-cinturilla-avispa-1.jpg"
+    ],
+    "coachTip": "Utilízala durante tus caminatas o rutinas de gimnasio para maximizar el efecto térmico y proteger tu zona lumbar."
+  },
+  {
+    "id": "wa-7206830842675740",
+    "wcId": 1020,
+    "name": "Faja Chaleco Sauna Sweat Shaper",
+    "slug": "faja-chaleco-sauna",
+    "categorySlug": "fajas-reductoras",
+    "categoryLabel": "Fajas Reductoras",
+    "price": 21.0,
+    "compareAtPrice": 29.0,
+    "stock": 35,
+    "sku": "BF-FJ-002",
+    "saleMode": "direct_cart",
+    "shortDescription": "Chaleco sauna Sweat Shaper elaborado con tela de polímero que retiene el calor corporal, maximiza la sudoración y moldea el torso al instante.",
+    "technicalSpecs": [
+      "Capa interior de polímero térmico: retiene el calor en todo el core y espalda",
+      "Capa exterior de compresión: moldea la figura sin añadir volumen perceptible",
+      "Disimula discretamente debajo de la ropa diaria o deportiva",
+      "Ajuste elástico en la cintura que garantiza que la prenda no se enrolle",
+      "Ideal para cardio, pesas o actividades cotidianas en el hogar"
+    ],
+    "images": [
+      "/images/products/faja-chaleco-1.jpg"
+    ],
+    "coachTip": "Mantente bien hidratado durante tu entrenamiento para aprovechar al máximo la sudoración y detoxificación corporal."
+  },
+  {
+    "id": "wa-3708939919127923",
+    "wcId": 1021,
+    "name": "Crema Corporal Caliente / Lipo Cream",
+    "slug": "crema-corporal-caliente",
+    "categorySlug": "fajas-reductoras",
+    "categoryLabel": "Fajas Reductoras",
+    "price": 25.0,
+    "compareAtPrice": 32.0,
+    "stock": 50,
+    "sku": "BF-CR-001",
+    "saleMode": "direct_cart",
+    "shortDescription": "Excelente crema caliente para complementar con el uso de fajas y conseguir resultados reductores más rápidos y efectivos en menor tiempo.",
+    "technicalSpecs": [
+      "Fórmula termoactiva con efecto calor que estimula la microcirculación cutánea",
+      "Complemento ideal para fajas de neopreno y chalecos sauna Sweat Shaper",
+      "Variedades disponibles: Lipo Cream termoactiva, reductora y reafirmante",
+      "Fácil absorción, no mancha la ropa ni deja sensación pegajosa",
+      "Presentación en pote hermético de alta duración (Fondo blanco puro)"
+    ],
+    "images": [
+      "/images/products/crema-corporal-caliente-1.jpg",
+      "/images/products/crema-corporal-caliente-2.jpg",
+      "/images/products/crema-corporal-caliente-3.jpg"
+    ],
+    "coachTip": "Aplica con masajes circulares ascendentes sobre el abdomen antes de colocarte la faja cinturilla o chaleco sauna."
+  },
+  {
+    "id": "wa-6149196268485392",
+    "wcId": 1022,
+    "name": "Gorro de Natación 100% Silicona",
+    "slug": "gorro-de-natacion-silicona",
+    "categorySlug": "natacion-acuaticos",
+    "categoryLabel": "Natación & Acuáticos",
+    "price": 17.0,
+    "compareAtPrice": 22.0,
+    "stock": 60,
+    "sku": "BF-NT-002",
+    "saleMode": "direct_cart",
+    "shortDescription": "Gorro de natación elaborado en 100% silicona elástica y suave al tacto. Protección hermética contra el cloro y salinidad marina para adultos y niños.",
+    "technicalSpecs": [
+      "Material: 100% silicona hipoalergénica de alta resistencia y flexibilidad",
+      "Diseño hidrodinámico que reduce la resistencia del agua en cada brazada",
+      "Protección total del cabello contra cloro de piscina y sal marina",
+      "Ajuste cómodo y seguro que no tira del cabello al colocarse",
+      "Variedad de colores deportivos para adultos y niños"
+    ],
+    "images": [
+      "/images/products/gorro-de-natacion-1.jpg"
+    ],
+    "coachTip": "Enjuaga tu gorro con agua dulce después de cada sesión y sécalo a la sombra para prolongar la elasticidad de la silicona."
+  },
+  {
+    "id": "wa-4130681203704246",
+    "wcId": 1023,
+    "name": "Flotador de Piernas Pullboy Ergonómico",
+    "slug": "flotador-de-piernas-pullboy",
+    "categorySlug": "natacion-acuaticos",
+    "categoryLabel": "Natación & Acuáticos",
+    "price": 30.0,
+    "compareAtPrice": 38.0,
+    "stock": 30,
+    "sku": "BF-NT-003",
+    "saleMode": "direct_cart",
+    "shortDescription": "Flotador Pullboy ergonómico para nadadores principiantes y avanzados. Inmoviliza las piernas para aislar y potenciar la fuerza de brazada y torso.",
+    "technicalSpecs": [
+      "Dimensiones ergonómicas: 24 x 15 x 11 x 8 cm",
+      "Material: Goma EVA microporosa de alta flotabilidad y secado rápido",
+      "Forma anatómica de ocho que calza cómodamente entre los muslos sin rozaduras",
+      "Mejora la posición horizontal hidrodinámica del cuerpo en el agua",
+      "Complemento ideal de la tabla de natación para entrenamientos técnicos"
+    ],
+    "images": [
+      "/images/products/flotador-de-piernas-pullboy-1.jpg"
+    ],
+    "coachTip": "Úsalo en series de 50m a 100m para enfocarte exclusivamente en la tracción dorsal y entrada de los brazos en el agua."
+  },
+  {
+    "id": "wa-5403327829758785",
+    "wcId": 1024,
+    "name": "FascialGun | Pistola de Masaje Muscular",
+    "slug": "fascialgun-pistola-de-masaje",
+    "categorySlug": "electronicos",
+    "categoryLabel": "Electrónicos",
+    "price": 95.0,
+    "compareAtPrice": 125.0,
+    "stock": 25,
+    "sku": "BF-EL-001",
+    "saleMode": "direct_cart",
+    "shortDescription": "Pistola de masaje muscular por percusión con 6 niveles de velocidad y 4 cabezales intercambiables para alivio de puntos gatillo, contracturas y fatiga.",
+    "technicalSpecs": [
+      "4 cabezales intercambiables: bola grande, bala concentrada, tenedor y plano",
+      "6 velocidades regulables para calentamiento, descarga muscular y percusión profunda",
+      "Motor silencioso de alto torque con batería recargable de litio",
+      "Agarre ergonómico y liviano para autoaplicación en espalda, piernas y hombros",
+      "Acelera la recuperación muscular post-entrenamiento y descontractura la fascia"
+    ],
+    "images": [
+      "/images/products/fascialgun-pistola-masaje-1.jpg"
+    ],
+    "coachTip": "Dedica 60 segundos por grupo muscular con el cabezal plano después de entrenar para disipar la acumulación de ácido láctico."
   }
 ];
 
 export const PRODUCT_CATEGORIES: { slug: ProductCategorySlug | "todos"; label: string; badge?: string }[] = [
-  { slug: "todos", label: "Todos los Productos (18)" },
+  { slug: "todos", label: "Todos los Productos (24)" },
   { slug: "yoga-pilates", label: "Yoga & Pilates (5)" },
-  { slug: "entrenamiento-fuerza", label: "Fuerza & Levantamiento (4)" },
+  { slug: "entrenamiento-fuerza", label: "Fuerza & Pesas (4)" },
   { slug: "calistenia", label: "Calistenia & Peso Corporal (4)" },
+  { slug: "fajas-reductoras", label: "Fajas Reductoras & Cuidado (3)" },
+  { slug: "natacion-acuaticos", label: "Natación & Acuáticos (3)" },
   { slug: "boxeo-artes-marciales", label: "Boxeo & Combate (3)" },
-  { slug: "funcional-resistencia", label: "Funcional & Resistencia (1)" },
-  { slug: "natacion-acuaticos", label: "Natación & Acuáticos (1)" }
+  { slug: "electronicos", label: "Electrónicos (1)" },
+  { slug: "funcional-resistencia", label: "Funcional & Resistencia (1)" }
 ];
 
 export function buildWhatsAppAdvisorUrl(product: BassfitProduct, customQuestion?: string): string {

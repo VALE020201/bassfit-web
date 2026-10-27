@@ -27,6 +27,7 @@ export default function BassfitClientApp() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<BassfitProduct | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<EvergreenArticle | null>(null);
+  const [activeImgIdx, setActiveImgIdx] = useState<number>(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Close modals on Escape key
@@ -171,7 +172,7 @@ export default function BassfitClientApp() {
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
             {[
               { id: "inicio", label: "Inicio" },
-              { id: "tienda", label: "Tienda (18 Productos)" },
+              { id: "tienda", label: "Tienda (24 Productos)" },
               { id: "entrenamientos", label: "Planes de Entrenamiento" },
               { id: "comunidad", label: "Guías & Artículos" },
             ].map((tab) => (
@@ -211,7 +212,7 @@ export default function BassfitClientApp() {
         <div className="md:hidden flex overflow-x-auto py-2.5 px-4 bg-slate-50 border-t border-slate-200 gap-2">
           {[
             { id: "inicio", label: "Inicio" },
-            { id: "tienda", label: "Tienda (18)" },
+            { id: "tienda", label: "Tienda (24)" },
             { id: "entrenamientos", label: "Planes" },
             { id: "comunidad", label: "Guías" },
           ].map((tab) => (
@@ -252,7 +253,7 @@ export default function BassfitClientApp() {
                     onClick={() => setActiveTab("tienda")}
                     className="bg-[#FF4A00] hover:bg-[#e04100] text-white font-extrabold px-6 py-3.5 rounded-xl text-sm transition shadow-lg cursor-pointer"
                   >
-                    Explorar Tienda (18 Productos) →
+                    Explorar Tienda (24 Productos) →
                   </button>
                   <a
                     href="https://wa.me/51967581481?text=Hola%20Bassfit%20%F0%9F%91%8B%2C%20deseo%20informaci%C3%B3n%20sobre%20sus%20productos%20y%20entrenamientos."
@@ -277,7 +278,7 @@ export default function BassfitClientApp() {
                   onClick={() => { setActiveTab("tienda"); setSelectedCategory("todos"); }}
                   className="text-xs font-bold text-[#FF4A00] hover:underline cursor-pointer"
                 >
-                  Ver todos los 18 productos →
+                  Ver todos los 24 productos →
                 </button>
               </div>
 
@@ -319,7 +320,7 @@ export default function BassfitClientApp() {
                     className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition flex flex-col justify-between group"
                   >
                     <div
-                      onClick={() => setSelectedProduct(product)}
+                      onClick={() => { setActiveImgIdx(0); setSelectedProduct(product); }}
                       className="cursor-pointer p-4 bg-white flex items-center justify-center h-48 relative overflow-hidden"
                     >
                       <img
@@ -334,7 +335,7 @@ export default function BassfitClientApp() {
                     <div className="p-4 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-3">
                       <div>
                         <h3
-                          onClick={() => setSelectedProduct(product)}
+                          onClick={() => { setActiveImgIdx(0); setSelectedProduct(product); }}
                           className="font-bold text-sm text-slate-900 line-clamp-2 hover:text-[#FF4A00] cursor-pointer transition"
                         >
                           {product.name}
@@ -352,7 +353,7 @@ export default function BassfitClientApp() {
                       </div>
                       <div className="grid grid-cols-2 gap-2 pt-1">
                         <button
-                          onClick={() => setSelectedProduct(product)}
+                          onClick={() => { setActiveImgIdx(0); setSelectedProduct(product); }}
                           className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
                         >
                           Detalles
@@ -451,7 +452,7 @@ export default function BassfitClientApp() {
                   >
                     {/* Image Area */}
                     <div
-                      onClick={() => setSelectedProduct(product)}
+                      onClick={() => { setActiveImgIdx(0); setSelectedProduct(product); }}
                       className="cursor-pointer p-4 bg-white flex items-center justify-center h-52 relative overflow-hidden"
                     >
                       <img
@@ -468,7 +469,7 @@ export default function BassfitClientApp() {
                     <div className="p-5 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-3">
                       <div>
                         <h3
-                          onClick={() => setSelectedProduct(product)}
+                          onClick={() => { setActiveImgIdx(0); setSelectedProduct(product); }}
                           className="font-bold text-sm text-slate-900 line-clamp-2 hover:text-[#FF4A00] cursor-pointer transition leading-snug"
                         >
                           {product.name}
@@ -494,7 +495,7 @@ export default function BassfitClientApp() {
                         <div className="space-y-2">
                           <div className="grid grid-cols-2 gap-2">
                             <button
-                              onClick={() => setSelectedProduct(product)}
+                              onClick={() => { setActiveImgIdx(0); setSelectedProduct(product); }}
                               className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
                             >
                               Ver Ficha
@@ -677,13 +678,69 @@ export default function BassfitClientApp() {
 
             {/* Product Content Grid */}
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Product Image */}
-              <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-center">
-                <img
-                  src={selectedProduct.images[0]}
-                  alt={selectedProduct.name}
-                  className="max-h-72 w-full object-contain"
-                />
+              {/* Product Image Carousel */}
+              <div className="space-y-3">
+                <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-center relative min-h-[260px]">
+                  <img
+                    src={selectedProduct.images[activeImgIdx % selectedProduct.images.length]}
+                    alt={selectedProduct.name}
+                    className="max-h-72 w-full object-contain"
+                  />
+                  {selectedProduct.images.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImgIdx((prev) => (prev > 0 ? prev - 1 : selectedProduct.images.length - 1));
+                        }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-900/70 hover:bg-[#FF4A00] text-white flex items-center justify-center text-base font-bold shadow-md transition cursor-pointer"
+                        title="Foto anterior"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImgIdx((prev) => (prev + 1) % selectedProduct.images.length);
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-slate-900/70 hover:bg-[#FF4A00] text-white flex items-center justify-center text-base font-bold shadow-md transition cursor-pointer"
+                        title="Siguiente foto"
+                      >
+                        ›
+                      </button>
+                      <span className="absolute bottom-2 right-2 bg-slate-900/75 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        {(activeImgIdx % selectedProduct.images.length) + 1} / {selectedProduct.images.length}
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                {/* Thumbnails row when multiple images exist */}
+                {selectedProduct.images.length > 1 && (
+                  <div className="flex gap-2 justify-center overflow-x-auto py-1">
+                    {selectedProduct.images.map((imgSrc, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setActiveImgIdx(idx)}
+                        className={`w-14 h-14 rounded-xl border-2 p-1 bg-white cursor-pointer transition ${
+                          (activeImgIdx % selectedProduct.images.length) === idx
+                            ? "border-[#FF4A00] shadow-sm scale-105"
+                            : "border-slate-200 hover:border-slate-400 opacity-70"
+                        }`}
+                        title={`Ver foto ${idx + 1}`}
+                      >
+                        <img
+                          src={imgSrc}
+                          alt={`Miniatura ${idx + 1}`}
+                          className="w-full h-full object-contain"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Product Info */}
