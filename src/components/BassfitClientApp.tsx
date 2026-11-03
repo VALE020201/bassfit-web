@@ -429,31 +429,7 @@ export default function BassfitClientApp() {
         </div>
       )}
 
-      {/* TOP ANNOUNCEMENT BAR */}
-      <div className="bg-[#0F172A] text-slate-300 text-xs py-1.5 sm:py-2 px-3 sm:px-4 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto flex justify-between items-center gap-2 text-left">
-          <div className="flex items-center space-x-1.5 sm:space-x-2 min-w-0">
-            <span className="bg-[#FF5500] text-white text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-              OFICIAL
-            </span>
-            <span className="text-slate-200 font-medium text-[10px] sm:text-xs truncate">
-              Bassfit Perú 🇵🇪 · Equipamiento Profesional
-            </span>
-          </div>
-          <div className="flex items-center space-x-2 sm:space-x-4 text-[10px] sm:text-[11px] text-slate-400 shrink-0">
-            <span className="hidden md:inline">Envíos a todo el Perú</span>
-            <span className="hidden md:inline text-slate-600">|</span>
-            <a
-              href="https://wa.me/51967581481"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition flex items-center space-x-1 text-[#25D366] font-bold"
-            >
-              <span>WhatsApp: +51 967 581 481</span>
-            </a>
-          </div>
-        </div>
-      </div>
+</div>
 
       {/* MAIN HEADER / NAVBAR (Exact Match to Client Mockup) */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs">

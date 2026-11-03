@@ -45,3 +45,4 @@ for fp in html_files:
         f.write(content)
 
 print("All HTML files fixed with correct JS props!")
+
