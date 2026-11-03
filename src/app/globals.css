@@ -14,3 +14,33 @@ body {
   color: var(--bassfit-navy);
 }
 
+
+/* ======================================================== */
+/* AMPLIACIÓN RESPONSIVA DEL CONTENEDOR EN MONITORES GRANDES */
+/* ======================================================== */
+@media (min-width: 1440px) {
+  .max-w-7xl {
+    max-width: 1440px !important;
+  }
+  .max-w-5xl {
+    max-width: 1280px !important;
+  }
+}
+
+@media (min-width: 1680px) {
+  .max-w-7xl {
+    max-width: 1560px !important;
+  }
+  .max-w-5xl {
+    max-width: 1380px !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  .max-w-7xl {
+    max-width: 1640px !important;
+  }
+  .max-w-5xl {
+    max-width: 1440px !important;
+  }
+}

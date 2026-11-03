@@ -106,7 +106,7 @@ export const TRAINING_PROGRAMS: TrainingProgram[] = [
     recommendedProductSlugs: ["kit-ligas-elasticas", "pesas-rusas-pvc", "pelota-pilates-inflador", "mat-de-yoga-6mm-10mm-15mm"],
     coachName: "Head Coach Bassfit",
     coachSpecialty: "Especialista en Fuerza Funcional & Salud Articular",
-    image: "/images/products/kit-ligas-elasticas-1.jpg",
+    image: "images/products/kit-ligas-elasticas-1.jpg",
     highlighted: true
   },
   {
@@ -130,7 +130,7 @@ export const TRAINING_PROGRAMS: TrainingProgram[] = [
     recommendedProductSlugs: ["promo-barra-manubrios-y-discos-20kg-30kg-40kg", "set-de-mancuernas", "cinturon-de-lastre", "chaleco-de-lastre"],
     coachName: "Coach de Hipertrofia Bassfit",
     coachSpecialty: "Biomecánica y Sobrecarga Progresiva",
-    image: "/images/products/set-de-mancuernas-1.jpg",
+    image: "images/products/set-de-mancuernas-1.jpg",
     highlighted: false
   },
   {
@@ -154,7 +154,7 @@ export const TRAINING_PROGRAMS: TrainingProgram[] = [
     recommendedProductSlugs: ["saco-de-boxeo-lleno", "vendas-de-boxeo", "pelota-de-reflejos"],
     coachName: "Entrenador de Combate Bassfit",
     coachSpecialty: "Boxing Fitness & Pliometría",
-    image: "/images/products/saco-de-boxeo-lleno-1.jpg",
+    image: "images/products/saco-de-boxeo-lleno-1.jpg",
     highlighted: false
   },
   {
@@ -178,7 +178,7 @@ export const TRAINING_PROGRAMS: TrainingProgram[] = [
     recommendedProductSlugs: ["mat-de-yoga-6mm-10mm-15mm", "bandas-elasticas-abiertas", "pelota-pilates-inflador", "ladrillo-de-yoga", "foam-roller"],
     coachName: "Especialista en Movilidad Bassfit",
     coachSpecialty: "Pilates Terapéutico, Yoga & Liberación Miofascial",
-    image: "/images/products/mat-de-yoga-6mm-10mm-15mm-1.jpg",
+    image: "images/products/mat-de-yoga-6mm-10mm-15mm-1.jpg",
     highlighted: false
   }
 ];
@@ -192,7 +192,7 @@ export const EVERGREEN_ARTICLES: EvergreenArticle[] = [
     readingTime: "5 min de lectura",
     seoExcerpt:
       "Descubre por qué el entrenamiento de fuerza progresivo es el verdadero seguro de vida metabólico y articular, y qué implementos necesitas para empezar de forma segura.",
-    heroImage: "/images/products/set-de-mancuernas-1.jpg",
+    heroImage: "images/products/set-de-mancuernas-1.jpg",
     shortVideoTitle: "3 ejercicios clave con mancuernas y bandas para proteger rodillas y espalda",
     shortVideoDuration: "01:15",
     keyTakeaways: [
@@ -225,7 +225,7 @@ export const EVERGREEN_ARTICLES: EvergreenArticle[] = [
     readingTime: "4 min de lectura",
     seoExcerpt:
       "Aprende a progresar desde fondos y dominadas con peso corporal hasta el uso seguro de cinturones y chalecos de lastre para multiplicar tu fuerza.",
-    heroImage: "/images/products/chaleco-de-lastre-1.jpg",
+    heroImage: "images/products/chaleco-de-lastre-1.jpg",
     shortVideoTitle: "Progresión técnica de fondos y dominadas con chaleco y cinturón de lastre",
     shortVideoDuration: "01:20",
     keyTakeaways: [
@@ -258,7 +258,7 @@ export const EVERGREEN_ARTICLES: EvergreenArticle[] = [
     readingTime: "4 min de lectura",
     seoExcerpt:
       "Mejora tus reflejos, coordinación oculomanual y capacidad pulmonar integrando saco lleno, vendas profesionales y pelota de reflejos en tus rutinas.",
-    heroImage: "/images/products/saco-de-boxeo-lleno-1.jpg",
+    heroImage: "images/products/saco-de-boxeo-lleno-1.jpg",
     shortVideoTitle: "Circuito de 15 minutos con Pelota de Reflejos + Saco de Boxeo",
     shortVideoDuration: "01:30",
     keyTakeaways: [
@@ -290,7 +290,7 @@ export const EVERGREEN_ARTICLES: EvergreenArticle[] = [
     readingTime: "5 min de lectura",
     seoExcerpt:
       "Aprende a utilizar el mat antideslizante, bandas elásticas, pelota de pilates y foam roller para acelerar tu recuperación y mantener tu columna sana.",
-    heroImage: "/images/products/mat-de-yoga-6mm-10mm-15mm-1.jpg",
+    heroImage: "images/products/mat-de-yoga-6mm-10mm-15mm-1.jpg",
     shortVideoTitle: "Rutina de 10 minutos de movilidad con Foam Roller y Pelota de Pilates",
     shortVideoDuration: "01:10",
     keyTakeaways: [
@@ -346,7 +346,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Superficie texturizada para evitar resbalones y proporcionar máximo confort articular"
     ],
     "images": [
-      "/images/products/mat-de-yoga-6mm-10mm-15mm-1.jpg"
+      "images/products/mat-de-yoga-6mm-10mm-15mm-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": true,
@@ -376,7 +376,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Uso versátil en interiores, hogar o al aire libre"
     ],
     "images": [
-      "/images/products/bandas-elasticas-abiertas-1.jpg"
+      "images/products/bandas-elasticas-abiertas-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": false,
@@ -406,7 +406,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Ideal para yoga, pilates, danza y alineación biomecánica"
     ],
     "images": [
-      "/images/products/ladrillo-de-yoga-1.jpg"
+      "images/products/ladrillo-de-yoga-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": false,
@@ -436,7 +436,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Obliga al cuerpo a responder a la inestabilidad activando el core y quemando calorías"
     ],
     "images": [
-      "/images/products/pelota-pilates-inflador-1.jpg"
+      "images/products/pelota-pilates-inflador-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": true,
@@ -465,7 +465,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Ideal para descontracturar cuádriceps, glúteos, fascia lata y espalda"
     ],
     "images": [
-      "/images/products/foam-roller-1.jpg"
+      "images/products/foam-roller-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": false,
@@ -496,7 +496,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "OBSEQUIO: Evaluación de Técnica con Coach Bassfit"
     ],
     "images": [
-      "/images/products/promo-barra-manubrios-y-discos-20kg-30kg-40kg-1.jpg"
+      "images/products/promo-barra-manubrios-y-discos-20kg-30kg-40kg-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": true,
@@ -527,7 +527,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Permite entrenar brazos, espalda, pecho, hombros, piernas y glúteos"
     ],
     "images": [
-      "/images/products/set-de-mancuernas-1.jpg"
+      "images/products/set-de-mancuernas-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": true,
@@ -557,7 +557,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Excelente para situar el centro de gravedad fuera de las manos y fortalecer el abdomen"
     ],
     "images": [
-      "/images/products/pesas-rusas-pvc-1.jpg"
+      "images/products/pesas-rusas-pvc-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": false,
@@ -587,7 +587,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Colores: Negro y Marrón"
     ],
     "images": [
-      "/images/products/cinturon-de-pesas-de-cuero-1.jpg"
+      "images/products/cinturon-de-pesas-de-cuero-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": false,
@@ -616,7 +616,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Imprescindible para atletas de Street Workout y Calistenia con lastre"
     ],
     "images": [
-      "/images/products/cinturon-de-lastre-1.jpg"
+      "images/products/cinturon-de-lastre-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": false,
@@ -645,7 +645,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Apto para dominadas, fondos, flexiones, sentadillas y sprints"
     ],
     "images": [
-      "/images/products/chaleco-de-lastre-1.jpg"
+      "images/products/chaleco-de-lastre-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": true,
@@ -675,7 +675,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Ideales para calistenia, básquetbol, fútbol, running y desarrollo muscular"
     ],
     "images": [
-      "/images/products/tobilleras-de-arena-1.jpg"
+      "images/products/tobilleras-de-arena-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": false,
@@ -705,7 +705,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Excelente compañero para rutinas en casa tanto para principiantes como avanzados"
     ],
     "images": [
-      "/images/products/push-up-board-tablero-dinamico-para-flexiones-1.jpg"
+      "images/products/push-up-board-tablero-dinamico-para-flexiones-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": true,
@@ -735,7 +735,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Látex virgen de alta memoria resistente a roturas y tirones bruscos"
     ],
     "images": [
-      "/images/products/kit-ligas-elasticas-1.jpg"
+      "images/products/kit-ligas-elasticas-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": true,
@@ -766,7 +766,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Servicio de instalación disponible por S/ 30"
     ],
     "images": [
-      "/images/products/saco-de-boxeo-lleno-1.jpg"
+      "images/products/saco-de-boxeo-lleno-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": true,
@@ -795,7 +795,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Imprescindibles para boxeo, muay thai, kickboxing y artes marciales mixtas"
     ],
     "images": [
-      "/images/products/vendas-de-boxeo-1.jpg"
+      "images/products/vendas-de-boxeo-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": false,
@@ -824,7 +824,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Entrenamiento dinámico enfocado en velocidad, precisión y agilidad mental"
     ],
     "images": [
-      "/images/products/pelota-de-reflejos-1.jpg"
+      "images/products/pelota-de-reflejos-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": false,
@@ -854,7 +854,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Ideal para aislar y trabajar glúteos, muslos y pantorrillas en el agua"
     ],
     "images": [
-      "/images/products/tabla-de-natacion-1.jpg"
+      "images/products/tabla-de-natacion-1.jpg"
     ],
     "driveFolderId": "whatsapp-catalog",
     "featured": true,
@@ -885,7 +885,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Colores de bordes: Negro, Morado, Fucsia y Azul"
     ],
     "images": [
-      "/images/products/faja-cinturilla-avispa-1.jpg"
+      "images/products/faja-cinturilla-avispa-1.jpg"
     ],
     "coachTip": "Utilízala durante tus caminatas o rutinas de gimnasio para maximizar el efecto térmico y proteger tu zona lumbar."
   },
@@ -910,7 +910,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Ideal para cardio, pesas o actividades cotidianas en el hogar"
     ],
     "images": [
-      "/images/products/faja-chaleco-1.jpg"
+      "images/products/faja-chaleco-1.jpg"
     ],
     "coachTip": "Mantente bien hidratado durante tu entrenamiento para aprovechar al máximo la sudoración y detoxificación corporal."
   },
@@ -926,23 +926,23 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
     "stock": 50,
     "sku": "BF-CR-001",
     "saleMode": "direct_cart",
-    "shortDescription": "Excelente crema corporal reductora para complementar con el uso de fajas y conseguir resultados ms rpidos y efectivos.\\n\\nDesliza para elegir tu variedad: Lipo Cream Caliente, Blue Sky Fra Criognesis, Oligoelementos, LipoSlim 500g o Gel Corps Modelador.",
+    "shortDescription": "Excelente crema corporal reductora para complementar con el uso de fajas y conseguir resultados más rápidos y efectivos.\\n\\nDesliza para elegir tu variedad: Lipo Cream Caliente, Blue Sky Fra Criogénesis, Oligoelementos, LipoSlim 500g o Gel Corps Modelador.",
     "technicalSpecs": [
-      "Fondo blanco puro (#FFFFFF) de alta definicin en todas las presentaciones",
+      "Fondo blanco puro (#FFFFFF) de alta definición en todas las presentaciones",
       "Variedad 1: Lipo Cream Caliente con fosfatidilcolina termoactiva",
-      "Variedad 2: Lipo Cream Blue Sky con frmula criognica (efecto fro), mentol y alcanfor",
+      "Variedad 2: Lipo Cream Blue Sky con fórmula criogénica (efecto frío), mentol y alcanfor",
       "Variedad 3: Lipo Cream Oligoelementos termohidratante con cola de caballo y algas",
-      "Variedad 4: LipoSlim Thermognesis en pote de 500g de alta concentracin",
-      "Variedad 5: Corps Lignea Body Contour Hinode 500g gel modelador crioterpico",
+      "Variedad 4: LipoSlim Termogénesis en pote de 500g de alta concentración",
+      "Variedad 5: Corps Lignea Body Contour Hinode 500g gel modelador crioterapéutico",
       "Complemento ideal para fajas cinturilla, faja avispa y chalecos sauna Sweat Shaper"
     ],
     "images": [
-      "/images/products/crema-corporal-caliente-1.jpg",
-      "/images/products/crema-corporal-caliente-2.jpg",
-      "/images/products/crema-corporal-caliente-3.jpg",
-      "/images/products/crema-corporal-caliente-4.jpg",
-      "/images/products/crema-corporal-caliente-5.jpg",
-      "/images/products/crema-corporal-caliente-6.jpg"
+      "images/products/crema-corporal-caliente-1.jpg",
+      "images/products/crema-corporal-caliente-2.jpg",
+      "images/products/crema-corporal-caliente-3.jpg",
+      "images/products/crema-corporal-caliente-4.jpg",
+      "images/products/crema-corporal-caliente-5.jpg",
+      "images/products/crema-corporal-caliente-6.jpg"
     ],
     "coachTip": "Aplica con masajes circulares ascendentes sobre el abdomen antes de colocarte la faja cinturilla o chaleco sauna.",
     "variants": [
@@ -955,21 +955,21 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       },
       {
         "id": "lipo-fria",
-        "name": "Lipo Cream Blue Sky (Criognesis Fra)",
-        "subtitle": "Efecto fro reafirmante con mentol y colgeno",
+        "name": "Lipo Cream Blue Sky (Criogénesis Fría)",
+        "subtitle": "Efecto frío reafirmante con mentol y colágeno",
         "imageIndex": 1,
-        "tag": "❄️ Fra"
+        "tag": "❄️ Fría"
       },
       {
         "id": "lipo-oligo",
         "name": "Lipo Cream Oligoelementos (Thermohidratante)",
-        "subtitle": "Extractos botnicos y oligoelementos",
+        "subtitle": "Extractos botánicos y oligoelementos",
         "imageIndex": 2,
         "tag": "🌿 Oligoelementos"
       },
       {
         "id": "liposlim-500",
-        "name": "LipoSlim 500g (Crema Thermognesis)",
+        "name": "LipoSlim 500g (Crema Termogénesis)",
         "subtitle": "Pote 500g reductor de medidas",
         "imageIndex": 3,
         "tag": "⚡ Pote 500g"
@@ -977,14 +977,14 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       {
         "id": "corps-500",
         "name": "Corps Body Contour 500g (Gel Modelador)",
-        "subtitle": "Gel modelador corporal crioterpico",
+        "subtitle": "Gel modelador corporal crioterapéutico",
         "imageIndex": 4,
         "tag": "✨ Gel Corps"
       },
       {
         "id": "comparativa",
-        "name": "Catlogo Comparativo (4 Presentaciones)",
-        "subtitle": "Gua completa de variedades Bassfit",
+        "name": "Catálogo Comparativo (4 Presentaciones)",
+        "subtitle": "Guía completa de variedades Bassfit",
         "imageIndex": 5,
         "tag": "📋 Comparativa"
       }
@@ -1011,7 +1011,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Variedad de colores deportivos para adultos y niños"
     ],
     "images": [
-      "/images/products/gorro-de-natacion-1.jpg"
+      "images/products/gorro-de-natacion-1.jpg"
     ],
     "coachTip": "Enjuaga tu gorro con agua dulce después de cada sesión y sécalo a la sombra para prolongar la elasticidad de la silicona."
   },
@@ -1036,7 +1036,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Complemento ideal de la tabla de natación para entrenamientos técnicos"
     ],
     "images": [
-      "/images/products/flotador-de-piernas-pullboy-1.jpg"
+      "images/products/flotador-de-piernas-pullboy-1.jpg"
     ],
     "coachTip": "Úsalo en series de 50m a 100m para enfocarte exclusivamente en la tracción dorsal y entrada de los brazos en el agua."
   },
@@ -1061,7 +1061,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Acelera la recuperación muscular post-entrenamiento y descontractura la fascia"
     ],
     "images": [
-      "/images/products/fascialgun-pistola-masaje-1.jpg"
+      "images/products/fascialgun-pistola-masaje-1.jpg"
     ],
     "coachTip": "Dedica 60 segundos por grupo muscular con el cabezal plano después de entrenar para disipar la acumulación de ácido láctico."
   },
@@ -1086,7 +1086,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Incluye ganchos de anclaje de pared con pernos de expansión de seguridad para carga hasta 250 kg"
     ],
     "images": [
-      "/images/products/barras-8en1-multifuncional-1.jpg"
+      "images/products/barras-8en1-multifuncional-1.jpg"
     ],
     "coachTip": "Instala sobre pared de ladrillo o concreto sólido. Realiza 4 series de fondos y dominadas combinadas para congestión total del tren superior."
   },
@@ -1111,7 +1111,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Ideal para atletas de fútbol, básquet, boxeo, crossfit y running"
     ],
     "images": [
-      "/images/products/escalera-pliometrica-1.jpg"
+      "images/products/escalera-pliometrica-1.jpg"
     ],
     "coachTip": "Mantén el centro de gravedad bajo y el peso en la punta de los pies para transiciones ultrarrápidas entre peldaños."
   },
@@ -1136,7 +1136,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Presentación por par (2 unidades) aptas para powerlifting y crossfit"
     ],
     "images": [
-      "/images/products/rodilleras-de-potencia-1.jpg"
+      "images/products/rodilleras-de-potencia-1.jpg"
     ],
     "coachTip": "Úsalas en series efectivas pesadas (más del 75% de tu RM) para maximizar la estabilidad y confianza al salir del fondo de la sentadilla."
   },
@@ -1161,7 +1161,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Material impermeable de fácil limpieza que no absorbe sudor"
     ],
     "images": [
-      "/images/products/almohadilla-para-barra-1.jpg"
+      "images/products/almohadilla-para-barra-1.jpg"
     ],
     "coachTip": "Esencial para progresar en Hip Thrust con cargas pesadas protegiendo la cresta ilíaca sin molestias articulares."
   },
@@ -1186,7 +1186,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Fácil apilamiento y almacenamiento compacto"
     ],
     "images": [
-      "/images/products/conos-y-vallas-pliometria-1.jpg"
+      "images/products/conos-y-vallas-pliometria-1.jpg"
     ],
     "coachTip": "Organiza progresiones de saltos reactivos con mínimo tiempo de contacto en suelo para desarrollar potencia explosiva de despegue."
   },
@@ -1211,7 +1211,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Superficie antideslizante con gran estabilidad en suelos lisos"
     ],
     "images": [
-      "/images/products/colchoneta-de-ejercicios-1.jpg"
+      "images/products/colchoneta-de-ejercicios-1.jpg"
     ],
     "coachTip": "Excelente para proteger rodillas y espalda baja en rutinas de core, hipopresivos y ejercicios de peso corporal."
   },
@@ -1236,7 +1236,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Unisex, tallas adaptables con diseño moderno deportivo"
     ],
     "images": [
-      "/images/products/guantes-de-licra-1.jpg"
+      "images/products/guantes-de-licra-1.jpg"
     ],
     "coachTip": "Ideales para personas que prefieren máxima ventilación en las manos y ligereza durante sesiones de gimnasio y cardio."
   },
@@ -1261,7 +1261,7 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Permite concentrarse 100% en la activación de dorsales y glúteos"
     ],
     "images": [
-      "/images/products/straps-munequeras-gancho-1.jpg"
+      "images/products/straps-munequeras-gancho-1.jpg"
     ],
     "coachTip": "Engancha directamente la barra sin necesidad de enrollar cintas. Ideal para tus series pesadas de jalón al pecho y peso muerto."
   },
@@ -1286,14 +1286,184 @@ export const BASSFIT_PRODUCTS: BassfitProduct[] = [
       "Apertura transpirable en el dorso que disipa el exceso de calor"
     ],
     "images": [
-      "/images/products/guantes-de-neopreno-1.jpg"
+      "images/products/guantes-de-neopreno-1.jpg"
     ],
     "coachTip": "La muñequera integrada previene la hiperextensión en press de banca militar y mancuernas pesadas."
+  },
+  {
+    "id": "wa-4946828758741237",
+    "wcId": 6002,
+    "name": "Accesorios para Máquina de Polea (Tobilleras y Soga Jalón)",
+    "slug": "accesorios-maquina-polea",
+    "categorySlug": "entrenamiento-fuerza",
+    "categoryLabel": "Fuerza & Pesas",
+    "price": 45.0,
+    "compareAtPrice": 60.0,
+    "stock": 35,
+    "sku": "BF-POL-001",
+    "saleMode": "direct_cart",
+    "shortDescription": "Variedad de accesorios de alta durabilidad para optimizar tu entrenamiento en máquina de poleas en casa o gimnasio comercial.",
+    "technicalSpecs": [
+      "Tobilleras de cuero reforzadas con acolchado interior de neopreno y argolla de acero inoxidable (S/ 45)",
+      "Soga trenzada para jalón de tríceps con topes de goma vulcanizada (S/ 65)",
+      "Compatibles con todo tipo de máquinas de polea alta, baja o torres de cables universales",
+      "Costuras de alta resistencia diseñadas para carga pesada y máxima tracción"
+    ],
+    "images": [
+      "images/products/accesorios-maquina-polea-1.jpg"
+    ],
+    "variants": [
+      {
+        "id": "pol-tobillera",
+        "name": "Tobilleras de Cuero (Par)",
+        "subtitle": "Acolchado neopreno + argolla D",
+        "imageIndex": 0,
+        "tag": "S/ 45",
+        "price": 45.0
+      },
+      {
+        "id": "pol-soga",
+        "name": "Soga para Jalón de Tríceps",
+        "subtitle": "Nylon trenzado alta tracción",
+        "imageIndex": 0,
+        "tag": "S/ 65",
+        "price": 65.0
+      }
+    ],
+    "driveFolderId": "whatsapp-catalog",
+    "featured": false,
+    "relatedArticleSlugs": [
+      "biomecanica-remo-mancuerna"
+    ],
+    "coachTip": "Usa las tobilleras para patadas de glúteo e hiperextensiones manteniendo la cadera alineada. La soga de tríceps te permite abrir los extremos en el punto máximo de contracción."
+  },
+  {
+    "id": "wa-3211541572231710",
+    "wcId": 6003,
+    "name": "Bandas Elásticas Power Loop CrossFit",
+    "slug": "bandas-elasticas-crossfit-poder",
+    "categorySlug": "funcional-resistencia",
+    "categoryLabel": "Funcional & Resistencia",
+    "price": 149.0,
+    "compareAtPrice": 185.0,
+    "stock": 45,
+    "sku": "BF-BND-XFIT",
+    "saleMode": "direct_cart",
+    "shortDescription": "Bandas elásticas circulares de látex 100% natural para entrenamientos de fuerza, asistencia en dominadas de calistenia y acondicionamiento deportivo.",
+    "technicalSpecs": [
+      "Material: Látex natural de alta elasticidad y memoria de tracción",
+      "Pack Completo (S/ 149): Incluye las 4 resistencias (#1 Roja, #2 Negra, #3 Morada, #4 Verde)",
+      "Opción Individual #1 Roja (10-35 Lb): S/ 35",
+      "Opción Individual #2 Negra (20-60 Lb): S/ 45",
+      "Opción Individual #3 Morada (35-85 Lb): S/ 55",
+      "Opción Individual #4 Verde (50-125 Lb): S/ 65",
+      "Largo continuo de 208 cm (perímetro circular)",
+      "Ideal para dominadas asistidas, calentamiento y movilidad muscular"
+    ],
+    "images": [
+      "images/products/bandas-elasticas-crossfit-1.jpg"
+    ],
+    "variants": [
+      {
+        "id": "bnd-pack",
+        "name": "Pack Completo 4 Resistencias (#1 al #4)",
+        "subtitle": "Ahorro total - Todas las tensiones",
+        "imageIndex": 0,
+        "tag": "S/ 149",
+        "price": 149.0
+      },
+      {
+        "id": "bnd-roja",
+        "name": "Banda Roja #1 (10-35 Lb)",
+        "subtitle": "Tensión Ligera / Calentamiento",
+        "imageIndex": 0,
+        "tag": "S/ 35",
+        "price": 35.0
+      },
+      {
+        "id": "bnd-negra",
+        "name": "Banda Negra #2 (20-60 Lb)",
+        "subtitle": "Tensión Media / Hombros y brazos",
+        "imageIndex": 0,
+        "tag": "S/ 45",
+        "price": 45.0
+      },
+      {
+        "id": "bnd-morada",
+        "name": "Banda Morada #3 (35-85 Lb)",
+        "subtitle": "Tensión Fuerte / Asistencia media",
+        "imageIndex": 0,
+        "tag": "S/ 55",
+        "price": 55.0
+      },
+      {
+        "id": "bnd-verde",
+        "name": "Banda Verde #4 (50-125 Lb)",
+        "subtitle": "Tensión Extra Fuerte / Dominadas pesadas",
+        "imageIndex": 0,
+        "tag": "S/ 65",
+        "price": 65.0
+      }
+    ],
+    "driveFolderId": "whatsapp-catalog",
+    "featured": true,
+    "relatedArticleSlugs": [
+      "calistenia-dominadas-progresion"
+    ],
+    "coachTip": "Si estás aprendiendo a hacer dominadas, empieza con la banda morada o verde pasando la rodilla en el lazo para descargar peso de forma controlada hasta lograr tus primeras repeticiones estrictas."
+  },
+  {
+    "id": "wa-24872571689085748",
+    "wcId": 6004,
+    "name": "Bancas de Entrenamiento Heavy Duty (Plana / Inclinada)",
+    "slug": "bancas-entrenamiento-gimnasio",
+    "categorySlug": "entrenamiento-fuerza",
+    "categoryLabel": "Fuerza & Pesas",
+    "price": 140.0,
+    "compareAtPrice": 180.0,
+    "stock": 20,
+    "sku": "BF-BNC-HD",
+    "saleMode": "direct_cart",
+    "shortDescription": "Superficie de trabajo reforzada para press con mancuernas, barra y ejercicios de fuerza con máxima estabilidad para entrenar pesado en casa.",
+    "technicalSpecs": [
+      "Estructura de acero tubular de alta densidad con pintura electrostática anticorrosiva",
+      "Tapizado de cuero sintético transpirable con espuma compacta de alta densidad",
+      "Banca Plana (S/ 140): Soporta hasta 250 kg de carga total",
+      "Banca Inclinada Multiposición (S/ 470): Regulación de 6 ángulos en respaldo y 3 en asiento con soporte acolchado para piernas",
+      "Bases con topes de jebe antideslizantes para proteger el piso de tu hogar"
+    ],
+    "images": [
+      "images/products/bancas-entrenamiento-gimnasio-1.jpg"
+    ],
+    "variants": [
+      {
+        "id": "bnc-plana",
+        "name": "Banca Plana Heavy Duty",
+        "subtitle": "Base sólida para press y remo",
+        "imageIndex": 0,
+        "tag": "S/ 140",
+        "price": 140.0
+      },
+      {
+        "id": "bnc-inclinada",
+        "name": "Banca Inclinada Multiposición",
+        "subtitle": "6 ángulos de ajuste + soporte piernas",
+        "imageIndex": 0,
+        "tag": "S/ 470",
+        "price": 470.0
+      }
+    ],
+    "driveFolderId": "whatsapp-catalog",
+    "featured": true,
+    "relatedArticleSlugs": [
+      "biomecanica-remo-mancuerna"
+    ],
+    "coachTip": "Al hacer press inclinado, apoya firmemente los pies contra el suelo y retrae las escápulas para proteger tus hombros y maximizar la activación del pectoral superior."
   }
 ];
 
 export const PRODUCT_CATEGORIES: { slug: ProductCategorySlug | "todos"; label: string; badge?: string }[] = [
-  { slug: "todos", label: "Todos los Productos (24)" },
+  { slug: "todos", label: "Todos los Productos" },
   { slug: "yoga-pilates", label: "Yoga & Pilates (5)" },
   { slug: "entrenamiento-fuerza", label: "Fuerza & Pesas (4)" },
   { slug: "calistenia", label: "Calistenia & Peso Corporal (4)" },
@@ -1319,4 +1489,398 @@ export function buildWhatsAppCoachUrl(programTitle: string, userData?: { name?: 
     : "Me gustaría agendar mi evaluación inicial.";
   const text = `Hola entrenadores de Bassfit 💪 («...fitness sin límites de edad..»), quiero información e inscripción en el programa: *${programTitle}*. ${details}`;
   return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+}
+
+
+export const PRODUCT_RECOMMENDATIONS: Record<string, string[]> = {
+  "mat-de-yoga-6mm-10mm-15mm": ["ladrillo-de-yoga", "bandas-elasticas-abiertas", "pelota-pilates-inflador"],
+  "colchoneta-ejercicios-fitness": ["foam-roller", "bandas-elasticas-abiertas", "ladrillo-de-yoga"],
+  "ladrillo-de-yoga": ["mat-de-yoga-6mm-10mm-15mm", "bandas-elasticas-abiertas", "pelota-pilates-inflador"],
+  "pelota-pilates-inflador": ["mat-de-yoga-6mm-10mm-15mm", "ladrillo-de-yoga", "foam-roller"],
+  "foam-roller": ["mat-de-yoga-6mm-10mm-15mm", "bandas-elasticas-abiertas", "fascialgun-pistola-de-masaje"],
+  "bandas-elasticas-abiertas": ["mat-de-yoga-6mm-10mm-15mm", "ladrillo-de-yoga", "foam-roller"],
+
+  "promo-barra-manubrios-y-discos-20kg-30kg-40kg": ["guantes-de-neopreno-reforzados", "cinturon-de-pesas-de-cuero", "almohadilla-para-barra-gym"],
+  "set-de-mancuernas": ["guantes-de-neopreno-reforzados", "cinturon-de-pesas-de-cuero", "straps-munequeras-gancho"],
+  "pesas-rusas-pvc": ["guantes-de-licra-deportivos", "cinturon-de-pesas-de-cuero", "kit-ligas-elasticas"],
+  "cinturon-de-pesas-de-cuero": ["rodilleras-de-potencia", "straps-munequeras-gancho", "guantes-de-neopreno-reforzados"],
+  "rodilleras-de-potencia": ["cinturon-de-pesas-de-cuero", "straps-munequeras-gancho", "almohadilla-para-barra-gym"],
+  "almohadilla-para-barra-gym": ["rodilleras-de-potencia", "cinturon-de-pesas-de-cuero", "guantes-de-neopreno-reforzados"],
+  "guantes-de-licra-deportivos": ["cinturon-de-pesas-de-cuero", "kit-ligas-elasticas", "set-de-mancuernas"],
+  "guantes-de-neopreno-reforzados": ["cinturon-de-pesas-de-cuero", "straps-munequeras-gancho", "promo-barra-manubrios-y-discos-20kg-30kg-40kg"],
+  "straps-munequeras-gancho": ["cinturon-de-pesas-de-cuero", "rodilleras-de-potencia", "guantes-de-neopreno-reforzados"],
+
+  "barras-8en1-multifuncional": ["cinturon-de-lastre", "chaleco-de-lastre", "push-up-board-tablero-dinamico-para-flexiones"],
+  "cinturon-de-lastre": ["barras-8en1-multifuncional", "chaleco-de-lastre", "straps-munequeras-gancho"],
+  "chaleco-de-lastre": ["barras-8en1-multifuncional", "cinturon-de-lastre", "tobilleras-de-arena"],
+  "tobilleras-de-arena": ["chaleco-de-lastre", "escalera-pliometrica-agilidad", "kit-ligas-elasticas"],
+  "push-up-board-tablero-dinamico-para-flexiones": ["barras-8en1-multifuncional", "guantes-de-licra-deportivos", "chaleco-de-lastre"],
+
+  "kit-ligas-elasticas": ["escalera-pliometrica-agilidad", "guantes-de-licra-deportivos", "conos-y-vallas-pliometria"],
+  "escalera-pliometrica-agilidad": ["conos-y-vallas-pliometria", "tobilleras-de-arena", "kit-ligas-elasticas"],
+  "conos-y-vallas-pliometria": ["escalera-pliometrica-agilidad", "tobilleras-de-arena", "kit-ligas-elasticas"],
+
+  "saco-de-boxeo-lleno": ["vendas-de-boxeo", "pelota-de-reflejos"],
+  "vendas-de-boxeo": ["saco-de-boxeo-lleno", "pelota-de-reflejos"],
+  "pelota-de-reflejos": ["vendas-de-boxeo", "saco-de-boxeo-lleno"],
+
+  "tabla-de-natacion": ["gorro-de-natacion-silicona", "flotador-de-piernas-pullboy"],
+  "gorro-de-natacion-silicona": ["tabla-de-natacion", "flotador-de-piernas-pullboy"],
+  "flotador-de-piernas-pullboy": ["tabla-de-natacion", "gorro-de-natacion-silicona"],
+
+  "faja-cinturilla-avispa": ["crema-corporal-caliente", "faja-chaleco-sauna"],
+  "faja-chaleco-sauna": ["crema-corporal-caliente", "faja-cinturilla-avispa"],
+  "crema-corporal-caliente": ["faja-cinturilla-avispa", "faja-chaleco-sauna"],
+
+  "fascialgun-pistola-de-masaje": ["foam-roller", "bandas-elasticas-abiertas", "colchoneta-ejercicios-fitness"]
+};
+
+export const CATEGORY_RECOMMENDATIONS: Record<string, string[]> = {
+  "yoga-pilates": ["ladrillo-de-yoga", "bandas-elasticas-abiertas", "foam-roller"],
+  "entrenamiento-fuerza": ["guantes-de-neopreno-reforzados", "cinturon-de-pesas-de-cuero", "straps-munequeras-gancho"],
+  "calistenia": ["cinturon-de-lastre", "chaleco-de-lastre", "push-up-board-tablero-dinamico-para-flexiones"],
+  "funcional-resistencia": ["kit-ligas-elasticas", "escalera-pliometrica-agilidad", "conos-y-vallas-pliometria"],
+  "boxeo-artes-marciales": ["vendas-de-boxeo", "pelota-de-reflejos", "saco-de-boxeo-lleno"],
+  "natacion-acuaticos": ["gorro-de-natacion-silicona", "flotador-de-piernas-pullboy", "tabla-de-natacion"],
+  "fajas-reductoras": ["crema-corporal-caliente", "faja-cinturilla-avispa", "faja-chaleco-sauna"],
+  "electronicos": ["foam-roller", "bandas-elasticas-abiertas", "colchoneta-ejercicios-fitness"]
+};
+
+export function getProductRecommendations(product: BassfitProduct): BassfitProduct[] {
+  if (!product) return [];
+  const recSlugs = PRODUCT_RECOMMENDATIONS[product.slug] || CATEGORY_RECOMMENDATIONS[product.categorySlug] || [];
+  return recSlugs
+    .filter((slug) => slug !== product.slug)
+    .slice(0, 3)
+    .map((slug) => BASSFIT_PRODUCTS.find((p) => p.slug === slug))
+    .filter((p): p is BassfitProduct => Boolean(p));
+}
+
+export function getCategoryRecommendations(categorySlug: string): BassfitProduct[] {
+  if (!categorySlug || categorySlug === "todos") return [];
+  const recSlugs = CATEGORY_RECOMMENDATIONS[categorySlug] || [];
+  return recSlugs
+    .slice(0, 3)
+    .map((slug) => BASSFIT_PRODUCTS.find((p) => p.slug === slug))
+    .filter((p): p is BassfitProduct => Boolean(p));
+}
+
+
+export interface TutorialItem {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  duration: string;
+  image: string;
+  description: string;
+  badge: string;
+  coachName: string;
+  coachRole: string;
+  keySteps: string[];
+  relatedProductSlug?: string;
+  isVideo: boolean;
+}
+
+export type EventCategoryType = 
+  | "Clases online"
+  | "Eventos presenciales"
+  | "Stands y ferias"
+  | "Entrenamientos especiales"
+  | "Otros eventos";
+
+export interface CommunityEvent {
+  id: string;
+  title: string;
+  category: EventCategoryType;
+  modality: "Presencial" | "Online";
+  date: string;
+  time: string;
+  startIso: string;
+  endIso: string;
+  location: string;
+  isVirtual: boolean;
+  virtualLink?: string;
+  registrationUrl?: string;
+  description: string;
+  instructor?: string;
+  badge?: string;
+  spotsLeft?: number;
+  price?: string;
+  requirements?: string[];
+  image: string;
+  status?: "published" | "draft" | "cancelled" | "completed";
+  featured?: boolean;
+}
+
+export const TUTORIALS_DATA: TutorialItem[] = [
+  {
+    id: "tut-1",
+    slug: "biomecanica-remo-mancuerna",
+    title: "Biomecánica del Remo con Mancuerna & Fuerza Posterior",
+    category: "Fuerza & Levantamiento",
+    duration: "06:45 min",
+    image: "images/mockup_vlog_hd.jpg",
+    description: "Aprende a fijar la cintura escapular, evitar tirones lumbares y activar al 100% el dorsal ancho con mancuernas.",
+    badge: "TUTORIAL PRO",
+    coachName: "Head Coach Bassfit",
+    coachRole: "Especialista en Biomecánica y Fuerza",
+    keySteps: [
+      "Posición del torso a 45° con columna neutra y rodillas desbloqueadas",
+      "Tracción hacia la cadera en trayectoria parabólica, no hacia el hombro",
+      "Pausa isométrica de 1 segundo en la máxima contracción muscular",
+      "Descenso controlado en 3 segundos sintiendo el estiramiento del dorsal"
+    ],
+    relatedProductSlug: "set-de-mancuernas",
+    isVideo: true
+  },
+  {
+    id: "tut-2",
+    slug: "dominadas-perfectas-barra-8en1",
+    title: "Dominadas Perfectas en Barra 8en1 & Lastre Progresivo",
+    category: "Calistenia & Peso Corporal",
+    duration: "08:20 min",
+    image: "images/products/barras-8en1-multifuncional-1.jpg",
+    description: "Técnica de agarre prono y supino, activación escapular y cómo utilizar el cinturón de lastre con seguridad.",
+    badge: "CALISTENIA",
+    coachName: "Coach de Calistenia BF",
+    coachRole: "Atleta de Calistenia & Fuerza Estricta",
+    keySteps: [
+      "Depresión escapular activa antes de iniciar la fase de tracción",
+      "Cruzar piernas y tensar glúteos para evitar balanceo o kipping",
+      "Pasar la barbilla por encima de la barra manteniendo el pecho erguido",
+      "Regulación del cinturón de lastre a la altura de la cresta ilíaca"
+    ],
+    relatedProductSlug: "barras-8en1-multifuncional",
+    isVideo: true
+  },
+  {
+    id: "tut-3",
+    slug: "liberacion-miofascial-foam-roller",
+    title: "Liberación Miofascial con Foam Roller & Mat de Yoga",
+    category: "Yoga & Recuperación",
+    duration: "05:30 min",
+    image: "images/products/foam-roller-1.jpg",
+    description: "Protocolo de descarga para cuádriceps, banda iliotibial y zona dorsal para recuperar movilidad y evitar contracturas.",
+    badge: "RECUPERACIÓN",
+    coachName: "Fisioterapeuta Bassfit",
+    coachRole: "Terapia Física & Movilidad",
+    keySteps: [
+      "Rodar lentamente 2 a 3 cm por segundo sobre la masa muscular",
+      "Detenerse 30 segundos sobre puntos gatillo o zonas de tensión",
+      "Respirar diafragmáticamente de forma pausada sin aguantar el aire",
+      "Evitar pasar directamente sobre articulaciones o prominencias óseas"
+    ],
+    relatedProductSlug: "foam-roller",
+    isVideo: true
+  },
+  {
+    id: "tut-4",
+    slug: "pliometria-coordinacion-escalera-agilidad",
+    title: "Pliometría & Coordinación con Escalera de Velocidad",
+    category: "Funcional & Resistencia",
+    duration: "07:15 min",
+    image: "images/products/escalera-pliometrica-1.jpg",
+    description: "Circuitos de agilidad visomotora, apoyos unipodales y cambio de ritmo para mejorar tu rendimiento deportivo.",
+    badge: "AGILIDAD",
+    coachName: "Entrenador Funcional BF",
+    coachRole: "Preparador Físico Deportivo",
+    keySteps: [
+      "Apoyo exclusivo sobre metatarsos manteniendo talones despegados",
+      "Coordinación de braceo sincrónico en 90 grados",
+      "Patrones progresivos: 1-in-the-hole, Ickey Shuffle y laterales",
+      "Intervalos de 30 segundos de alta intensidad por 30 de descanso"
+    ],
+    relatedProductSlug: "escalera-pliometrica-agilidad",
+    isVideo: true
+  },
+  {
+    id: "tut-5",
+    slug: "vendaje-boxeo-reflejos",
+    title: "Vendaje Profesional de Muñecas & Trabajo de Reflejos",
+    category: "Boxeo & Combate",
+    duration: "04:50 min",
+    image: "images/products/vendas-de-boxeo-1.jpg",
+    description: "Protege tus nudillos y fija la articulación de la muñeca antes de golpear el saco o entrenar con la pelota de reflejos.",
+    badge: "BOXEO",
+    coachName: "Instructor de Boxeo BF",
+    coachRole: "Técnica de Combate & Striking",
+    keySteps: [
+      "Iniciar con la lazada en el pulgar y cruzar por el dorso hacia la muñeca",
+      "3 vueltas firmes en la muñeca sin cortar la circulación sanguínea",
+      "Paso en X entre cada dedo acolchando la zona de impacto de los nudillos",
+      "Fijación final con velcro verificando la rigidez articular al cerrar el puño"
+    ],
+    relatedProductSlug: "vendas-de-boxeo",
+    isVideo: true
+  },
+  {
+    id: "tut-6",
+    slug: "optimizacion-termica-faja-cinturilla",
+    title: "Optimización Térmica: Uso de Faja Cinturilla & Gel Lipo",
+    category: "Cuidado Corporal",
+    duration: "04:10 min",
+    image: "images/products/faja-cinturilla-avispa-1.jpg",
+    description: "Aprende a aplicar el gel reductor termogénico y regular la compresión de la faja para sesiones cardiovasculares seguras.",
+    badge: "BIENESTAR",
+    coachName: "Asesora de Estética & Fitness",
+    coachRole: "Cuidado Corporal & Nutrición",
+    keySteps: [
+      "Aplicar una capa fina de gel lipo reductor con masajes circulares",
+      "Ajustar la faja primero con los corchetes interiores de compresión media",
+      "Cerrar la banda de velcro reforzada asegurando soporte lumbar firme",
+      "Hidratarse constantemente antes, durante y después de la sesión"
+    ],
+    relatedProductSlug: "faja-cinturilla-avispa",
+    isVideo: true
+  }
+];
+
+export const COMMUNITY_EVENTS_DATA: CommunityEvent[] = [
+  {
+    id: "evt-1",
+    title: "Masterclass de Calistenia: Dominadas y Fondos en Barra 8en1",
+    category: "Entrenamientos especiales",
+    modality: "Presencial",
+    date: "Sábado, 15 de Noviembre 2026",
+    time: "09:00 AM - 11:30 AM",
+    startIso: "20261115T140000Z",
+    endIso: "20261115T163000Z",
+    location: "Parque Miguel de Cervantes (Av. del Ejército, San Isidro, Lima)",
+    isVirtual: false,
+    description: "Entrenamiento grupal al aire libre para perfeccionar la técnica de tracción estricta, dominadas con agarre neutro, fondos en paralelas y progresiones con cinturón de lastre.",
+    instructor: "Coach Marco Antonio (Especialista en Calistenia Bassfit)",
+    badge: "CUPOS LIMITADOS",
+    spotsLeft: 8,
+    price: "Gratuito para Clientes Bassfit",
+    requirements: [
+      "Ropa deportiva transpirable y zapatillas de entrenamiento",
+      "Llevar botella de agua personal (1 litro mínimo)",
+      "Toalla pequeña y guantes deportivos opcionales",
+      "Puntualidad: registro inicia 15 minutos antes"
+    ],
+    image: "images/products/barras-8en1-multifuncional-1.jpg",
+    status: "published",
+    featured: true
+  },
+  {
+    id: "evt-2",
+    title: "Taller Vivencial: Movilidad Articular & Descarga con Foam Roller",
+    category: "Eventos presenciales",
+    modality: "Presencial",
+    date: "Domingo, 23 de Noviembre 2026",
+    time: "08:30 AM - 10:00 AM",
+    startIso: "20261123T133000Z",
+    endIso: "20261123T150000Z",
+    location: "Parque María Reiche (Malecón de la Marina, Miraflores, Lima)",
+    isVirtual: false,
+    description: "Sesión práctica frente al mar para descontracturar columna, mejorar dorsiflexión de tobillo y liberar tensión miofascial con foam roller y bandas elásticas abiertas.",
+    instructor: "Lic. Valeria Gómez (Fisioterapeuta & Movilidad BF)",
+    badge: "BIENESTAR",
+    spotsLeft: 12,
+    price: "Ingreso Libre / Previa Inscripción",
+    requirements: [
+      "Mat de yoga o colchoneta propia",
+      "Foam roller (Bassfit dispondrá de implementos para préstamo)",
+      "Ropa cómoda para elongación muscular",
+      "Bloqueador solar e hidratación"
+    ],
+    image: "images/products/foam-roller-1.jpg",
+    status: "published",
+    featured: true
+  },
+  {
+    id: "evt-3",
+    title: "Stand Bassfit en Feria Deportiva & Expo Fitness Lima 2026",
+    category: "Stands y ferias",
+    modality: "Presencial",
+    date: "Sábado, 28 de Noviembre 2026",
+    time: "10:00 AM - 06:00 PM",
+    startIso: "20261128T150000Z",
+    endIso: "20261128T230000Z",
+    location: "Explanada del Parque de la Reserva (Cercado de Lima)",
+    isVirtual: false,
+    description: "Ven a probar toda nuestra línea de implementos en vivo: mancuernas cromadas, barras multifunción, colchonetas y suplementos con descuentos exclusivos de feria y asesoría técnica directa.",
+    instructor: "Equipo Oficial Bassfit Perú",
+    badge: "STAND OFICIAL",
+    spotsLeft: 100,
+    price: "Acceso Gratuito a la Feria",
+    requirements: [
+      "Ingreso libre para todo el público",
+      "Zona de pruebas para testeos de barras y mancuernas",
+      "Stickers y obsequios Bassfit para los primeros 50 asistentes"
+    ],
+    image: "images/mockup_vlog_hd.jpg",
+    status: "published",
+    featured: false
+  },
+  {
+    id: "evt-4",
+    title: "Entrenamiento Funcional en Vivo & Técnica Biomecánica",
+    category: "Clases online",
+    modality: "Online",
+    date: "Jueves, 03 de Diciembre 2026",
+    time: "07:00 PM - 08:30 PM",
+    startIso: "20261204T000000Z",
+    endIso: "20261204T013000Z",
+    location: "Google Meet / YouTube Live Privado",
+    isVirtual: true,
+    virtualLink: "https://meet.google.com/bf-noticias-comunidad",
+    description: "Clase online en vivo guiada paso a paso: calentamiento dinámico, circuito de fuerza con bandas de resistencia y mancuernas, corrección de postura en tiempo real y ronda de preguntas.",
+    instructor: "Head Coach Bassfit & Staff Técnico",
+    badge: "EN VIVO ONLINE",
+    spotsLeft: 50,
+    price: "100% Online Gratuito",
+    requirements: [
+      "Conexión a internet estable (PC, tablet o celular)",
+      "Espacio despejado de 2x2 metros",
+      "Mat de ejercicios o alfombra cómoda",
+      "Ligas o mancuernas de peso moderado"
+    ],
+    image: "images/products/bandas-elasticas-abiertas-1.jpg",
+    status: "published",
+    featured: true
+  },
+  {
+    id: "evt-5",
+    title: "Desafío de Calistenia: Reto Comunitario de Tracción & Resistencia",
+    category: "Otros eventos",
+    modality: "Presencial",
+    date: "Sábado, 12 de Diciembre 2026",
+    time: "08:00 AM - 11:00 AM",
+    startIso: "20261212T130000Z",
+    endIso: "20261212T160000Z",
+    location: "Complejo Deportivo Manuel Bonilla (Malecón de la Marina, Miraflores)",
+    isVirtual: false,
+    description: "Torneo amistoso por categorías (amateur y avanzado) de dominadas estrictas, fondos en paralelas y flexiones con cronómetro. ¡Premios en implementos oficiales Bassfit a los ganadores!",
+    instructor: "Jueces de Calistenia Bassfit Perú",
+    badge: "PREMIOS OFICIALES",
+    spotsLeft: 25,
+    price: "Inscripción Gratuita",
+    requirements: [
+      "Llegar 20 minutos antes para pesaje y asignación de turno",
+      "Zapatillas deportivas con buen agarre",
+      "Magnesio líquido permitido",
+      "DNI físico para registro"
+    ],
+    image: "images/products/escalera-pliometrica-1.jpg",
+    status: "published",
+    featured: false
+  }
+];
+
+export function buildGoogleCalendarUrl(event: CommunityEvent): string {
+  const title = encodeURIComponent(`Bassfit: ${event.title}`);
+  const dates = `${event.startIso || "20261115T140000Z"}/${event.endIso || "20261115T163000Z"}`;
+  const details = encodeURIComponent(
+    `${event.description}\n\n` +
+    `👤 Instructor / A cargo: ${event.instructor || "Equipo Bassfit"}\n` +
+    `📍 Ubicación: ${event.location}\n` +
+    `🏷️ Categoría: ${event.category} · ${event.modality} (${event.price || "Gratuito"})\n` +
+    (event.virtualLink ? `🔗 Enlace Virtual: ${event.virtualLink}\n` : '') +
+    (event.requirements && event.requirements.length > 0 ? `📋 Requisitos: ${event.requirements.join(", ")}\n` : '') +
+    `\n⚡ Más información y catálogo en Bassfit Perú (+51 967 581 481).`
+  );
+  const location = encodeURIComponent(event.isVirtual ? (event.virtualLink || "Online") : event.location);
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
 }

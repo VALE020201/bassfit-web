@@ -33,3 +33,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Backups & Scratch
+*.bak
+*.bak_*
+*.backup_old
+apply_*.py
+update_*.py
+test_*.html
+temp_*.html
+

@@ -12,6 +12,13 @@ import {
   ProductCategorySlug,
   buildWhatsAppAdvisorUrl,
   buildWhatsAppCoachUrl,
+  getProductRecommendations,
+  getCategoryRecommendations,
+  TUTORIALS_DATA,
+  COMMUNITY_EVENTS_DATA,
+  buildGoogleCalendarUrl,
+  TutorialItem,
+  CommunityEvent,
 } from "@/lib/bassfit-data";
 
 interface ProductVariant {
@@ -45,6 +52,230 @@ export default function BassfitClientApp() {
   const [cardActiveIndices, setCardActiveIndices] = useState<{ [productId: string]: number }>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [heroSlide, setHeroSlide] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
+
+  // Noticias tab state & Dynamic Events Agenda
+  const [selectedTutorial, setSelectedTutorial] = useState<TutorialItem | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CommunityEvent | null>(null);
+  const [newsCategoryFilter, setNewsCategoryFilter] = useState<string>("todos");
+  const [eventCategoryFilter, setEventCategoryFilter] = useState<string>("todos");
+  const [eventModalityFilter, setEventModalityFilter] = useState<string>("todos");
+
+  // Persistent Community Events with localStorage
+  const [eventsList, setEventsList] = useState<CommunityEvent[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("bassfit_community_events");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.error("Error reading bassfit_community_events:", e);
+      }
+    }
+    return COMMUNITY_EVENTS_DATA;
+  });
+
+  // Sync events to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("bassfit_community_events", JSON.stringify(eventsList));
+      } catch (e) {
+        console.error("Error saving bassfit_community_events:", e);
+      }
+    }
+  }, [eventsList]);
+
+  // Admin Events State & Form
+  const [isAdminEventsOpen, setIsAdminEventsOpen] = useState(false);
+  const [adminTab, setAdminTab] = useState<"form" | "list">("form");
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+
+  const defaultEventForm: CommunityEvent = {
+    id: "",
+    title: "",
+    category: "Entrenamientos especiales",
+    modality: "Presencial",
+    date: "Sábado, 28 de Noviembre 2026",
+    time: "09:00 AM - 11:30 AM",
+    startIso: "20261128T140000Z",
+    endIso: "20261128T163000Z",
+    location: "Parque Miguel de Cervantes (San Isidro, Lima)",
+    isVirtual: false,
+    virtualLink: "",
+    registrationUrl: "",
+    description: "",
+    instructor: "Head Coach Bassfit",
+    badge: "CUPOS LIMITADOS",
+    spotsLeft: 15,
+    price: "Gratuito",
+    requirements: [
+      "Ropa deportiva transpirable y calzado adecuado",
+      "Botella de agua personal",
+      "Puntualidad: registro 15 min antes"
+    ],
+    image: "images/products/barras-8en1-multifuncional-1.jpg",
+    status: "published",
+    featured: false
+  };
+
+  const [eventFormData, setEventFormData] = useState<CommunityEvent>(defaultEventForm);
+  const [reqInput, setReqInput] = useState<string>("");
+
+  // Filtered & Sorted Events
+  const filteredEvents = useMemo(() => {
+    return eventsList
+      .filter((evt) => {
+        if (eventCategoryFilter !== "todos" && evt.category !== eventCategoryFilter) return false;
+        if (eventModalityFilter !== "todos" && evt.modality !== eventModalityFilter) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return (a.startIso || a.id).localeCompare(b.startIso || b.id);
+      });
+  }, [eventsList, eventCategoryFilter, eventModalityFilter]);
+
+  // Event Handlers
+  const handleOpenNewEventModal = () => {
+    setEventFormData({
+      ...defaultEventForm,
+      id: "evt-" + Date.now()
+    });
+    setEditingEventId(null);
+    setAdminTab("form");
+    setIsAdminEventsOpen(true);
+  };
+
+  const handleOpenEditEventModal = (evt: CommunityEvent) => {
+    setEventFormData({ ...evt });
+    setEditingEventId(evt.id);
+    setAdminTab("form");
+    setIsAdminEventsOpen(true);
+  };
+
+  const handleSaveEvent = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!eventFormData.title.trim()) {
+      alert("Por favor ingresa un título para el evento.");
+      return;
+    }
+    if (!eventFormData.location.trim()) {
+      alert("Por favor ingresa una ubicación o enlace virtual.");
+      return;
+    }
+
+    if (editingEventId) {
+      setEventsList((prev) =>
+        prev.map((item) => (item.id === editingEventId ? (eventFormData as CommunityEvent) : item))
+      );
+      setToastMessage(`✓ Evento "${eventFormData.title}" actualizado con éxito`);
+    } else {
+      const newEvt: CommunityEvent = {
+        ...eventFormData,
+        id: eventFormData.id || "evt-" + Date.now()
+      };
+      setEventsList((prev) => [newEvt, ...prev]);
+      setToastMessage(`✓ Nuevo evento "${newEvt.title}" publicado en la agenda`);
+    }
+
+    setTimeout(() => setToastMessage(null), 3500);
+    setIsAdminEventsOpen(false);
+  };
+
+  const handleDeleteEvent = (id: string, title: string) => {
+    if (window.confirm(`¿Seguro que deseas eliminar el evento "${title}" de la agenda?`)) {
+      setEventsList((prev) => prev.filter((item) => item.id !== id));
+      setToastMessage(`Evento eliminado de la agenda`);
+      setTimeout(() => setToastMessage(null), 3000);
+    }
+  };
+
+  const handleToggleEventStatus = (id: string, newStatus: "published" | "draft" | "cancelled" | "completed") => {
+    setEventsList((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
+    );
+    setToastMessage(`Estado del evento actualizado`);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  const handleDuplicateEvent = (evt: CommunityEvent) => {
+    const copyEvt: CommunityEvent = {
+      ...evt,
+      id: "evt-" + Date.now(),
+      title: evt.title + " (Copia)",
+      status: "draft",
+      featured: false
+    };
+    setEventsList((prev) => [copyEvt, ...prev]);
+    setToastMessage(`Evento duplicado en borrador`);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  const handleResetDefaultEvents = () => {
+    if (window.confirm("¿Restablecer toda la agenda con los 5 eventos oficiales iniciales de Bassfit? (Se sobreescribirán los cambios manuales)")) {
+      setEventsList(COMMUNITY_EVENTS_DATA);
+      setToastMessage(`Agenda restablecida con eventos por defecto`);
+      setTimeout(() => setToastMessage(null), 3000);
+      setIsAdminEventsOpen(false);
+    }
+  };
+
+  const handleAddToGoogleCalendar = (evt: CommunityEvent) => {
+    const url = buildGoogleCalendarUrl(evt);
+    window.open(url, "_blank", "noopener,noreferrer");
+    setToastMessage(`📅 Abriendo Google Calendar para: "${evt.title}"`);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+
+  // Cross-selling recommendations
+  const recommendedProducts = useMemo(() => {
+    if (!selectedProduct) return [];
+    return getProductRecommendations(selectedProduct);
+  }, [selectedProduct]);
+
+  const categoryRecommendations = useMemo(() => {
+    if (!selectedCategory || selectedCategory === "todos") return [];
+    return getCategoryRecommendations(selectedCategory);
+  }, [selectedCategory]);
+
+  // Auto-advance hero carousel every 10 seconds (2 slides)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroSlide((prev) => (prev + 1) % 2);
+    }, 10000);
+    return () => clearInterval(timer);
+  }, [heroSlide]);
+
+  const nextHeroSlide = () => setHeroSlide((prev) => (prev + 1) % 2);
+  const prevHeroSlide = () => setHeroSlide((prev) => (prev - 1 + 2) % 2);
+
+  const handleHeroTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+    setTouchEndX(null);
+  };
+
+  const handleHeroTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleHeroTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+    const diff = touchStartX - touchEndX;
+    if (diff > 40) {
+      nextHeroSlide();
+    } else if (diff < -40) {
+      prevHeroSlide();
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
 
   // Close modals on Escape key
   useEffect(() => {
@@ -70,7 +301,7 @@ export default function BassfitClientApp() {
   }, [toastMessage]);
 
   const resolveImg = (src: string) => {
-    if (!src) return "";
+    if (!src) return "images/products/barras-8en1-multifuncional-1.jpg";
     if (src.startsWith("http://") || src.startsWith("https://")) return src;
     return src.startsWith("/") ? src.slice(1) : src;
   };
@@ -172,45 +403,53 @@ export default function BassfitClientApp() {
     });
   }, [selectedCategory, searchQuery]);
 
-  // 3 Featured products matching the client mockup (Barras 8en1, Crema Corporal, Faja Reductora)
+  // Selección de Productos Estrella para la Landing (Máximo 8 productos destacados)
   const featuredProducts = useMemo(() => {
-    const p1 = BASSFIT_PRODUCTS.find((p) => p.id === "wa-3421408384612748") || BASSFIT_PRODUCTS[0];
-    const p2 = BASSFIT_PRODUCTS.find((p) => p.id === "wa-3708939919127923") || BASSFIT_PRODUCTS[1];
-    const p3 = BASSFIT_PRODUCTS.find((p) => p.id === "wa-4858382410901998") || BASSFIT_PRODUCTS[2];
-    return [p1, p2, p3];
+    const ids = [
+      "wa-3421408384612748", // Barras 8en1 Multifuncional para Pared
+      "wa-24872571689085748", // Bancas de Entrenamiento Heavy Duty (Plana / Inclinada)
+      "wa-3211541572231710",  // Bandas Elásticas Power Loop CrossFit
+      "wa-2973371469377261",  // Set de Mancuernas Cromadas con Maleta
+      "wa-4858382410901998",  // Faja Cinturilla Avispa
+      "wa-2812633812125031",  // Mat de Yoga 6mm, 10mm, 15mm
+      "wa-5403327829758785",  // FascialGun | Pistola de Masaje Muscular
+      "wa-4946828758741237",  // Accesorios para Máquina de Polea (Tobilleras y Soga)
+    ];
+    const list = ids.map((id) => BASSFIT_PRODUCTS.find((p) => p.id === id)).filter(Boolean) as BassfitProduct[];
+    return list.length ? list : (BASSFIT_PRODUCTS.slice(0, 8) as BassfitProduct[]);
   }, []);
 
   return (
     <div className="min-h-screen bg-white text-[#0F172A] flex flex-col font-sans selection:bg-[#FF5500] selection:text-white">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#0F172A] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 border border-slate-700 animate-bounce">
+        <div className="fixed bottom-24 sm:bottom-6 left-4 sm:left-6 z-50 bg-[#0F172A] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 border border-slate-700 animate-bounce">
           <span className="text-[#FF5500] font-black">●</span>
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* TOP ANNOUNCEMENT BAR */}
-      <div className="bg-[#0F172A] text-slate-300 text-xs py-2 px-4 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-1.5 text-center sm:text-left">
-          <div className="flex items-center space-x-2">
-            <span className="bg-[#FF5500] text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+      <div className="bg-[#0F172A] text-slate-300 text-xs py-1.5 sm:py-2 px-3 sm:px-4 border-b border-slate-800">
+        <div className="max-w-7xl mx-auto flex justify-between items-center gap-2 text-left">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 min-w-0">
+            <span className="bg-[#FF5500] text-white text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
               OFICIAL
             </span>
-            <span className="text-slate-200 font-medium text-[11px] sm:text-xs">
-              Catálogo Oficial Bassfit Perú 🇵🇪 · Implementos de Calidad Profesional y Entrenamientos
+            <span className="text-slate-200 font-medium text-[10px] sm:text-xs truncate">
+              Bassfit Perú 🇵🇪 · Equipamiento Profesional
             </span>
           </div>
-          <div className="flex items-center space-x-4 text-[11px] text-slate-400">
-            <span>Envíos a todo el Perú</span>
-            <span className="text-slate-600">|</span>
+          <div className="flex items-center space-x-2 sm:space-x-4 text-[10px] sm:text-[11px] text-slate-400 shrink-0">
+            <span className="hidden md:inline">Envíos a todo el Perú</span>
+            <span className="hidden md:inline text-slate-600">|</span>
             <a
               href="https://wa.me/51967581481"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white transition flex items-center space-x-1 text-[#25D366] font-bold"
             >
-              <span>Asesoría WhatsApp: +51 967 581 481</span>
+              <span>WhatsApp: +51 967 581 481</span>
             </a>
           </div>
         </div>
@@ -218,20 +457,21 @@ export default function BassfitClientApp() {
 
       {/* MAIN HEADER / NAVBAR (Exact Match to Client Mockup) */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo with Athletic Typography and small PERÚ badge */}
           <div
             onClick={() => {
               setActiveTab("home");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="flex items-center space-x-2.5 cursor-pointer select-none group"
+            className="flex items-center space-x-2 cursor-pointer select-none group shrink-0"
             title="Bassfit Perú - Inicio"
           >
             <img
               src="images/brand/logo_bassfit_peru.png"
               alt="Bassfit Perú"
-              className="h-9 sm:h-10 w-auto object-contain transition group-hover:scale-105"
+              className="h-10 sm:h-12 md:h-14 w-auto object-contain transition group-hover:scale-105"
+              style={{ maxHeight: "56px" }}
               onError={(e) => {
                 const target = e.currentTarget;
                 target.style.display = "none";
@@ -249,7 +489,7 @@ export default function BassfitClientApp() {
             </div>
           </div>
 
-          {/* Navigation Links (HOME, SHOP, CATEGORÍAS, ASESORÍAS, VLOGS, CONTACTO) */}
+          {/* Navigation Links (Desktop) */}
           <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             <button
               onClick={() => setActiveTab("home")}
@@ -259,7 +499,7 @@ export default function BassfitClientApp() {
                   : "border-transparent text-slate-600 hover:text-[#0F172A]"
               }`}
             >
-              HOME
+              INICIO
             </button>
             <button
               onClick={() => setActiveTab("shop")}
@@ -269,7 +509,7 @@ export default function BassfitClientApp() {
                   : "border-transparent text-slate-600 hover:text-[#0F172A]"
               }`}
             >
-              SHOP
+              TIENDA
             </button>
             <button
               onClick={() => setActiveTab("categorias")}
@@ -299,7 +539,7 @@ export default function BassfitClientApp() {
                   : "border-transparent text-slate-600 hover:text-[#0F172A]"
               }`}
             >
-              VLOGS
+              NOTICIAS
             </button>
             <button
               onClick={() => setActiveTab("contacto")}
@@ -315,11 +555,11 @@ export default function BassfitClientApp() {
 
           {/* Search bar & Shopping Cart Pill Button */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Pill Search Input */}
+            {/* Pill Search Input on desktop */}
             <div className="relative hidden md:block w-44 lg:w-56">
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Buscar productos..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -340,7 +580,7 @@ export default function BassfitClientApp() {
             {/* Shopping Cart Orange Pill */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black px-3.5 py-2 rounded-full text-xs transition flex items-center space-x-2 shadow-md shadow-orange-500/20 cursor-pointer relative"
+              className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-xs transition flex items-center space-x-1.5 sm:space-x-2 shadow-md shadow-orange-500/20 cursor-pointer relative"
               title="Ver Carrito de Compras"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,7 +602,8 @@ export default function BassfitClientApp() {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 cursor-pointer"
-              title="Menú"
+              title="Abrir menú"
+              aria-label="Abrir menú"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
@@ -371,414 +612,723 @@ export default function BassfitClientApp() {
           </div>
         </div>
 
-        {/* Mobile Navigation Dropdown */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-2">
-            <div className="relative mb-3">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  if (activeTab !== "shop") setActiveTab("shop");
-                }}
-                className="w-full bg-slate-50 text-xs text-slate-800 placeholder-slate-400 pl-3 pr-8 py-2 rounded-full border border-slate-200"
-              />
-              <svg
-                className="w-3.5 h-3.5 absolute right-3 top-2.5 text-slate-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs font-bold uppercase tracking-wider">
-              <button
-                onClick={() => { setActiveTab("home"); setIsMobileMenuOpen(false); }}
-                className={`py-2 px-3 rounded-lg text-left ${activeTab === "home" ? "bg-[#FF5500] text-white" : "bg-slate-50 text-slate-800"}`}
-              >
-                HOME
-              </button>
-              <button
-                onClick={() => { setActiveTab("shop"); setIsMobileMenuOpen(false); }}
-                className={`py-2 px-3 rounded-lg text-left ${activeTab === "shop" ? "bg-[#FF5500] text-white" : "bg-slate-50 text-slate-800"}`}
-              >
-                SHOP ({BASSFIT_PRODUCTS.length})
-              </button>
-              <button
-                onClick={() => { setActiveTab("categorias"); setIsMobileMenuOpen(false); }}
-                className={`py-2 px-3 rounded-lg text-left ${activeTab === "categorias" ? "bg-[#FF5500] text-white" : "bg-slate-50 text-slate-800"}`}
-              >
-                CATEGORÍAS
-              </button>
-              <button
-                onClick={() => { setActiveTab("asesorias"); setIsMobileMenuOpen(false); }}
-                className={`py-2 px-3 rounded-lg text-left ${activeTab === "asesorias" ? "bg-[#FF5500] text-white" : "bg-slate-50 text-slate-800"}`}
-              >
-                ASESORÍAS
-              </button>
-              <button
-                onClick={() => { setActiveTab("vlogs"); setIsMobileMenuOpen(false); }}
-                className={`py-2 px-3 rounded-lg text-left ${activeTab === "vlogs" ? "bg-[#FF5500] text-white" : "bg-slate-50 text-slate-800"}`}
-              >
-                VLOGS
-              </button>
-              <button
-                onClick={() => { setActiveTab("contacto"); setIsMobileMenuOpen(false); }}
-                className={`py-2 px-3 rounded-lg text-left ${activeTab === "contacto" ? "bg-[#FF5500] text-white" : "bg-slate-50 text-slate-800"}`}
-              >
-                CONTACTO
-              </button>
-            </div>
-          </div>
-        )}
-      </header>
+        </header>
 
       {/* MAIN BODY CONTENT */}
-      <main className="flex-1 w-full">
+      <main className="flex-1 w-full pb-16 sm:pb-8">
         {/* ========================================================================= */}
         {/* TAB 1: HOME (Exact replica of the client's design mockup)                 */}
         {/* ========================================================================= */}
         {activeTab === "home" && (
-          <div className="space-y-10 sm:space-y-12 pb-16">
-            {/* HERO BANNER SECTION (Tech circuits, dynamic runner, bold athletic text) */}
-            <section className="relative bg-[#FAFAFA] border-b border-slate-200/80 overflow-hidden">
-              {/* Subtle Tech Circuit Graphics Overlay */}
-              <div className="absolute inset-0 pointer-events-none opacity-40">
-                <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0,40 L120,40 L160,80 L280,80" fill="none" stroke="#00C4D4" strokeWidth="2" strokeDasharray="6 4" />
-                  <circle cx="280" cy="80" r="4" fill="#00C4D4" />
-                  <path d="M40,0 L40,160 L80,200 L180,200" fill="none" stroke="#FF5500" strokeWidth="2" />
-                  <circle cx="180" cy="200" r="4" fill="#FF5500" />
+          <div className="space-y-12 sm:space-y-16 pb-16">
+            {/* ========================================================================= */}
+            {/* HERO BANNER SECTION: ENTRENAMIENTOS & ASESORÍA PRIMERO (10s Auto, Swipe)  */}
+            {/* ========================================================================= */}
+            <section
+              className="relative w-full bg-[#0F172A] border-b border-slate-200 overflow-hidden select-none"
+              onTouchStart={handleHeroTouchStart}
+              onTouchMove={handleHeroTouchMove}
+              onTouchEnd={handleHeroTouchEnd}
+            >
+              {/* Lateral Navigation Arrows */}
+              <button
+                onClick={prevHeroSlide}
+                aria-label="Diapositiva anterior"
+                className="absolute left-2 sm:left-4 top-1/3 sm:top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-black/40 sm:bg-white/90 hover:bg-black/60 sm:hover:bg-white text-white sm:text-slate-800 shadow-md backdrop-blur-xs flex items-center justify-center transition transform hover:scale-105 active:scale-95 cursor-pointer border border-white/20 sm:border-slate-200/80"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
-              </div>
+              </button>
+              <button
+                onClick={nextHeroSlide}
+                aria-label="Siguiente diapositiva"
+                className="absolute right-2 sm:right-4 top-1/3 sm:top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-black/40 sm:bg-white/90 hover:bg-black/60 sm:hover:bg-white text-white sm:text-slate-800 shadow-md backdrop-blur-xs flex items-center justify-center transition transform hover:scale-105 active:scale-95 cursor-pointer border border-white/20 sm:border-slate-200/80"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
 
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14 lg:py-16 relative">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                  {/* Left Column: Bold Athletic Typography & CTA */}
-                  <div className="lg:col-span-6 space-y-5 text-center lg:text-left z-10">
-                    <div className="space-y-1">
-                      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0F172A] uppercase tracking-tight leading-none">
-                        SUPERA<br />TUS LÍMITES
-                      </h1>
-                      <p className="text-sm sm:text-base text-slate-500 font-medium pt-2 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                        Equipamiento deportivo premium, rutinas de entrenamiento guiadas y asesoría directa para transformar tu rendimiento con calidad profesional.
-                      </p>
-                    </div>
+              {/* Smooth Sliding Track */}
+              <div
+                className="flex w-full transition-transform duration-700 ease-in-out"
+                style={{ transform: `translateX(-${heroSlide * 100}%)` }}
+              >
+                {/* ------------------------------------------------------------- */}
+                {/* SLIDE 1: ENTRENAMIENTOS & ASESORÍAS 1 A 1 (Servicio Principal) */}
+                {/* ------------------------------------------------------------- */}
+                <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#0F172A]">
+                  <div
+                    className="hidden sm:block relative w-full overflow-hidden"
+                    style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}
+                  >
+                    <img
+                      src="images/hero_banner_bf_2x.png"
+                      fetchPriority="high"
+                      loading="eager"
+                      decoding="async"
+                      alt="Bassfit Programas de Entrenamiento y Asesoría 1 a 1"
+                      className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.src = "images/hero_banner_bf.png";
+                      }}
+                    />
 
-                    <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
-                      <button
-                        onClick={() => {
-                          setActiveTab("shop");
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-xs sm:text-sm uppercase tracking-wider px-8 py-3.5 rounded-full shadow-lg shadow-orange-500/25 transition transform hover:-translate-y-0.5 cursor-pointer"
-                      >
-                        DESCUBRIR PRODUCTOS
-                      </button>
-                      <button
-                        onClick={() => setIsVideoModalOpen(true)}
-                        className="bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs sm:text-sm uppercase tracking-wider px-6 py-3.5 rounded-full border border-slate-300 shadow-2xs transition flex items-center space-x-2 cursor-pointer"
-                      >
-                        <span className="w-5 h-5 rounded-full bg-[#FF5500] text-white flex items-center justify-center text-[10px]">
-                          ▶
-                        </span>
-                        <span>Ver Rutina Fitness</span>
-                      </button>
+                    <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
+                      <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
+                        <div className="inline-flex items-center space-x-2 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-orange-200 shadow-2xs">
+                          <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse"></span>
+                          <span className="text-[9px] md:text-[11px] font-black uppercase tracking-wider text-slate-800">
+                            ★ Programas de Entrenamiento & Coaching 1 a 1
+                          </span>
+                        </div>
+
+                        <h1 className="font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-[#0F172A] uppercase leading-[0.92] tracking-tight">
+                          TRANSFORMA TU VIDA<br /><span className="text-[#FF5500]">CON ENTRENAMIENTO REAL</span>
+                        </h1>
+
+                        <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-600 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md">
+                          «...fitness sin límites de edad..» — Planes de fuerza, calistenia y acondicionamiento con seguimiento diario por WhatsApp con el Head Coach.
+                        </p>
+
+                        <div className="flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2">
+                          <button
+                            onClick={() => {
+                              const el = document.getElementById("programas-entrenamiento");
+                              if (el) el.scrollIntoView({ behavior: "smooth" });
+                              else setActiveTab("asesorias");
+                            }}
+                            className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-orange-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+                          >
+                            <span>UNIRME A LOS ENTRENAMIENTOS</span>
+                            <span>→</span>
+                          </button>
+                          <button
+                            onClick={() => setActiveTab("vlogs")}
+                            className="bg-white/90 hover:bg-white text-slate-800 font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-slate-300 shadow-2xs transition cursor-pointer"
+                          >
+                            Ver Clases & Eventos
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Right Column: High-Definition Athletic Runner Visual with Tech Circuits */}
-                  <div className="lg:col-span-6 flex items-center justify-center relative">
-                    <div className="relative w-full max-w-lg lg:max-w-none">
-                      <img
-                        src="images/hero_runner_hd.png"
-                        alt="Bassfit Atleta en Carrera"
-                        className="w-full h-auto object-contain drop-shadow-md"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          target.src = "images/mockup_runner.jpg";
-                        }}
-                      />
+                  {/* Mobile Layout */}
+                  <div className="sm:hidden relative w-full h-[450px] overflow-hidden bg-slate-950 flex flex-col justify-end p-5 select-none">
+                    <img
+                      src="images/mockup_vlog_hd.jpg"
+                      fetchPriority="high"
+                      loading="eager"
+                      decoding="async"
+                      alt="Bassfit Programas de Entrenamiento y Asesoría Móvil"
+                      className="absolute inset-0 w-full h-full object-cover object-center opacity-85 select-none pointer-events-none"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-900/30 pointer-events-none"></div>
+
+                    <div className="relative z-10 space-y-2 text-left pb-4">
+                      <div className="inline-flex items-center space-x-1.5 bg-orange-500/20 border border-orange-500/40 text-orange-400 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF5500] animate-pulse"></span>
+                        <span>Asesoría & Coaching 1 a 1</span>
+                      </div>
+
+                      <h1 className="font-athletic text-3xl font-black text-white uppercase leading-[0.92] tracking-tight">
+                        TRANSFORMA TU VIDA<br /><span className="text-[#FF5500]">ENTRENAMIENTO REAL</span>
+                      </h1>
+
+                      <p className="text-xs text-slate-300 font-normal leading-relaxed line-clamp-2 max-w-[280px]">
+                        Planes personalizados de fuerza, calistenia y longevidad activa con coach 1 a 1 por WhatsApp.
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-2 pt-2 w-full">
+                        <button
+                          onClick={() => {
+                            const el = document.getElementById("programas-entrenamiento");
+                            if (el) el.scrollIntoView({ behavior: "smooth" });
+                            else setActiveTab("asesorias");
+                          }}
+                          className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] uppercase tracking-wider py-3 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
+                        >
+                          <span>Ver Planes</span>
+                          <span>→</span>
+                        </button>
+                        <button
+                          onClick={() => setActiveTab("vlogs")}
+                          className="bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition"
+                        >
+                          <span>Ver Clases</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Bottom Center Carousel Dots (Mockup Feature) */}
-                <div className="flex justify-center items-center space-x-2 pt-6 sm:pt-8">
-                  <span className="w-5 h-2 rounded-full bg-[#FF5500] transition-all"></span>
-                  <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-                  <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-                  <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-                  <span className="w-2 h-2 rounded-full bg-slate-300"></span>
+                {/* ------------------------------------------------------------- */}
+                {/* SLIDE 2: COMUNIDAD, MASTERCLASSES & CLASES EN VIVO             */}
+                {/* ------------------------------------------------------------- */}
+                <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#EAEDF1]">
+                  {/* Desktop / Tablet Layout */}
+                  <div
+                    className="hidden sm:block relative w-full overflow-hidden"
+                    style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}
+                  >
+                    <img
+                      src="images/hero_banner_asesorias.png"
+                      loading="eager"
+                      decoding="async"
+                      alt="Bassfit Comunidad, Masterclasses y Eventos en Vivo"
+                      className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
+                    />
+
+                    <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
+                      <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
+                        <div className="inline-flex items-center space-x-2 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-cyan-300 shadow-2xs">
+                          <span className="w-2 h-2 rounded-full bg-[#00C4D4] animate-pulse"></span>
+                          <span className="text-[9px] md:text-[11px] font-black uppercase tracking-wider text-slate-800">
+                            ★ Comunidad Deportiva & Clases en Vivo
+                          </span>
+                        </div>
+
+                        <h2 className="font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-[#0F172A] uppercase leading-[0.92] tracking-tight">
+                          APRENDE LA TÉCNICA<br /><span className="text-[#00C4D4]">SUPERA TUS METAS</span>
+                        </h2>
+
+                        <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-600 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md">
+                          Masterclasses presenciales en parques de Lima, clases funcionales online y seguimiento biomecánico para entrenar seguro y sin lesiones.
+                        </p>
+
+                        <div className="flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2">
+                          <button
+                            onClick={() => {
+                              setActiveTab("vlogs");
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            className="bg-[#00C4D4] hover:bg-[#00adc0] text-slate-950 font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-cyan-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+                          >
+                            <span>VER PRÓXIMAS ACTIVIDADES</span>
+                            <span>→</span>
+                          </button>
+                          <button
+                            onClick={() => setIsVideoModalOpen(true)}
+                            className="bg-white/90 hover:bg-white text-slate-800 font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-slate-300 shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
+                          >
+                            <span className="w-4 h-4 rounded-full bg-[#00C4D4] text-white flex items-center justify-center text-[8px] font-black">
+                              ▶
+                            </span>
+                            <span>Ver Video Rutina</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Layout (Balanced 450px: Crisp Artwork on top, Content below) */}
+                  <div className="sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-between overflow-hidden select-none">
+                    {/* Top Artwork: Runner and tech circuits 100% visible and uncropped */}
+                    <div className="relative w-full h-[230px] bg-[#EAEDF1] overflow-hidden">
+                      <img
+                        src="images/hero_banner_asesorias.png"
+                      loading="eager"
+                      decoding="async"
+                        alt="Bassfit Comunidad y Clases en Vivo"
+                        className="w-full h-full object-cover select-none pointer-events-none"
+                        style={{ objectPosition: "75% center" }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950 pointer-events-none"></div>
+                      <div className="absolute top-3 left-3 bg-[#00C4D4] text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md">
+                        ● COMUNIDAD &amp; CLASES EN VIVO
+                      </div>
+                    </div>
+
+                    {/* Bottom Content: Clean typography and action buttons */}
+                    <div className="p-4 space-y-2.5 z-10 text-left pb-5">
+                      <h2 className="font-athletic text-2xl font-black text-white uppercase leading-[0.92] tracking-tight">
+                        APRENDE LA TÉCNICA<br /><span className="text-[#00C4D4]">SUPERA TUS METAS</span>
+                      </h2>
+                      <p className="text-xs text-slate-300 font-normal leading-relaxed line-clamp-2">
+                        Masterclasses presenciales en parques de Lima y clases virtuales en vivo con corrección técnica.
+                      </p>
+                      <div className="grid grid-cols-2 gap-2 pt-1 w-full">
+                        <button
+                          onClick={() => {
+                            setActiveTab("vlogs");
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className="bg-[#00C4D4] hover:bg-[#00adc0] text-slate-950 font-black text-xs uppercase tracking-wider py-3 rounded-full shadow-lg shadow-cyan-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
+                        >
+                          <span>Ver Agenda</span>
+                          <span>→</span>
+                        </button>
+                        <button
+                          onClick={() => setIsVideoModalOpen(true)}
+                          className="bg-white/15 hover:bg-white/25 text-white font-bold text-xs uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition"
+                        >
+                          <span className="text-[#00D1FF] text-[8px]">▶</span>
+                          <span>Ver Video</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Bottom Interactive Indicators (Dots / Pills) */}
+              <div className="absolute bottom-2.5 sm:bottom-4 inset-x-0 flex justify-center items-center space-x-2 z-30 pointer-events-auto">
+                {[0, 1].map((idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setHeroSlide(idx)}
+                    aria-label={`Ir a diapositiva ${idx + 1}`}
+                    className={`transition-all duration-300 rounded-full cursor-pointer border border-black/10 ${
+                      heroSlide === idx
+                        ? "w-7 sm:w-9 h-2 sm:h-2.5 bg-[#FF5500] shadow-sm"
+                        : "w-2 sm:w-2.5 h-2 sm:h-2.5 bg-slate-300/90 hover:bg-slate-400"
+                    }`}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {/* HERO VALUE PROOF STRIP (PILARES DEL ENTRENAMIENTO BASSFIT) */}
+            <section className="bg-slate-900 border-b border-slate-800 text-white py-5 px-4 sm:px-6">
+              <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div className="flex items-start space-x-3 p-2">
+                  <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-[#FF5500] font-black text-lg flex-shrink-0">
+                    🎯
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-white">Planes a tu Medida</h4>
+                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Adaptados a tu espacio, nivel y metas personales</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3 p-2">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-[#00C4D4] font-black text-lg flex-shrink-0">
+                    📱
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-white">Coaching por WhatsApp</h4>
+                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Corrección de técnica por video 1 a 1</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3 p-2">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black text-lg flex-shrink-0">
+                    🌿
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-white">Sin Límites de Edad</h4>
+                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Salud articular y longevidad activa (+40)</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3 p-2">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-lg flex-shrink-0">
+                    🤝
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-white">Comunidad Activa</h4>
+                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Masterclasses y entrenamientos grupales</p>
+                  </div>
                 </div>
               </div>
             </section>
 
             {/* ===================================================================== */}
-            {/* SPLIT FEATURED SECTION: PRODUCTOS DESTACADOS + VLOGS & WELLNESS TIPS */}
+            {/* SECCIÓN 1: PROGRAMAS DE ASESORÍA PERSONALIZADA (SERVICIOS CORE)       */}
             {/* ===================================================================== */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                {/* LEFT COLUMN: PRODUCTOS DESTACADOS (3 Top Products Grid) */}
-                <div className="lg:col-span-7 xl:col-span-8 space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h2 className="text-base sm:text-lg font-black text-[#0F172A] uppercase tracking-tight">
-                      PRODUCTOS DESTACADOS
-                    </h2>
-                    <button
-                      onClick={() => setActiveTab("shop")}
-                      className="text-xs font-bold text-[#FF5500] hover:text-[#d04200] transition flex items-center space-x-1 cursor-pointer"
+            <section id="programas-entrenamiento" className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+              <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12 space-y-2">
+                <span className="text-[11px] sm:text-xs font-black uppercase tracking-widest text-[#FF5500] bg-orange-50 px-3.5 py-1 rounded-full border border-orange-200 inline-block shadow-2xs">
+                  ★ Servicios de Entrenamiento Bassfit
+                </span>
+                <h2 className="font-athletic text-2xl sm:text-3xl md:text-4xl font-black text-[#0F172A] uppercase tracking-tight">
+                  PROGRAMAS DE ENTRENAMIENTO & ASESORÍA
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  Elige el plan ideal según tu disciplina y nivel. Cada programa incluye diagnóstico inicial, videos paso a paso y seguimiento directo por WhatsApp con tu coach.
+                </p>
+              </div>
+
+              {/* Grid 4 Program Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+                {TRAINING_PROGRAMS.map((program) => {
+                  const whatsappMsg = encodeURIComponent(
+                    `Hola Bassfit! Deseo inscribirme y recibir información del programa de entrenamiento: ${program.title} (Tarifa: S/ ${program.priceMonthly}/mes). ¿Cuáles son los siguientes pasos?`
+                  );
+                  const whatsappUrl = `https://wa.me/51967581481?text=${whatsappMsg}`;
+
+                  return (
+                    <div
+                      key={program.id}
+                      className={`rounded-3xl border transition-all duration-300 p-6 flex flex-col justify-between hover:shadow-xl relative ${
+                        program.highlighted
+                          ? "bg-white border-[#FF5500] shadow-lg shadow-orange-500/10 ring-2 ring-orange-500/20"
+                          : "bg-white border-slate-200/90 hover:border-orange-300"
+                      }`}
                     >
-                      <span>Ver Catálogo Completo (33)</span>
-                      <span>→</span>
-                    </button>
-                  </div>
+                      {program.highlighted && (
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FF5500] text-white text-[9px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-sm">
+                          RECOMENDADO BASSFIT
+                        </span>
+                      )}
 
-                  {/* 3 Product Cards Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {featuredProducts.map((product) => {
-                      const cardIdx = cardActiveIndices[product.id] || 0;
-                      const safeIdx = cardIdx % (product.images.length || 1);
-                      const activeImg = product.images[safeIdx] || product.images[0];
-                      const activeVar = product.variants ? (product.variants.find(v => v.imageIndex === safeIdx) || product.variants[0]) : null;
-
-                      return (
-                        <div
-                          key={product.id}
-                          className="bg-white rounded-2xl border border-slate-200/90 hover:border-orange-300 hover:shadow-xl transition-all duration-300 p-4 flex flex-col justify-between group cursor-pointer"
-                          onClick={() => openProductModal(product)}
-                        >
-                          {/* Image Box on Pure White */}
-                          <div className="bg-white rounded-xl h-44 flex items-center justify-center p-3 relative overflow-hidden">
-                            <img
-                              src={resolveImg(activeImg)}
-                              alt={product.name}
-                              className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
-                            />
-                            {product.images.length > 1 && (
-                              <span className="absolute top-2 right-2 bg-slate-900/80 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
-                                {safeIdx + 1}/{product.images.length}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Card Content */}
-                          <div className="pt-3 space-y-1.5 flex-1 flex flex-col justify-between">
-                            <div>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                                BASSFIT
-                              </span>
-                              <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#FF5500] transition line-clamp-2 leading-snug">
-                                {product.name}
-                              </h3>
-                            </div>
-
-                            <div className="space-y-2 pt-1">
-                              {/* 5 Stars Rating */}
-                              <div className="flex items-center space-x-1 text-amber-400 text-xs">
-                                <span>★★★★★</span>
-                                <span className="text-[10px] text-slate-400 font-semibold">(5.0)</span>
-                              </div>
-
-                              {/* Price */}
-                              <div className="flex items-baseline space-x-2">
-                                <span className="text-base sm:text-lg font-black text-slate-900">
-                                  S/ {product.price.toFixed(2)}
-                                </span>
-                                {product.compareAtPrice && (
-                                  <span className="text-xs text-slate-400 line-through">
-                                    S/ {product.compareAtPrice.toFixed(2)}
-                                  </span>
-                                )}
-                              </div>
-
-                              {/* Action Buttons */}
-                              <div className="grid grid-cols-2 gap-1.5 pt-1">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openProductModal(product);
-                                  }}
-                                  className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold py-1.5 rounded-lg transition text-center cursor-pointer"
-                                >
-                                  Ficha
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAddToCart(product, activeVar);
-                                  }}
-                                  className="w-full bg-[#FF5500] hover:bg-[#e04a00] text-white text-[11px] font-bold py-1.5 rounded-lg transition text-center flex items-center justify-center space-x-1 cursor-pointer"
-                                >
-                                  <span>+ Añadir</span>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* RIGHT COLUMN: VLOGS & WELLNESS TIPS (Mockup Feature) */}
-                <div className="lg:col-span-5 xl:col-span-4 space-y-4">
-                  <div className="border-b border-slate-100 pb-2 flex items-center justify-between">
-                    <h2 className="text-base sm:text-lg font-black text-[#0F172A] uppercase tracking-tight">
-                      VLOGS & WELLNESS TIPS
-                    </h2>
-                    <button
-                      onClick={() => setActiveTab("vlogs")}
-                      className="text-xs font-bold text-[#FF5500] hover:text-[#d04200] transition cursor-pointer"
-                    >
-                      Ver todos →
-                    </button>
-                  </div>
-
-                  {/* Video Thumbnail Card */}
-                  <div
-                    onClick={() => setIsVideoModalOpen(true)}
-                    className="group cursor-pointer rounded-2xl overflow-hidden border border-slate-200/90 bg-white hover:shadow-xl transition-all duration-300"
-                  >
-                    <div className="relative h-48 sm:h-52 bg-slate-900 overflow-hidden">
-                      <img
-                        src="images/mockup_vlog_hd.jpg"
-                        alt="Fitness Training Vlog"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-                      />
-                      {/* Play Button Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-14 h-14 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center shadow-2xl group-hover:scale-115 transition-transform duration-300">
-                          <span className="text-[#0F172A] text-lg font-black pl-1">
-                            ▶
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="bg-orange-50 text-[#FF5500] text-[9px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">
+                            {program.badge}
+                          </span>
+                          <span className="text-[11px] font-bold text-slate-400">
+                            {program.level}
                           </span>
                         </div>
+
+                        <div>
+                          <h3 className="text-base font-black text-slate-900 leading-snug">
+                            {program.title}
+                          </h3>
+                          <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">
+                            {program.subtitle}
+                          </p>
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-100 space-y-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                            ¿Qué incluye tu plan?
+                          </span>
+                          <ul className="space-y-1.5 text-xs text-slate-600">
+                            {program.includes.slice(0, 3).map((inc, i) => (
+                              <li key={i} className="flex items-start space-x-2">
+                                <span className="text-[#FF5500] font-bold mt-0.5">✓</span>
+                                <span className="line-clamp-2 text-[11px] leading-tight">{inc}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
-                      <span className="absolute bottom-3 right-3 bg-black/75 text-white text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-xs">
-                        VIDEO GUIADO
+
+                      <div className="pt-5 border-t border-slate-100 mt-4 space-y-3">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-slate-500">Inversión mensual:</span>
+                          <span className="text-xl font-black text-slate-900">
+                            S/ {program.priceMonthly} <span className="text-xs font-normal text-slate-400">/ mes</span>
+                          </span>
+                        </div>
+
+                        <a
+                          href={whatsappUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-black uppercase tracking-wider py-3 rounded-xl transition text-center flex items-center justify-center space-x-1 shadow-md shadow-orange-500/20 active:scale-95 cursor-pointer"
+                        >
+                          <span>Inscribirme por WhatsApp</span>
+                          <span>→</span>
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveTab("asesorias");
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className="w-full text-center text-[11px] font-bold text-slate-500 hover:text-[#FF5500] transition cursor-pointer"
+                        >
+                          Ver ficha completa del programa
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* ===================================================================== */}
+            {/* SECCIÓN 2: METODOLOGÍA BASSFIT (3 PASOS DE TRANSFORMACIÓN)            */}
+            {/* ===================================================================== */}
+            <section className="bg-slate-50 border-y border-slate-200/80 py-10 sm:py-14">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+                  <span className="text-[11px] sm:text-xs font-black uppercase tracking-widest text-[#00C4D4] bg-cyan-50 px-3.5 py-1 rounded-full border border-cyan-200 inline-block shadow-2xs">
+                    Coaching Sin Fricción
+                  </span>
+                  <h2 className="font-athletic text-2xl sm:text-3xl md:text-4xl font-black text-[#0F172A] uppercase tracking-tight">
+                    CÓMO FUNCIONA TU ASESORÍA EN 3 PASOS
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                    No estás solo frente a una pantalla con un PDF genérico. Cuentas con un Head Coach que planifica, evalúa y perfecciona tu técnica semana a semana.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                  <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-4 relative">
+                    <span className="text-4xl sm:text-5xl font-black text-slate-100 absolute top-5 right-6 select-none">
+                      01
+                    </span>
+                    <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center text-xl text-[#FF5500]">
+                      📋
+                    </div>
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 uppercase">
+                      Diagnóstico Inicial
+                    </h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      Evaluamos por videollamada tu movilidad articular, historial de entrenamiento o lesiones, tiempo disponible y el equipamiento que tengas en casa o gimnasio.
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-4 relative">
+                    <span className="text-4xl sm:text-5xl font-black text-slate-100 absolute top-5 right-6 select-none">
+                      02
+                    </span>
+                    <div className="w-12 h-12 rounded-2xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-xl text-[#00C4D4]">
+                      🎬
+                    </div>
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 uppercase">
+                      Plan en Video Paso a Paso
+                    </h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      Recibes tu rutina semanal con series, repeticiones y videos demostrativos donde explicamos la postura exacta y la respiración para evitar cualquier lesión.
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-4 relative">
+                    <span className="text-4xl sm:text-5xl font-black text-slate-100 absolute top-5 right-6 select-none">
+                      03
+                    </span>
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xl text-emerald-500">
+                      📱
+                    </div>
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 uppercase">
+                      Corrección Directa WhatsApp
+                    </h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      Te grabas haciendo tus ejercicios y los envías a tu coach. Recibes notas de voz y correcciones visuales inmediatas para asegurar tu progreso real.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ===================================================================== */}
+            {/* SECCIÓN 3: COMUNIDAD & PRÓXIMAS ACTIVIDADES EN VIVO                   */}
+            {/* ===================================================================== */}
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mb-8 sm:mb-10">
+                <div className="space-y-2 max-w-xl">
+                  <span className="text-[11px] sm:text-xs font-black uppercase tracking-widest text-[#00C4D4] bg-cyan-50 px-3.5 py-1 rounded-full border border-cyan-200 inline-block shadow-2xs">
+                    Agenda Comunitaria
+                  </span>
+                  <h2 className="font-athletic text-2xl sm:text-3xl md:text-4xl font-black text-[#0F172A] uppercase tracking-tight">
+                    CLASES EN VIVO & ACTIVIDADES
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500">
+                    Únete a nuestras masterclasses al aire libre y sesiones virtuales guiadas en vivo por nuestros instructores.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setActiveTab("vlogs");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="text-xs font-black text-[#FF5500] hover:text-[#e04a00] flex items-center space-x-1 cursor-pointer uppercase tracking-wider"
+                >
+                  <span>Ver toda la agenda de actividades</span>
+                  <span>→</span>
+                </button>
+              </div>
+
+              {/* 3 Activities Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {COMMUNITY_EVENTS_DATA.slice(0, 3).map((event) => (
+                  <div
+                    key={event.id}
+                    onClick={() => setSelectedEvent(event)}
+                    className="bg-white rounded-3xl border border-slate-200/90 hover:border-cyan-400 hover:shadow-xl transition-all duration-300 p-5 flex flex-col justify-between group cursor-pointer"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                          event.modality === "Online"
+                            ? "bg-cyan-50 text-cyan-600 border border-cyan-200"
+                            : "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                        }`}>
+                          {event.modality === "Online" ? "💻 Clase Online" : "📍 Presencial"}
+                        </span>
+                        <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+                          {event.badge}
+                        </span>
+                      </div>
+
+                      <h3 className="text-sm sm:text-base font-black text-slate-900 group-hover:text-[#FF5500] transition line-clamp-2 leading-snug">
+                        {event.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {event.description}
+                      </p>
+
+                      <div className="pt-2 border-t border-slate-100 space-y-1 text-[11px] text-slate-600">
+                        <div className="flex items-center space-x-1.5">
+                          <span className="text-slate-400">📅</span>
+                          <span className="font-semibold">{event.date}</span>
+                        </div>
+                        <div className="flex items-center space-x-1.5">
+                          <span className="text-slate-400">⏰</span>
+                          <span>{event.time}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800">
+                        {event.price}
+                      </span>
+                      <span className="text-xs font-bold text-[#FF5500] group-hover:translate-x-1 transition-transform">
+                        Detalles & Calendario →
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ===================================================================== */}
+            {/* SECCIÓN 4: EQUIPAMIENTO OFICIAL (25% PRODUCTOS COMPLEMENTARIOS)       */}
+            {/* ===================================================================== */}
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 border-t border-slate-200/80">
+              <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10 space-y-2">
+                <span className="text-[11px] sm:text-xs font-black uppercase tracking-widest text-slate-600 bg-slate-100 px-3.5 py-1 rounded-full border border-slate-200 inline-block shadow-2xs">
+                  Herramientas para tu Práctica
+                </span>
+                <h2 className="font-athletic text-2xl sm:text-3xl md:text-4xl font-black text-[#0F172A] uppercase tracking-tight">
+                  EQUIPAMIENTO COMPLEMENTARIO RECOMENDADO
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  El entrenamiento y la constancia son el motor de tu salud. Estos son los 4 implementos oficiales más recomendados por nuestros coaches para complementar tus sesiones.
+                </p>
+              </div>
+
+              {/* 4 Complementary Gear Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
+                {featuredProducts.slice(0, 4).map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => openProductModal(product)}
+                    className="bg-white rounded-2xl border border-slate-200/90 hover:border-orange-400 hover:shadow-xl transition-all duration-300 p-3.5 sm:p-4 flex flex-col justify-between group cursor-pointer"
+                  >
+                    <div className="bg-white rounded-xl aspect-square w-full flex items-center justify-center p-2 relative overflow-hidden border border-slate-100/70">
+                      <img
+                        loading="lazy"
+                        decoding="async"
+                        src={resolveImg(product.images[0])}
+                        alt={product.name}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (!target.src.endsWith("barras-8en1-multifuncional-1.jpg")) {
+                            target.src = "images/products/barras-8en1-multifuncional-1.jpg";
+                          }
+                        }}
+                        className="w-full h-full object-contain scale-105 group-hover:scale-115 transition-transform duration-300"
+                      />
+                      <span className="absolute top-2 left-2 bg-orange-50 text-[#FF5500] border border-orange-200 text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                        {product.categoryLabel.split("&")[0].trim()}
                       </span>
                     </div>
 
-                    <div className="p-4 space-y-1.5">
-                      <h3 className="text-sm sm:text-base font-black text-[#0F172A] uppercase tracking-tight group-hover:text-[#FF5500] transition">
-                        FITNESS TRAINING
-                      </h3>
-                      <p className="text-xs text-slate-500 leading-relaxed">
-                        Rutinas guiadas de alta intensidad, técnica de tracción con barra y mancuernas, estiramientos y consejos clave de nutrición para maximizar tus resultados sin lesiones.
-                      </p>
-                      <div className="pt-2 flex items-center space-x-2 text-[11px] text-[#FF5500] font-bold">
-                        <span>Ver video tutorial y rutina</span>
-                        <span>→</span>
+                    <div className="pt-3 space-y-1.5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">BASSFIT GEAR</span>
+                        <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#FF5500] transition line-clamp-2 leading-snug">
+                          {product.name}
+                        </h3>
+                      </div>
+                      <div className="space-y-2 pt-1">
+                        <div className="flex items-baseline space-x-2">
+                          <span className="text-base sm:text-lg font-black text-slate-900">S/ {product.price.toFixed(2)}</span>
+                          {product.compareAtPrice && (
+                            <span className="text-xs text-slate-400 line-through">S/ {product.compareAtPrice.toFixed(2)}</span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5 pt-1">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); openProductModal(product); }}
+                            className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold py-2 rounded-lg transition active:scale-95"
+                          >
+                            Ficha
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                            className="w-full bg-[#FF5500] hover:bg-[#e04a00] text-white text-[11px] font-bold py-2 rounded-lg transition shadow-xs active:scale-95"
+                          >
+                            + Añadir
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                ))}
+              </div>
+
+              {/* Botón Grande, Llamativo y Centrado hacia el Catálogo Completo */}
+              <div className="pt-10 sm:pt-12 flex flex-col items-center justify-center text-center space-y-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("shop");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="group relative inline-flex items-center justify-center space-x-3 bg-gradient-to-r from-[#FF5500] via-[#FF6600] to-[#FF7A00] hover:from-[#e04a00] hover:to-[#ea580c] text-white font-black text-sm sm:text-base uppercase tracking-wider px-8 sm:px-12 py-4 rounded-full shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
+                >
+                  <span>Explorar todo el catálogo de implementos ({BASSFIT_PRODUCTS.length})</span>
+                  <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-1">
+                    →
+                  </span>
+                </button>
+                <p className="text-[11px] sm:text-xs text-slate-400 font-medium flex items-center justify-center space-x-2">
+                  <span>⚡ Stock disponible</span>
+                  <span>•</span>
+                  <span>🚚 Envíos a todo el Perú</span>
+                  <span>•</span>
+                  <span>💬 Asesoría directa WhatsApp</span>
+                </p>
               </div>
             </section>
 
-            {/* POPULAR CATEGORIES ROW */}
+            {/* ===================================================================== */}
+            {/* SECCIÓN 5: CONSULTA GRATUITA CON EL HEAD COACH (CIERRE DE SERVICIOS)  */}
+            {/* ===================================================================== */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6">
-              <div className="bg-slate-50 border border-slate-200/80 rounded-3xl p-6 sm:p-8 space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] uppercase tracking-tight">
-                      EXPLORA POR CATEGORÍAS
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Encuentra el equipamiento exacto para tu disciplina y nivel
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setActiveTab("categorias")}
-                    className="text-xs font-bold text-[#FF5500] hover:underline cursor-pointer"
-                  >
-                    Ver todas las categorías ({PRODUCT_CATEGORIES.length}) →
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                  {PRODUCT_CATEGORIES.filter(c => c.slug !== "todos").slice(0, 6).map((cat) => {
-                    const count = BASSFIT_PRODUCTS.filter(p => p.categorySlug === cat.slug).length;
-                    return (
-                      <button
-                        key={cat.slug}
-                        onClick={() => {
-                          setSelectedCategory(cat.slug);
-                          setActiveTab("shop");
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className="bg-white p-4 rounded-2xl border border-slate-200 hover:border-[#FF5500] hover:shadow-md transition text-center group cursor-pointer"
-                      >
-                        <div className="text-2xl mb-1.5">{cat.icon}</div>
-                        <div className="text-xs font-bold text-slate-800 group-hover:text-[#FF5500] transition line-clamp-1">
-                          {cat.label}
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5 font-medium">
-                          {count} productos
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
-
-            {/* BRAND VALUE PROMISES */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center space-x-3.5 shadow-2xs">
-                  <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#FF5500] flex items-center justify-center text-xl shrink-0 font-bold">
-                    🚚
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase text-slate-900">Envíos a todo el Perú</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Lima y provincias con tracking</p>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center space-x-3.5 shadow-2xs">
-                  <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center text-xl shrink-0 font-bold">
-                    💬
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase text-slate-900">Asesoría WhatsApp</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Atención directa: +51 967 581 481</p>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center space-x-3.5 shadow-2xs">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0 font-bold">
-                    🛡️
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase text-slate-900">Calidad Bassfit</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Implementos testeados para uso real</p>
-                  </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center space-x-3.5 shadow-2xs">
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0 font-bold">
-                    💳
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase text-slate-900">Pagos Confiables</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Yape, Plin, BCP, BBVA y efectivo</p>
+              <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-[#0F172A] rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden border border-slate-800 shadow-2xl">
+                <div className="relative z-10 max-w-2xl space-y-4">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#00C4D4] bg-cyan-500/20 px-3 py-1 rounded-full border border-cyan-500/40 inline-block">
+                    Orientación 1 a 1 Sin Compromiso
+                  </span>
+                  <h3 className="font-athletic text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight">
+                    ¿NO ESTÁS SEGURO DE POR DÓNDE EMPEZAR?
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    Escríbenos directamente por WhatsApp para una breve evaluación de 10 minutos con nuestro Head Coach. Analizaremos tu caso y te recomendaremos el plan o rutina exacta que necesitas.
+                  </p>
+                  <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <a
+                      href="https://wa.me/51967581481?text=Hola%20Head%20Coach%20Bassfit,%20deseo%20agendar%20una%20breve%20orientaci%C3%B3n%20gratuita%20sobre%20los%20planes%20de%20entrenamiento."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs sm:text-sm font-black uppercase tracking-wider px-6 sm:px-8 py-3.5 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition flex items-center space-x-2 cursor-pointer"
+                    >
+                      <span>💬 Hablar con el Head Coach por WhatsApp</span>
+                      <span>→</span>
+                    </a>
+                    <span className="text-[11px] text-slate-400">
+                      ⚡ Respuesta promedio: &lt; 15 minutos
+                    </span>
                   </div>
                 </div>
               </div>
             </section>
           </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* TAB 2: SHOP (Complete 33-product catalog with filters, slider & whatsapp)  */}
-        {/* ========================================================================= */}
-        {activeTab === "shop" && (
+        )}{activeTab === "shop" && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -805,8 +1355,8 @@ export default function BassfitClientApp() {
                 )}
               </div>
 
-              {/* Category Filter Pills */}
-              <div className="flex flex-wrap gap-2 pt-1">
+              {/* Category Filter Pills (Horizontal scroll on mobile) */}
+              <div className="flex overflow-x-auto sm:flex-wrap gap-2 pt-1 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar select-none">
                 {PRODUCT_CATEGORIES.map((cat) => (
                   <button
                     key={cat.slug}
@@ -823,8 +1373,77 @@ export default function BassfitClientApp() {
               </div>
             </div>
 
+                        {/* CATEGORY CROSS-SELLING / COMPLEMENTARY BLOCK */}
+            {selectedCategory !== "todos" && categoryRecommendations.length > 0 && (
+              <div className="bg-gradient-to-r from-orange-50/80 via-white to-orange-50/40 border border-orange-200/80 rounded-2xl p-4 sm:p-5 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base sm:text-lg">⚡</span>
+                    <div>
+                      <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-tight">
+                        Completa tu entrenamiento: {PRODUCT_CATEGORIES.find(c => c.slug === selectedCategory)?.label || ""}
+                      </h3>
+                      <p className="text-[11px] text-slate-500">
+                        Accesorios complementarios más recomendados para esta disciplina
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold text-[#FF5500] bg-orange-100/90 px-2.5 py-0.5 rounded-full self-start sm:self-auto uppercase tracking-wider">
+                    Recomendados BF
+                  </span>
+                </div>
+
+                <div className={`grid grid-cols-1 ${categoryRecommendations.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"} gap-3`}>
+                  {categoryRecommendations.map((rec) => (
+                    <div
+                      key={rec.id}
+                      onClick={() => openProductModal(rec)}
+                      className="bg-white border border-slate-200/90 hover:border-[#FF5500]/60 rounded-xl p-3 transition flex items-center space-x-3 group shadow-2xs hover:shadow-md cursor-pointer"
+                    >
+                      <div className="w-16 h-16 bg-white rounded-lg p-1 flex items-center justify-center shrink-0 border border-slate-100 overflow-hidden">
+                        <img
+                        loading="lazy"
+                        decoding="async"
+                          src={resolveImg(rec.images[0])}
+                          alt={rec.name}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            if (!target.src.endsWith("barras-8en1-multifuncional-1.jpg")) {
+                              target.src = "images/products/barras-8en1-multifuncional-1.jpg";
+                            }
+                          }}
+                          className="w-full h-full object-contain scale-105 group-hover:scale-115 transition duration-300"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#FF5500] transition truncate">
+                          {rec.name}
+                        </h4>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-xs font-black text-[#FF5500]">
+                            S/ {rec.price.toFixed(2)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddToCart(rec);
+                            }}
+                            className="bg-[#0F172A] hover:bg-[#FF5500] text-white text-[10px] font-bold px-2.5 py-1 rounded-md transition cursor-pointer"
+                            title="Añadir al carrito"
+                          >
+                            + Añadir
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Products Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
               {filteredProducts.map((product) => {
                 const cardIdx = cardActiveIndices[product.id] || 0;
                 const hasMulti = product.images && product.images.length > 1;
@@ -840,12 +1459,20 @@ export default function BassfitClientApp() {
                     {/* Image Area with Interactive Carousel Slider */}
                     <div
                       onClick={() => openProductModal(product)}
-                      className="cursor-pointer p-4 bg-white flex items-center justify-center h-52 relative overflow-hidden"
+                      className="cursor-pointer p-1.5 sm:p-2 bg-white flex items-center justify-center aspect-square w-full relative overflow-hidden"
                     >
                       <img
+                        loading="lazy"
+                        decoding="async"
                         src={resolveImg(activeImgSrc)}
                         alt={product.name}
-                        className="max-h-44 w-full object-contain group-hover:scale-105 transition duration-300"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (!target.src.endsWith("barras-8en1-multifuncional-1.jpg")) {
+                            target.src = "images/products/barras-8en1-multifuncional-1.jpg";
+                          }
+                        }}
+                        className="w-full h-full object-contain scale-105 group-hover:scale-115 transition duration-300"
                       />
                       <span className="absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10">
                         {product.categoryLabel}
@@ -911,7 +1538,7 @@ export default function BassfitClientApp() {
                     </div>
 
                     {/* Content Area */}
-                    <div className="p-5 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-3">
+                    <div className="p-3 sm:p-5 border-t border-slate-100 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3">
                       <div>
                         <h3
                           onClick={() => openProductModal(product)}
@@ -985,17 +1612,19 @@ export default function BassfitClientApp() {
                               <span>Añadir</span>
                             </button>
                           </div>
-                          <a
-                            href={buildWhatsAppProductUrl(product, activeCardVar)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 text-center cursor-pointer"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z" />
-                            </svg>
-                            <span>WhatsApp</span>
-                          </a>
+                          {product.saleMode === "consultative_whatsapp" && (
+                            <a
+                              href={buildWhatsAppProductUrl(product, activeCardVar)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 text-center cursor-pointer"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z" />
+                              </svg>
+                              <span>Consultar Asesor WhatsApp</span>
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1050,18 +1679,26 @@ export default function BassfitClientApp() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                       {prodsInCat.map((product) => (
                         <div
                           key={product.id}
                           onClick={() => openProductModal(product)}
                           className="bg-white rounded-2xl border border-slate-200 p-3 hover:shadow-lg transition cursor-pointer flex flex-col justify-between group"
                         >
-                          <div className="h-36 bg-white rounded-xl flex items-center justify-center p-2 overflow-hidden">
+                          <div className="aspect-square w-full bg-white rounded-xl flex items-center justify-center p-1.5 overflow-hidden">
                             <img
+                        loading="lazy"
+                        decoding="async"
                               src={resolveImg(product.images[0])}
                               alt={product.name}
-                              className="max-h-full max-w-full object-contain group-hover:scale-105 transition"
+                              onError={(e) => {
+                                const target = e.currentTarget;
+                                if (!target.src.endsWith("barras-8en1-multifuncional-1.jpg")) {
+                                  target.src = "images/products/barras-8en1-multifuncional-1.jpg";
+                                }
+                              }}
+                              className="w-full h-full object-contain scale-105 group-hover:scale-115 transition"
                             />
                           </div>
                           <div className="pt-2 space-y-1">
@@ -1157,71 +1794,446 @@ export default function BassfitClientApp() {
         )}
 
         {/* ========================================================================= */}
-        {/* TAB 5: VLOGS & WELLNESS TIPS (Videos and articles)                       */}
+        {/* TAB 5: VIDEOS & CONSEJOS DE BIENESTAR (Videos and articles)                       */}
         {/* ========================================================================= */}
         {activeTab === "vlogs" && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-10">
+            {/* Header with Title & Action Buttons */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-6">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
-                  Vlogs & Guías de Bienestar
+                <div className="flex items-center space-x-2">
+                  <span className="bg-[#FF5500] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    NOTICIAS & COMUNIDAD
+                  </span>
+                  <span className="text-xs text-slate-500 font-bold">Bassfit Perú Oficial</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight mt-1">
+                  Noticias & Agenda de Actividades
                 </h1>
-                <p className="text-xs text-slate-500 mt-1">
-                  Aprende la técnica correcta, rutinas funcionales y tips para potenciar tu salud física
+                <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
+                  Aprende la técnica correcta con nuestros tutoriales, mantente al día con lanzamientos y participa en nuestros eventos oficiales presenciales y virtuales.
                 </p>
               </div>
-              <button
-                onClick={() => setIsVideoModalOpen(true)}
-                className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-xs uppercase tracking-wider px-5 py-2.5 rounded-full shadow-sm transition flex items-center space-x-2 cursor-pointer"
-              >
-                <span>▶</span>
-                <span>Reproducir Video Destacado</span>
-              </button>
+
+              <div className="flex items-center space-x-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => handleOpenNewEventModal()}
+                  className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-xs transition flex items-center justify-center space-x-1.5 cursor-pointer flex-1 sm:flex-initial"
+                >
+                  <span>+</span>
+                  <span>Publicar Evento</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminTab("list");
+                    setIsAdminEventsOpen(true);
+                  }}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider px-3.5 py-2.5 rounded-xl transition flex items-center justify-center space-x-1.5 cursor-pointer"
+                  title="Administrar eventos y agenda"
+                >
+                  <span>⚙️</span>
+                  <span>Gestor</span>
+                </button>
+              </div>
             </div>
 
-            {/* Featured Video Card Big Banner */}
-            <div
-              onClick={() => setIsVideoModalOpen(true)}
-              className="bg-slate-900 rounded-3xl overflow-hidden shadow-xl group cursor-pointer relative"
-            >
-              <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
-                <div className="lg:col-span-7 h-64 sm:h-80 relative overflow-hidden">
-                  <img
-                    src="images/mockup_vlog_hd.jpg"
-                    alt="Fitness Training"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center shadow-2xl group-hover:scale-115 transition-transform">
-                      <span className="text-[#0F172A] text-2xl font-black pl-1">
-                        ▶
-                      </span>
+            {/* ============================================================= */}
+            {/* 1. PRIMERA SECCIÓN: TUTORIALES Y CONTENIDO EDUCATIVO           */}
+            {/* "Aprende con nosotros"                                        */}
+            {/* ============================================================= */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-2">
+                <div>
+                  <span className="text-[#FF5500] text-[10px] font-black uppercase tracking-wider block">
+                    🎬 Mini Videos, Guías & Biomecánica
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">
+                    Aprende con nosotros
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Aprende a ejecutar cada ejercicio de forma segura y maximiza tus resultados con implementos Bassfit.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsVideoModalOpen(true)}
+                  className="text-xs font-bold text-[#FF5500] hover:text-[#d04200] flex items-center space-x-1 cursor-pointer self-start sm:self-auto"
+                >
+                  <span>▶ Ver video general de técnica</span>
+                  <span>→</span>
+                </button>
+              </div>
+
+              {/* Grid / Horizontal Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {TUTORIALS_DATA.map((tut) => (
+                  <div
+                    key={tut.id}
+                    onClick={() => setSelectedTutorial(tut)}
+                    className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-orange-200 transition cursor-pointer flex flex-col justify-between group transform hover:-translate-y-0.5"
+                  >
+                    <div className="relative h-40 bg-slate-900 overflow-hidden">
+                      <img
+                        loading="lazy"
+                        decoding="async"
+                        src={resolveImg(tut.image)}
+                        alt={tut.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
+                      <div className="absolute top-2.5 left-2.5 flex items-center space-x-1.5">
+                        <span className="bg-[#FF5500] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          {tut.badge}
+                        </span>
+                        <span className="bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+                          ⏱ {tut.duration}
+                        </span>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-10 h-10 rounded-full bg-white/95 text-slate-900 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                          <span className="text-sm font-black pl-0.5">▶</span>
+                        </div>
+                      </div>
+                      <div className="absolute bottom-2 left-2.5 right-2.5">
+                        <span className="text-[10px] text-white/80 font-bold uppercase tracking-wider block">
+                          {tut.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-[#FF5500] transition line-clamp-2 leading-snug">
+                          {tut.title}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">
+                          {tut.description}
+                        </p>
+                      </div>
+                      <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span className="text-[10px] font-bold text-slate-600 truncate max-w-[130px]">
+                          👤 {tut.coachName}
+                        </span>
+                        <span className="text-[#FF5500] font-bold group-hover:translate-x-1 transition-transform">
+                          Ver guía →
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="lg:col-span-5 p-6 sm:p-10 space-y-4 text-white">
-                  <span className="bg-[#FF5500] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider inline-block">
-                    VLOG DESTACADO
-                  </span>
-                  <h3 className="text-2xl sm:text-3xl font-black uppercase leading-tight">
-                    FITNESS TRAINING · Técnicas de Fuerza & Movilidad
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                    Aprende la correcta ejecución biomecánica de tracciones, ejercicios de espalda, agarre con straps y respiración diafragmática para entrenar seguro y libre de lesiones.
+                ))}
+              </div>
+            </div>
+
+            {/* ============================================================= */}
+            {/* 2. SEGUNDA SECCIÓN: PRÓXIMOS EVENTOS Y ACTIVIDADES             */}
+            {/* Agenda Dinámica con Google Calendar y Gestor                   */}
+            {/* ============================================================= */}
+            <div className="space-y-6 pt-4 border-t border-slate-200">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      Agenda en Vivo ({filteredEvents.length} {filteredEvents.length === 1 ? "actividad" : "actividades"})
+                    </span>
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight mt-1">
+                    Próximos eventos y actividades
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-600 max-w-3xl mt-1">
+                    ¡Entérate de nuestras próximas actividades! Participa en clases online, encuentros presenciales, eventos deportivos, ferias y muchas experiencias más.
                   </p>
-                  <button className="bg-white text-slate-900 font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-full hover:bg-slate-100 transition flex items-center space-x-2">
-                    <span>Ver Tutorial Completo</span>
-                    <span>→</span>
+                </div>
+
+                <div className="flex items-center space-x-2 self-stretch sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenNewEventModal()}
+                    className="bg-[#0F172A] hover:bg-[#FF5500] text-white text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition flex items-center space-x-1.5 cursor-pointer shadow-xs flex-1 sm:flex-initial justify-center"
+                  >
+                    <span>+</span>
+                    <span>Publicar Evento</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAdminTab("list");
+                      setIsAdminEventsOpen(true);
+                    }}
+                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl transition flex items-center space-x-1 cursor-pointer"
+                    title="Panel de administración de eventos"
+                  >
+                    <span>⚙️</span>
+                    <span>Administrar Agenda</span>
                   </button>
                 </div>
               </div>
+
+              {/* Category & Modality Filters */}
+              <div className="space-y-2.5">
+                {/* Category Pills */}
+                <div className="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
+                  {[
+                    { id: "todos", label: "Todos los eventos", icon: "🗓️" },
+                    { id: "Clases online", label: "Clases online", icon: "💻" },
+                    { id: "Eventos presenciales", label: "Eventos presenciales", icon: "📍" },
+                    { id: "Stands y ferias", label: "Stands y ferias", icon: "🎪" },
+                    { id: "Entrenamientos especiales", label: "Entrenamientos especiales", icon: "🏋️‍♂️" },
+                    { id: "Otros eventos", label: "Otros eventos", icon: "⚡" }
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setEventCategoryFilter(cat.id)}
+                      className={`text-xs px-3.5 py-1.5 rounded-full font-bold transition whitespace-nowrap cursor-pointer flex items-center space-x-1.5 border ${
+                        eventCategoryFilter === cat.id
+                          ? "bg-[#FF5500] text-white border-[#FF5500] shadow-xs"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      <span>{cat.icon}</span>
+                      <span>{cat.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Modality toggle */}
+                <div className="flex items-center space-x-2 text-xs">
+                  <span className="text-slate-400 font-bold uppercase text-[10px]">Modalidad:</span>
+                  {(["todos", "Presencial", "Online"] as const).map((mod) => (
+                    <button
+                      key={mod}
+                      type="button"
+                      onClick={() => setEventModalityFilter(mod)}
+                      className={`px-2.5 py-0.5 rounded-md font-bold transition text-[11px] cursor-pointer ${
+                        eventModalityFilter === mod
+                          ? "bg-slate-900 text-white"
+                          : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                      }`}
+                    >
+                      {mod === "todos" ? "Todas" : mod === "Presencial" ? "📍 Presencial" : "💻 Online"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Events Cards Grid */}
+              {filteredEvents.length === 0 ? (
+                <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-10 text-center space-y-3">
+                  <div className="text-4xl">🗓️</div>
+                  <h3 className="text-base font-bold text-slate-800">
+                    No hay eventos programados en esta categoría
+                  </h3>
+                  <p className="text-xs text-slate-500 max-w-md mx-auto">
+                    Prueba cambiando los filtros seleccionados o publica una nueva actividad para la comunidad.
+                  </p>
+                  <div className="pt-2 flex justify-center space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEventCategoryFilter("todos");
+                        setEventModalityFilter("todos");
+                      }}
+                      className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
+                    >
+                      Mostrar todos
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenNewEventModal()}
+                      className="bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
+                    >
+                      + Publicar nuevo evento
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredEvents.map((evt) => {
+                    const isCancelled = evt.status === "cancelled";
+                    const isDraft = evt.status === "draft";
+                    const isCompleted = evt.status === "completed";
+
+                    // Badge category color scheme
+                    const categoryColors: Record<string, string> = {
+                      "Clases online": "bg-indigo-50 text-indigo-700 border-indigo-200",
+                      "Eventos presenciales": "bg-emerald-50 text-emerald-700 border-emerald-200",
+                      "Stands y ferias": "bg-amber-50 text-amber-800 border-amber-200",
+                      "Entrenamientos especiales": "bg-red-50 text-red-700 border-red-200",
+                      "Otros eventos": "bg-purple-50 text-purple-700 border-purple-200"
+                    };
+
+                    return (
+                      <div
+                        key={evt.id}
+                        className={`bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative ${
+                          isCancelled ? "opacity-75 grayscale-25" : ""
+                        }`}
+                      >
+                        {/* Event Image & Badges */}
+                        <div className="relative h-48 bg-slate-900 overflow-hidden">
+                          <img
+                        loading="lazy"
+                        decoding="async"
+                            src={resolveImg(evt.image)}
+                            alt={evt.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
+
+                          {/* Top Badges */}
+                          <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
+                            <div className="flex flex-wrap gap-1.5">
+                              <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider backdrop-blur-md shadow-xs ${
+                                evt.modality === "Online"
+                                  ? "bg-blue-600/90 text-white"
+                                  : "bg-[#FF5500]/95 text-white"
+                              }`}>
+                                {evt.modality === "Online" ? "💻 Online" : "📍 Presencial"}
+                              </span>
+                              {evt.featured && (
+                                <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-xs flex items-center space-x-1">
+                                  <span>⭐</span>
+                                  <span>Destacado</span>
+                                </span>
+                              )}
+                              {isCancelled && (
+                                <span className="bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                                  CANCELADO
+                                </span>
+                              )}
+                              {isDraft && (
+                                <span className="bg-slate-700 text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                                  BORRADOR
+                                </span>
+                              )}
+                              {isCompleted && (
+                                <span className="bg-slate-500 text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                                  FINALIZADO
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Quick Admin Edit Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenEditEventModal(evt);
+                              }}
+                              className="w-7 h-7 rounded-full bg-white/90 hover:bg-white text-slate-700 hover:text-[#FF5500] flex items-center justify-center text-xs shadow-md transition cursor-pointer"
+                              title="Editar este evento"
+                            >
+                              ✏️
+                            </button>
+                          </div>
+
+                          {/* Bottom Category pill on image */}
+                          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border bg-white/95 backdrop-blur-xs ${
+                              categoryColors[evt.category] || "text-slate-800"
+                            }`}>
+                              {evt.category}
+                            </span>
+                            <span className="text-[10px] font-bold text-white/90 bg-black/50 px-2 py-0.5 rounded-full">
+                              {evt.price || "Gratuito"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Event Content */}
+                        <div className="p-5 space-y-3.5 flex-1 flex flex-col justify-between">
+                          <div className="space-y-2.5">
+                            {/* Date and Time Header */}
+                            <div className="flex items-center space-x-2 text-xs font-bold text-[#FF5500]">
+                              <span>📅</span>
+                              <span>{evt.date}</span>
+                              <span className="text-slate-300">•</span>
+                              <span className="text-slate-500 font-semibold">{evt.time}</span>
+                            </div>
+
+                            {/* Title */}
+                            <h3 className="text-base font-black text-slate-900 group-hover:text-[#FF5500] transition line-clamp-2 leading-snug">
+                              {evt.title}
+                            </h3>
+
+                            {/* Location / Virtual badge */}
+                            <div className="flex items-start space-x-1.5 text-xs text-slate-600">
+                              <span className="shrink-0 text-slate-400 mt-0.5">
+                                {evt.isVirtual ? "🔗" : "📍"}
+                              </span>
+                              <span className="line-clamp-1">
+                                {evt.location}
+                              </span>
+                            </div>
+
+                            {/* Instructor / Coach */}
+                            {evt.instructor && (
+                              <p className="text-[11px] text-slate-500 font-medium">
+                                <span className="font-bold text-slate-700">A cargo:</span> {evt.instructor}
+                              </p>
+                            )}
+
+                            {/* Short Description */}
+                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                              {evt.description}
+                            </p>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="space-y-2 pt-2 border-t border-slate-100">
+                            <div className="flex items-center justify-between text-[11px] text-slate-500 pb-1">
+                              <span>👥 Cupos disponibles: <strong className="text-slate-800">{evt.spotsLeft ?? "Libre"}</strong></span>
+                              <span className="font-bold text-emerald-600">{evt.price || "Gratuito"}</span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedEvent(evt)}
+                                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 px-3 rounded-xl text-xs transition cursor-pointer text-center"
+                              >
+                                Ver detalles
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleAddToGoogleCalendar(evt)}
+                                className="w-full bg-[#0F172A] hover:bg-[#FF5500] text-white font-bold py-2.5 px-2 rounded-xl text-xs transition flex items-center justify-center space-x-1 cursor-pointer shadow-xs"
+                                title="Agregar a Google Calendar"
+                              >
+                                <span>📅</span>
+                                <span>+ Calendario</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-            {/* Evergreen Articles Grid */}
-            <div className="space-y-4 pt-4">
-              <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">
-                Artículos & Consejos de Entrenamiento
-              </h2>
+            {/* ============================================================= */}
+            {/* 3. TERCERA SECCIÓN: ARTÍCULOS & GUÍAS PERMANENTES             */}
+            {/* ============================================================= */}
+            <div className="space-y-4 pt-4 border-t border-slate-200">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-2">
+                <div>
+                  <span className="text-[#FF5500] text-[10px] font-black uppercase tracking-wider block">
+                    📖 Lecturas Esenciales
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">
+                    Artículos & Consejos de Entrenamiento
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Conceptos fundamentales sobre nutrición deportiva, descanso y biomecánica para elevar tu rendimiento.
+                  </p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {EVERGREEN_ARTICLES.map((art) => (
                   <div
@@ -1249,9 +2261,7 @@ export default function BassfitClientApp() {
               </div>
             </div>
           </div>
-        )}
-
-        {/* ========================================================================= */}
+        )}        {/* ========================================================================= */}
         {/* TAB 6: CONTACTO (WhatsApp, Location & Direct Customer Support)             */}
         {/* ========================================================================= */}
         {activeTab === "contacto" && (
@@ -1287,7 +2297,7 @@ export default function BassfitClientApp() {
                 </div>
 
                 <a
-                  href="https://wa.me/51967581481?text=Hola%20Bassfit%20Per%C3%BA%20%F0%9F%91%8B%2C%20deseo%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20productos%20y%20env%C3%ADos."
+                  href="https://api.whatsapp.com/send/?phone=51967581481&text=%C2%A1Hola%21%20%F0%9F%91%8B%20Estoy%20interesado%2Fa%20en%20conocer%20m%C3%A1s%20sobre%20sus%20productos.%20%C2%BFPodr%C3%ADan%20brindarme%20informaci%C3%B3n%20y%20asesorarme%3F%20%F0%9F%9B%8D%EF%B8%8F"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-4 rounded-2xl text-xs uppercase tracking-wider transition text-center shadow-lg cursor-pointer block"
@@ -1335,11 +2345,11 @@ export default function BassfitClientApp() {
       {/* ========================================================================= */}
       {selectedProduct && (
         <div
-          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center p-3 sm:p-6 items-start"
+          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center items-end sm:items-center p-0 sm:p-6"
           onClick={() => setSelectedProduct(null)}
         >
           <div
-            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl my-4 sm:my-8 relative"
+            className="bg-white rounded-t-3xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center border-b pb-4 mb-6 sticky -top-6 bg-white/95 backdrop-blur-md pt-2 z-10">
@@ -1362,8 +2372,16 @@ export default function BassfitClientApp() {
               <div className="space-y-3">
                 <div className="h-72 sm:h-84 bg-white rounded-2xl flex items-center justify-center p-4 relative border border-slate-100 overflow-hidden group">
                   <img
+                        loading="lazy"
+                        decoding="async"
                     src={resolveImg(selectedProduct.images[activeImgIdx % selectedProduct.images.length])}
                     alt={selectedProduct.name}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.endsWith("barras-8en1-multifuncional-1.jpg")) {
+                        target.src = "images/products/barras-8en1-multifuncional-1.jpg";
+                      }
+                    }}
                     className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                   {selectedProduct.images.length > 1 && (
@@ -1429,6 +2447,8 @@ export default function BassfitClientApp() {
                         title={`Ver foto ${idx + 1}`}
                       >
                         <img
+                        loading="lazy"
+                        decoding="async"
                           src={resolveImg(imgSrc)}
                           alt={`Miniatura ${idx + 1}`}
                           className="w-full h-full object-contain"
@@ -1550,16 +2570,88 @@ export default function BassfitClientApp() {
                     </svg>
                     <span>Añadir al Carrito</span>
                   </button>
-                  <a
-                    href={buildWhatsAppProductUrl(selectedProduct, selectedVariant)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-3.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 text-center cursor-pointer shadow-md"
-                  >
-                    <span>Pedir por WhatsApp</span>
-                    <span>→</span>
-                  </a>
+                  {selectedProduct && selectedProduct.saleMode === "consultative_whatsapp" && (
+                    <a
+                      href={buildWhatsAppProductUrl(selectedProduct, selectedVariant)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-3.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 text-center cursor-pointer shadow-md"
+                    >
+                      <span>Consultar Asesor por WhatsApp</span>
+                      <span>→</span>
+                    </a>
+                  )}
                 </div>
+
+                {/* ========================================================================= */}
+                {/* CROSS-SELLING: COMPLETA TU ENTRENAMIENTO                                 */}
+                {/* ========================================================================= */}
+                {recommendedProducts.length > 0 && (
+                  <div className="mt-6 pt-5 border-t border-slate-200/90 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-1.5">
+                          <span className="text-[#FF5500]">⚡</span> Completa tu entrenamiento
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          Implementos complementarios recomendados para potenciar tus resultados
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-bold bg-orange-100 text-[#FF5500] px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
+                        Cross-Selling
+                      </span>
+                    </div>
+
+                    <div className={`grid grid-cols-1 ${recommendedProducts.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"} gap-3`}>
+                      {recommendedProducts.map((rec) => (
+                        <div
+                          key={rec.id}
+                          className="bg-slate-50 hover:bg-white border border-slate-200/80 hover:border-[#FF5500]/60 rounded-2xl p-3 transition flex flex-col justify-between group shadow-2xs hover:shadow-md"
+                        >
+                          <div
+                            onClick={() => openProductModal(rec)}
+                            className="cursor-pointer space-y-2"
+                          >
+                            <div className="h-24 bg-white rounded-xl flex items-center justify-center p-1 overflow-hidden border border-slate-100">
+                              <img
+                        loading="lazy"
+                        decoding="async"
+                                src={resolveImg(rec.images[0])}
+                                alt={rec.name}
+                                className="w-full h-full object-contain scale-105 group-hover:scale-115 transition duration-300"
+                              />
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-bold text-[#FF5500] uppercase tracking-wider block">
+                                {rec.categoryLabel}
+                              </span>
+                              <h5 className="text-xs font-bold text-slate-900 line-clamp-2 group-hover:text-[#FF5500] transition leading-snug mt-0.5">
+                                {rec.name}
+                              </h5>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 mt-2 border-t border-slate-200/60 flex items-center justify-between">
+                            <span className="text-xs font-black text-[#0F172A]">
+                              S/ {rec.price.toFixed(2)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCart(rec);
+                              }}
+                              className="bg-[#0F172A] hover:bg-[#FF5500] text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg transition flex items-center space-x-1 cursor-pointer shadow-2xs"
+                              title="Añadir accesorio complementario al carrito"
+                            >
+                              <span>+ Añadir</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1567,7 +2659,7 @@ export default function BassfitClientApp() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL: FITNESS TRAINING VIDEO (From Vlogs & Wellness Tips)                */}
+      {/* MODAL: ENTRENAMIENTO FITNESS VIDEO (From Vlogs & Wellness Tips)                */}
       {/* ========================================================================= */}
       {isVideoModalOpen && (
         <div
@@ -1598,7 +2690,10 @@ export default function BassfitClientApp() {
               <div className="relative rounded-2xl overflow-hidden bg-black shadow-lg">
                 <img
                   src="images/mockup_vlog_hd.jpg"
-                  alt="Fitness Training Video Frame"
+                      fetchPriority="high"
+                      loading="eager"
+                      decoding="async"
+                  alt="Entrenamiento Fitness Video Frame"
                   className="w-full h-64 sm:h-72 object-cover opacity-90"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 flex flex-col justify-between p-5">
@@ -1625,7 +2720,7 @@ export default function BassfitClientApp() {
 
               <div className="space-y-2">
                 <h3 className="text-xl font-black text-slate-900 uppercase">
-                  FITNESS TRAINING · Remo con Mancuerna & Fuerza Posterior
+                  ENTRENAMIENTO FITNESS · Remo con Mancuerna & Fuerza Posterior
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   En esta cápsula guiada por el Head Coach de Bassfit aprenderás cómo fijar la cintura escapular, evitar tirones lumbares y activar al 100% el dorsal ancho utilizando implementos ergonómicos.
@@ -1734,6 +2829,182 @@ export default function BassfitClientApp() {
       )}
 
       {/* ========================================================================= */}
+      {/* DRAWER: MOBILE FULL NAVIGATION MENU                                      */}
+      {/* ========================================================================= */}
+      {/* REDESIGNED MODERN MOBILE SIDE DRAWER */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 flex justify-end">
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+
+            {/* Slide-out Drawer */}
+            <div className="relative w-[85%] max-w-xs bg-white h-full shadow-2xl flex flex-col justify-between z-10 overflow-y-auto">
+              <div className="p-5 space-y-5">
+                {/* Drawer Header */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center space-x-2">
+                    <img
+                      src="images/brand/logo_bassfit_peru.png"
+                      alt="Bassfit Perú"
+                      className="h-8 w-auto object-contain"
+                    />
+                    <span className="font-athletic font-black text-sm uppercase tracking-tight text-slate-900">
+                      BASSFIT <span className="text-[#FF5500]">PERÚ</span>
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                    aria-label="Cerrar menú"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Drawer Search Input */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Buscar en el catálogo..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (activeTab !== "shop") setActiveTab("shop");
+                    }}
+                    className="w-full bg-slate-50 text-xs text-slate-800 placeholder-slate-400 pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF5500] focus:outline-hidden"
+                  />
+                  <svg
+                    className="w-4 h-4 absolute right-3 top-3 text-slate-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+
+                {/* Navigation Links with Icons & Badges */}
+                <div className="space-y-1 text-xs font-bold uppercase tracking-wider">
+                  <button
+                    onClick={() => { setActiveTab("home"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
+                      activeTab === "home" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
+                    }`}
+                  >
+                    <span className="flex items-center space-x-2.5">
+                      <span className="text-base">🏠</span>
+                      <span>INICIO</span>
+                    </span>
+                    <span className="text-xs">→</span>
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab("shop"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
+                      activeTab === "shop" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
+                    }`}
+                  >
+                    <span className="flex items-center space-x-2.5">
+                      <span className="text-base">🛍️</span>
+                      <span>TIENDA OFICIAL</span>
+                    </span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                      activeTab === "shop" ? "bg-white text-[#FF5500]" : "bg-slate-100 text-slate-600"
+                    }`}>
+                      33
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab("categorias"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
+                      activeTab === "categorias" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
+                    }`}
+                  >
+                    <span className="flex items-center space-x-2.5">
+                      <span className="text-base">📂</span>
+                      <span>CATEGORÍAS</span>
+                    </span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                      activeTab === "categorias" ? "bg-white text-[#FF5500]" : "bg-slate-100 text-slate-600"
+                    }`}>
+                      8
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab("asesorias"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
+                      activeTab === "asesorias" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
+                    }`}
+                  >
+                    <span className="flex items-center space-x-2.5">
+                      <span className="text-base">⚡</span>
+                      <span>ASESORÍAS & PLANES</span>
+                    </span>
+                    <span className="text-xs">→</span>
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab("vlogs"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
+                      activeTab === "vlogs" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
+                    }`}
+                  >
+                    <span className="flex items-center space-x-2.5">
+                      <span className="text-base">📰</span>
+                      <span>NOTICIAS & EVENTOS</span>
+                    </span>
+                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
+                      activeTab === "vlogs" ? "bg-white text-[#FF5500]" : "bg-orange-100 text-[#FF5500]"
+                    }`}>
+                      NUEVO
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab("contacto"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
+                      activeTab === "contacto" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
+                    }`}
+                  >
+                    <span className="flex items-center space-x-2.5">
+                      <span className="text-base">📞</span>
+                      <span>CONTACTO OFICIAL</span>
+                    </span>
+                    <span className="text-xs">→</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Drawer Bottom: Direct WhatsApp Card */}
+              <div className="p-5 border-t border-slate-100 bg-slate-50 space-y-3">
+                <a
+                  href="https://wa.me/51967581481"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#25D366] hover:bg-[#20ba59] text-white p-3 rounded-2xl flex items-center space-x-3 shadow-md transition"
+                >
+                  <span className="text-xl">💬</span>
+                  <div>
+                    <h5 className="text-xs font-black uppercase">Asesoría por WhatsApp</h5>
+                    <p className="text-[10px] text-emerald-100">+51 967 581 481 · Respuesta rápida</p>
+                  </div>
+                </a>
+                <p className="text-[10px] text-slate-400 text-center">
+                  Envíos a todo el Perú · Lun a Sáb 8am - 9pm
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+      {/* ========================================================================= */}
       {/* DRAWER: SHOPPING CART                                                     */}
       {/* ========================================================================= */}
       {isCartOpen && (
@@ -1792,6 +3063,8 @@ export default function BassfitClientApp() {
                   >
                     <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-1 border border-slate-100 shrink-0">
                       <img
+                        loading="lazy"
+                        decoding="async"
                         src={resolveImg(item.variant ? item.product.images[item.variant.imageIndex] : item.product.images[0])}
                         alt={item.product.name}
                         className="max-h-full max-w-full object-contain"
@@ -1868,8 +3141,878 @@ export default function BassfitClientApp() {
         </div>
       )}
 
-      {/* FOOTER */}
-      <footer className="bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800">
+
+      {/* ========================================================================= */}
+      {/* MODAL: DETALLES DEL EVENTO COMUNITARIO                                    */}
+      {/* ========================================================================= */}
+      {selectedEvent && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center p-3 sm:p-6 items-center"
+          onClick={() => setSelectedEvent(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center border-b pb-4">
+              <div className="flex items-center space-x-2">
+                <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                  selectedEvent.modality === "Online"
+                    ? "bg-blue-600 text-white"
+                    : "bg-[#FF5500] text-white"
+                }`}>
+                  {selectedEvent.modality === "Online" ? "💻 Online" : "📍 Presencial"}
+                </span>
+                <span className="text-xs font-bold text-slate-600 uppercase">
+                  {selectedEvent.category}
+                </span>
+                {selectedEvent.featured && (
+                  <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    ⭐ Destacado
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedEvent(null)}
+                className="bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
+              >
+                ✕ Cerrar
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="relative h-48 rounded-2xl overflow-hidden bg-slate-900">
+                <img
+                        loading="lazy"
+                        decoding="async"
+                  src={resolveImg(selectedEvent.image)}
+                  alt={selectedEvent.title}
+                  className="w-full h-full object-cover opacity-90"
+                />
+                <div className="absolute bottom-2.5 left-2.5 bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                  🎟️ {selectedEvent.price || "Gratuito"} • 👥 Cupos: {selectedEvent.spotsLeft ?? "Libre"}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-slate-900 leading-tight">
+                  {selectedEvent.title}
+                </h3>
+                {selectedEvent.instructor && (
+                  <p className="text-xs text-[#FF5500] font-bold mt-1">
+                    👤 Instructor / Responsable: {selectedEvent.instructor}
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2.5 text-xs">
+                <div className="flex items-center space-x-2 text-slate-800">
+                  <span className="text-[#FF5500] font-bold">📆 Fecha:</span>
+                  <span className="font-semibold">{selectedEvent.date}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-slate-800">
+                  <span className="text-[#FF5500] font-bold">⏰ Horario:</span>
+                  <span>{selectedEvent.time}</span>
+                </div>
+                <div className="flex items-start justify-between gap-2 text-slate-800">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-[#FF5500] font-bold shrink-0">📍 Ubicación:</span>
+                    <span>{selectedEvent.location}</span>
+                  </div>
+                  {!selectedEvent.isVirtual && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedEvent.location)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 text-blue-600 hover:text-blue-800 font-bold underline text-[11px]"
+                    >
+                      Ver en Google Maps ↗
+                    </a>
+                  )}
+                </div>
+                {selectedEvent.isVirtual && selectedEvent.virtualLink && (
+                  <div className="flex items-center justify-between gap-2 text-slate-800 pt-2 border-t border-slate-200">
+                    <div className="flex items-center space-x-2 truncate">
+                      <span className="text-[#FF5500] font-bold">🔗 Enlace:</span>
+                      <span className="truncate text-slate-600 font-mono text-[11px]">{selectedEvent.virtualLink}</span>
+                    </div>
+                    <a
+                      href={selectedEvent.virtualLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 bg-blue-600 text-white px-2.5 py-1 rounded-lg font-bold text-[11px] hover:bg-blue-700 transition"
+                    >
+                      Unirme ↗
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  Descripción del evento:
+                </h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {selectedEvent.description}
+                </p>
+              </div>
+
+              {selectedEvent.requirements && selectedEvent.requirements.length > 0 && (
+                <div className="space-y-1.5">
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Requisitos & Qué llevar:
+                  </h4>
+                  <ul className="space-y-1 text-xs text-slate-600">
+                    {selectedEvent.requirements.map((req, i) => (
+                      <li key={i} className="flex items-start space-x-2">
+                        <span className="text-emerald-600 font-bold">✓</span>
+                        <span>{req}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Action Buttons in Modal */}
+              <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleAddToGoogleCalendar(selectedEvent)}
+                  className="w-full bg-[#0F172A] hover:bg-[#FF5500] text-white font-bold py-3 rounded-xl text-xs transition cursor-pointer flex items-center justify-center space-x-2 shadow-xs"
+                >
+                  <span>📅</span>
+                  <span>Agregar a Google Calendar</span>
+                </button>
+                <a
+                  href={`https://wa.me/51967581481?text=${encodeURIComponent(
+                    `Hola equipo Bassfit 👋, deseo confirmar mi asistencia / inscripción al evento: *${selectedEvent.title}* programado para el *${selectedEvent.date}* (${selectedEvent.time}). ¿Hay cupos disponibles?`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-3 rounded-xl text-xs transition flex items-center justify-center space-x-2 text-center cursor-pointer shadow-xs"
+                >
+                  <span>📲 Inscribirme por WhatsApp</span>
+                  <span>→</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: PANEL DE ADMINISTRACIÓN Y GESTIÓN DE EVENTOS (CMS)                  */}
+      {/* ========================================================================= */}
+      {isAdminEventsOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md overflow-y-auto flex justify-center p-3 sm:p-6 items-start"
+          onClick={() => setIsAdminEventsOpen(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-8 shadow-2xl relative space-y-6 my-auto max-h-[92vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-4 border-b border-slate-200 gap-3">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="bg-[#0F172A] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    PANEL DE CONTROL
+                  </span>
+                  <span className="text-xs text-emerald-600 font-bold">● Sincronizado en LocalStorage</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight mt-1">
+                  Gestor de Agenda & Eventos Bassfit
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAdminEventsOpen(false)}
+                className="self-end sm:self-auto bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3.5 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
+              >
+                ✕ Cerrar Panel
+              </button>
+            </div>
+
+            {/* Navigation Tabs inside Admin Modal */}
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2 gap-2 overflow-x-auto">
+              <div className="flex space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setAdminTab("form")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-1.5 ${
+                    adminTab === "form"
+                      ? "bg-[#FF5500] text-white shadow-xs"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  <span>📝</span>
+                  <span>{editingEventId ? "Editar Evento" : "Crear Nuevo Evento"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdminTab("list")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-1.5 ${
+                    adminTab === "list"
+                      ? "bg-[#FF5500] text-white shadow-xs"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  <span>📋</span>
+                  <span>Lista de Eventos ({eventsList.length})</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleResetDefaultEvents}
+                className="text-[11px] text-slate-500 hover:text-red-600 hover:underline font-bold transition cursor-pointer whitespace-nowrap"
+                title="Restaura los 5 eventos oficiales iniciales"
+              >
+                🔄 Restablecer valores por defecto
+              </button>
+            </div>
+
+            {/* TAB 1: FORM WITH LIVE PREVIEW */}
+            {adminTab === "form" && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Form fields (Left) */}
+                <form onSubmit={handleSaveEvent} className="lg:col-span-7 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                      {editingEventId ? "✏️ Modificar datos del evento" : "✨ Información del nuevo evento"}
+                    </h4>
+                    {editingEventId && (
+                      <button
+                        type="button"
+                        onClick={handleOpenNewEventModal}
+                        className="text-[11px] text-[#FF5500] hover:underline font-bold"
+                      >
+                        + Cambiar a nuevo evento
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Title */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      Título del Evento *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={eventFormData.title}
+                      onChange={(e) => setEventFormData({ ...eventFormData, title: e.target.value })}
+                      placeholder="Ej: Masterclass de Calistenia: Dominadas y Fondos"
+                      className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
+                    />
+                  </div>
+
+                  {/* Category and Modality */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Categoría *
+                      </label>
+                      <select
+                        value={eventFormData.category}
+                        onChange={(e) => setEventFormData({ ...eventFormData, category: e.target.value as any })}
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white"
+                      >
+                        <option value="Clases online">💻 Clases online</option>
+                        <option value="Eventos presenciales">📍 Eventos presenciales</option>
+                        <option value="Stands y ferias">🎪 Stands y ferias</option>
+                        <option value="Entrenamientos especiales">🏋️‍♂️ Entrenamientos especiales</option>
+                        <option value="Otros eventos">⚡ Otros eventos</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Modalidad *
+                      </label>
+                      <select
+                        value={eventFormData.modality}
+                        onChange={(e) => {
+                          const mod = e.target.value as "Presencial" | "Online";
+                          setEventFormData({
+                            ...eventFormData,
+                            modality: mod,
+                            isVirtual: mod === "Online",
+                            location: mod === "Online" ? "Google Meet / YouTube Live" : eventFormData.location
+                          });
+                        }}
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white"
+                      >
+                        <option value="Presencial">📍 Presencial</option>
+                        <option value="Online">💻 Online (Virtual)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Date and Time */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Fecha Visible *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={eventFormData.date}
+                        onChange={(e) => setEventFormData({ ...eventFormData, date: e.target.value })}
+                        placeholder="Ej: Sábado, 28 de Noviembre 2026"
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Horario *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={eventFormData.time}
+                        onChange={(e) => setEventFormData({ ...eventFormData, time: e.target.value })}
+                        placeholder="Ej: 09:00 AM - 11:30 AM"
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Location or Virtual Link */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      {eventFormData.modality === "Online" ? "Enlace Virtual (Google Meet / Zoom) *" : "Ubicación / Dirección Presencial *"}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={eventFormData.location}
+                      onChange={(e) => setEventFormData({
+                        ...eventFormData,
+                        location: e.target.value,
+                        virtualLink: eventFormData.modality === "Online" ? e.target.value : eventFormData.virtualLink
+                      })}
+                      placeholder={eventFormData.modality === "Online" ? "https://meet.google.com/..." : "Ej: Parque Miguel de Cervantes, San Isidro, Lima"}
+                      className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
+                    />
+                  </div>
+
+                  {/* Instructor / Responsible & Price */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Instructor / A cargo
+                      </label>
+                      <input
+                        type="text"
+                        value={eventFormData.instructor || ""}
+                        onChange={(e) => setEventFormData({ ...eventFormData, instructor: e.target.value })}
+                        placeholder="Ej: Coach Marco Antonio"
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Cupos Disponibles
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="500"
+                        value={eventFormData.spotsLeft ?? 20}
+                        onChange={(e) => setEventFormData({ ...eventFormData, spotsLeft: parseInt(e.target.value) || 0 })}
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Precio / Acceso
+                      </label>
+                      <input
+                        type="text"
+                        value={eventFormData.price || "Gratuito"}
+                        onChange={(e) => setEventFormData({ ...eventFormData, price: e.target.value })}
+                        placeholder="Ej: Gratuito / Ingreso Libre"
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Image Selector & Custom URL */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      Imagen de Portada
+                    </label>
+                    <select
+                      value={eventFormData.image}
+                      onChange={(e) => setEventFormData({ ...eventFormData, image: e.target.value })}
+                      className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white mb-2"
+                    >
+                      <option value="images/products/barras-8en1-multifuncional-1.jpg">Calistenia & Barras 8en1</option>
+                      <option value="images/products/foam-roller-1.jpg">Movilidad & Foam Roller</option>
+                      <option value="images/mockup_vlog_hd.jpg">Feria & Stand Oficial Bassfit</option>
+                      <option value="images/products/bandas-elasticas-abiertas-1.jpg">Bandas Elásticas & Entrenamiento Funcional</option>
+                      <option value="images/products/escalera-pliometrica-1.jpg">Escalera Pliométrica & Desafío</option>
+                      <option value="images/products/set-de-mancuernas-1.jpg">Fuerza & Mancuernas Cromadas</option>
+                      <option value="images/products/push-up-board-tablero-dinamico-para-flexiones-1.jpg">Core & Rueda Abdominal</option>
+                      <option value="images/products/colchoneta-de-ejercicios-1.jpg">Yoga & Colchoneta Alta Densidad</option>
+                    </select>
+                    <input
+                      type="text"
+                      value={eventFormData.image}
+                      onChange={(e) => setEventFormData({ ...eventFormData, image: e.target.value })}
+                      placeholder="O ingresa una URL personalizada de imagen..."
+                      className="w-full text-xs p-2 rounded-lg border border-slate-200 text-slate-600 focus:outline-none focus:border-[#FF5500]"
+                    />
+                  </div>
+
+                  {/* Requirements Manager */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      Requisitos & Qué llevar
+                    </label>
+                    <div className="flex space-x-2 mb-2">
+                      <input
+                        type="text"
+                        value={reqInput}
+                        onChange={(e) => setReqInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (reqInput.trim()) {
+                              setEventFormData({
+                                ...eventFormData,
+                                requirements: [...(eventFormData.requirements || []), reqInput.trim()]
+                              });
+                              setReqInput("");
+                            }
+                          }
+                        }}
+                        placeholder="Ej: Mat propio, botella de agua..."
+                        className="flex-1 text-xs p-2 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (reqInput.trim()) {
+                            setEventFormData({
+                              ...eventFormData,
+                              requirements: [...(eventFormData.requirements || []), reqInput.trim()]
+                            });
+                            setReqInput("");
+                          }
+                        }}
+                        className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-2 rounded-xl transition"
+                      >
+                        + Añadir
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      {(eventFormData.requirements || []).map((req, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-slate-100 border border-slate-200 text-slate-700 text-[11px] px-2.5 py-1 rounded-full flex items-center space-x-1.5"
+                        >
+                          <span>{req}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = [...(eventFormData.requirements || [])];
+                              updated.splice(idx, 1);
+                              setEventFormData({ ...eventFormData, requirements: updated });
+                            }}
+                            className="text-slate-400 hover:text-red-500 font-bold"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                      Descripción del Evento *
+                    </label>
+                    <textarea
+                      required
+                      rows={3}
+                      value={eventFormData.description}
+                      onChange={(e) => setEventFormData({ ...eventFormData, description: e.target.value })}
+                      placeholder="Describe los objetivos, la dinámica y el valor que aportará esta actividad..."
+                      className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] resize-none"
+                    />
+                  </div>
+
+                  {/* Status & Featured options */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                        Estado de Publicación
+                      </label>
+                      <select
+                        value={eventFormData.status || "published"}
+                        onChange={(e) => setEventFormData({ ...eventFormData, status: e.target.value as any })}
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white"
+                      >
+                        <option value="published">🟢 Publicado (Visible)</option>
+                        <option value="draft">🟡 Borrador (Oculto)</option>
+                        <option value="cancelled">🔴 Cancelado</option>
+                        <option value="completed">⚪ Finalizado</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center space-x-2 pt-6">
+                      <input
+                        type="checkbox"
+                        id="featuredEventCheck"
+                        checked={!!eventFormData.featured}
+                        onChange={(e) => setEventFormData({ ...eventFormData, featured: e.target.checked })}
+                        className="w-4 h-4 text-[#FF5500] rounded-sm focus:ring-[#FF5500]"
+                      />
+                      <label htmlFor="featuredEventCheck" className="text-xs font-bold text-slate-800 cursor-pointer">
+                        ⭐ Marcar como evento destacado
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-4 flex items-center justify-end space-x-3 border-t border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setIsAdminEventsOpen(false)}
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-black uppercase tracking-wider px-6 py-2.5 rounded-xl shadow-md transition cursor-pointer"
+                    >
+                      {editingEventId ? "Actualizar Evento" : "Guardar & Publicar Evento"}
+                    </button>
+                  </div>
+                </form>
+
+                {/* Live Real-Time Preview (Right) */}
+                <div className="lg:col-span-5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                      👁️ Vista previa en tiempo real
+                    </h4>
+                    <span className="text-[10px] text-slate-500 font-bold">Tarjeta de evento</span>
+                  </div>
+
+                  <div className="bg-slate-100 p-3 rounded-3xl border border-slate-200">
+                    <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-md flex flex-col justify-between">
+                      {/* Image */}
+                      <div className="relative h-44 bg-slate-900 overflow-hidden">
+                        <img
+                        loading="lazy"
+                        decoding="async"
+                          src={resolveImg(eventFormData.image || "images/products/barras-8en1-multifuncional-1.jpg")}
+                          alt={eventFormData.title || "Previa"}
+                          className="w-full h-full object-cover opacity-90"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
+                        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1">
+                          <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider text-white ${
+                            eventFormData.modality === "Online" ? "bg-blue-600" : "bg-[#FF5500]"
+                          }`}>
+                            {eventFormData.modality === "Online" ? "💻 Online" : "📍 Presencial"}
+                          </span>
+                          {eventFormData.featured && (
+                            <span className="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                              ⭐ Destacado
+                            </span>
+                          )}
+                          {eventFormData.status === "cancelled" && (
+                            <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase">
+                              CANCELADO
+                            </span>
+                          )}
+                        </div>
+                        <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between">
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-800">
+                            {eventFormData.category}
+                          </span>
+                          <span className="text-[9px] font-bold text-white bg-black/60 px-2 py-0.5 rounded-full">
+                            {eventFormData.price || "Gratuito"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-4 space-y-2">
+                        <div className="text-[11px] font-bold text-[#FF5500]">
+                          📅 {eventFormData.date || "Fecha no especificada"} • {eventFormData.time}
+                        </div>
+                        <h4 className="text-sm font-black text-slate-900 line-clamp-2 leading-snug">
+                          {eventFormData.title || "Título del evento en Bassfit"}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 line-clamp-1">
+                          📍 {eventFormData.location || "Ubicación en Lima / Online"}
+                        </p>
+                        {eventFormData.instructor && (
+                          <p className="text-[10px] text-slate-600">
+                            <strong>A cargo:</strong> {eventFormData.instructor}
+                          </p>
+                        )}
+                        <p className="text-[11px] text-slate-600 line-clamp-2">
+                          {eventFormData.description || "Breve descripción informativa del evento..."}
+                        </p>
+
+                        <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2">
+                          <div className="bg-slate-100 text-slate-700 text-center py-1.5 rounded-lg text-[10px] font-bold">
+                            Ver detalles
+                          </div>
+                          <div className="bg-[#0F172A] text-white text-center py-1.5 rounded-lg text-[10px] font-bold">
+                            📅 + Calendario
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: EVENTS LIST MANAGEMENT */}
+            {adminTab === "list" && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                    Lista completa de actividades programadas ({eventsList.length})
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={handleOpenNewEventModal}
+                    className="bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-black px-3.5 py-1.5 rounded-xl transition"
+                  >
+                    + Nuevo Evento
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {eventsList.map((evt) => (
+                    <div
+                      key={evt.id}
+                      className="bg-slate-50 border border-slate-200 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <img
+                        loading="lazy"
+                        decoding="async"
+                          src={resolveImg(evt.image)}
+                          alt={evt.title}
+                          className="w-14 h-14 rounded-xl object-cover shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <div className="flex items-center space-x-1.5">
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                              evt.modality === "Online" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"
+                            }`}>
+                              {evt.modality}
+                            </span>
+                            <span className="text-[9px] font-semibold text-slate-500">
+                              {evt.category}
+                            </span>
+                            {evt.featured && (
+                              <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-sm">
+                                ⭐ Destacado
+                              </span>
+                            )}
+                          </div>
+                          <h5 className="text-xs sm:text-sm font-black text-slate-900 truncate mt-0.5">
+                            {evt.title}
+                          </h5>
+                          <p className="text-[11px] text-slate-500 truncate">
+                            📅 {evt.date} ({evt.time}) • 📍 {evt.location}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 self-end sm:self-auto shrink-0">
+                        {/* Status badge */}
+                        <select
+                          value={evt.status || "published"}
+                          onChange={(e) => handleToggleEventStatus(evt.id, e.target.value as any)}
+                          className="text-[11px] font-bold p-1 rounded-lg border border-slate-300 bg-white"
+                        >
+                          <option value="published">🟢 Publicado</option>
+                          <option value="draft">🟡 Borrador</option>
+                          <option value="cancelled">🔴 Cancelado</option>
+                          <option value="completed">⚪ Finalizado</option>
+                        </select>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditEventModal(evt)}
+                          className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold"
+                          title="Editar"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDuplicateEvent(evt)}
+                          className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold"
+                          title="Duplicar"
+                        >
+                          📄
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteEvent(evt.id, evt.title)}
+                          className="p-1.5 rounded-lg bg-white border border-red-200 hover:bg-red-50 text-red-600 text-xs font-bold"
+                          title="Eliminar"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+{selectedTutorial && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md overflow-y-auto flex justify-center p-3 sm:p-6 items-center"
+          onClick={() => setSelectedTutorial(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center border-b pb-4">
+              <div className="flex items-center space-x-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#FF5500] animate-pulse"></span>
+                <span className="text-xs font-black text-[#FF5500] uppercase tracking-wider">
+                  TUTORIAL EXCLUSIVO BASSFIT
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedTutorial(null)}
+                className="bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
+              >
+                ✕ Cerrar
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="relative rounded-2xl overflow-hidden bg-black shadow-lg">
+                <img
+                        loading="lazy"
+                        decoding="async"
+                  src={resolveImg(selectedTutorial.image)}
+                  alt={selectedTutorial.title}
+                  className="w-full h-64 sm:h-72 object-cover opacity-90"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 flex flex-col justify-between p-5">
+                  <div className="flex justify-between items-center text-white text-xs font-bold">
+                    <span className="bg-[#FF5500] px-2.5 py-1 rounded-full uppercase tracking-wider text-[10px]">
+                      {selectedTutorial.badge}
+                    </span>
+                    <span>⏱ {selectedTutorial.duration}</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 rounded-full bg-white/95 text-[#0F172A] flex items-center justify-center mx-auto shadow-2xl hover:scale-110 transition cursor-pointer">
+                      <span className="text-2xl font-black pl-1">▶</span>
+                    </div>
+                    <span className="text-white text-xs font-bold block mt-2">
+                      Haz clic para iniciar la sesión guiada
+                    </span>
+                  </div>
+                  <div className="text-white/90 text-[11px] font-medium flex justify-between">
+                    <span>{selectedTutorial.category}</span>
+                    <span>1080p Full HD</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-xl font-black text-slate-900 uppercase">
+                  {selectedTutorial.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  {selectedTutorial.description}
+                </p>
+                <p className="text-xs text-[#FF5500] font-bold">
+                  {selectedTutorial.coachName} • {selectedTutorial.coachRole}
+                </p>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 text-xs">
+                <span className="font-bold text-slate-900 uppercase tracking-wider block">
+                  Puntos Clave del Entrenamiento:
+                </span>
+                <ul className="space-y-1.5 text-slate-600">
+                  {selectedTutorial.keySteps.map((step, i) => (
+                    <li key={i} className="flex items-start space-x-2">
+                      <span className="text-[#FF5500] font-bold">✓</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {selectedTutorial.relatedProductSlug && (() => {
+                const relProd = BASSFIT_PRODUCTS.find(p => p.slug === selectedTutorial.relatedProductSlug);
+                if (!relProd) return null;
+                return (
+                  <div className="bg-orange-50/70 border border-orange-200/80 rounded-2xl p-4 flex items-center justify-between gap-3">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        loading="lazy"
+                        decoding="async"
+                        src={resolveImg(relProd.images[0])}
+                        alt={relProd.name}
+                        className="w-14 h-14 object-contain rounded-xl bg-white p-1 border border-orange-100"
+                      />
+                      <div>
+                        <span className="text-[10px] font-bold text-[#FF5500] uppercase tracking-wider block">
+                          Implemento recomendado para este tutorial
+                        </span>
+                        <h4 className="text-xs font-bold text-slate-900 line-clamp-1">
+                          {relProd.name}
+                        </h4>
+                        <span className="text-xs font-black text-[#0F172A]">
+                          S/ {relProd.price.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedTutorial(null);
+                        openProductModal(relProd);
+                      }}
+                      className="bg-[#0F172A] hover:bg-[#FF5500] text-white text-xs font-bold px-3 py-2 rounded-xl transition cursor-pointer whitespace-nowrap shadow-xs"
+                    >
+                      Ver en tienda →
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+
+            {/* FOOTER */}
+      <footer className="bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 pb-20 sm:pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">
@@ -1891,11 +4034,11 @@ export default function BassfitClientApp() {
                 Navegación
               </h4>
               <ul className="space-y-1 text-slate-400 text-xs">
-                <li><button onClick={() => { setActiveTab("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Home</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Shop (33 productos)</button></li>
+                <li><button onClick={() => { setActiveTab("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Inicio</button></li>
+                <li><button onClick={() => { setActiveTab("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Tienda (33 productos)</button></li>
                 <li><button onClick={() => { setActiveTab("categorias"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Categorías</button></li>
                 <li><button onClick={() => { setActiveTab("asesorias"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Asesorías & Programas</button></li>
-                <li><button onClick={() => { setActiveTab("vlogs"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Vlogs & Tips</button></li>
+                <li><button onClick={() => { setActiveTab("vlogs"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Noticias & Eventos</button></li>
               </ul>
             </div>
 
@@ -1930,6 +4073,119 @@ export default function BassfitClientApp() {
           </div>
         </div>
       </footer>
+
+      {/* STICKY BOTTOM MOBILE NAVIGATION BAR (Instant 1-Tap Access) */}
+      <nav
+        aria-label="Navegación Móvil Rápida"
+        className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1 flex items-center justify-around select-none"
+      >
+        <button
+          onClick={() => {
+            setActiveTab("home");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
+            activeTab === "home" ? "text-[#FF5500] font-black" : "text-slate-500 font-medium hover:text-slate-800"
+          }`}
+        >
+          <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth={activeTab === "home" ? "2.5" : "2"} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          <span className="text-[10px]">Inicio</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab("shop");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
+            activeTab === "shop" ? "text-[#FF5500] font-black" : "text-slate-500 font-medium hover:text-slate-800"
+          }`}
+        >
+          <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth={activeTab === "shop" ? "2.5" : "2"} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <span className="text-[10px]">Tienda</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab("categorias");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
+            activeTab === "categorias" ? "text-[#FF5500] font-black" : "text-slate-500 font-medium hover:text-slate-800"
+          }`}
+        >
+          <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth={activeTab === "categorias" ? "2.5" : "2"} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span className="text-[10px]">Categorías</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab("vlogs");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
+            activeTab === "vlogs" ? "text-[#FF5500] font-black" : "text-slate-500 font-medium hover:text-slate-800"
+          }`}
+        >
+          <span className="absolute top-0.5 right-2 w-2 h-2 rounded-full bg-[#FF5500] animate-pulse"></span>
+          <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth={activeTab === "vlogs" ? "2.5" : "2"} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+          </svg>
+          <span className="text-[10px]">Noticias</span>
+        </button>
+
+        <button
+          onClick={() => setIsCartOpen(true)}
+          className="relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-500 font-medium hover:text-slate-800 transition"
+        >
+          {cartCount > 0 && (
+            <span className="absolute -top-1 right-2 bg-[#FF5500] text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+              {cartCount}
+            </span>
+          )}
+          <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span className="text-[10px]">Carrito</span>
+        </button>
+      </nav>
+
+      {/* FLOATING WHATSAPP BUTTON (Bottom-Right Direct Store Access) */}
+      <aside aria-label="Contacto directo por WhatsApp" className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40">
+        <a
+          href="https://api.whatsapp.com/send/?phone=51967581481&text=%C2%A1Hola%21%20%F0%9F%91%8B%20Estoy%20interesado%2Fa%20en%20conocer%20m%C3%A1s%20sobre%20sus%20productos.%20%C2%BFPodr%C3%ADan%20brindarme%20informaci%C3%B3n%20y%20asesorarme%3F%20%F0%9F%9B%8D%EF%B8%8F"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chatear con un asesor de Bassfit Perú por WhatsApp"
+          className="group flex items-center drop-shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
+        >
+          {/* Tooltip on hover (desktop) */}
+          <span className="hidden sm:inline-flex items-center space-x-1.5 mr-3 px-3.5 py-2 bg-slate-900/95 text-white text-xs font-bold rounded-2xl shadow-xl backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap border border-slate-700/80 -translate-x-1 group-hover:translate-x-0">
+            <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse"></span>
+            <span>¿En qué podemos ayudarte? <strong>¡Escríbenos!</strong></span>
+          </span>
+
+          {/* WhatsApp Icon Circle Button */}
+          <div className="relative w-14 h-14 sm:w-15 sm:h-15 rounded-full bg-[#25D366] hover:bg-[#20ba59] text-white flex items-center justify-center shadow-[0_6px_25px_rgba(37,211,102,0.45)] transition-all">
+            {/* Subtle pulse animation ring */}
+            <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-40 animate-ping pointer-events-none"></span>
+
+            {/* Official WhatsApp SVG Icon */}
+            <svg
+              className="w-8 h-8 sm:w-8.5 sm:h-8.5 fill-current relative z-10 drop-shadow-xs"
+              viewBox="0 0 24 24"
+            >
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+            </svg>
+          </div>
+        </a>
+      </aside>
     </div>
   );
 }

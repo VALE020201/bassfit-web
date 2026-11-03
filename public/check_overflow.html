@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <iframe id="testFrame" src="http://localhost:8090/test_mobile_opt.html" style="width:390px; height:844px; border:none;"></iframe>
+  <div id="res"></div>
+  <script>
+    window.addEventListener('message', () => {});
+    const frame = document.getElementById('testFrame');
+    frame.onload = () => {
+      try {
+        const doc = frame.contentDocument;
+        const docWidth = doc.documentElement.clientWidth;
+        const elements = doc.querySelectorAll('*');
+        const overflowing = [];
+        elements.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          if (rect.right > docWidth + 2) {
+            overflowing.push({
+              tag: el.tagName,
+              className: String(el.className).slice(0, 50),
+              right: Math.round(rect.right),
+              width: Math.round(rect.width),
+              text: (el.innerText || '').slice(0, 25).trim()
+            });
+          }
+        });
+        document.getElementById('res').textContent = JSON.stringify({ docWidth, count: overflowing.length, items: overflowing.slice(0, 10) }, null, 2);
+      } catch(e) {
+        document.getElementById('res').textContent = 'ERROR: ' + e.message;
+      }
+    };
+  </script>
+</body>
+</html>

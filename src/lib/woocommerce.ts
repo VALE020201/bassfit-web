@@ -86,7 +86,7 @@ export async function getHeadlessProducts(): Promise<BassfitProduct[]> {
         saleMode,
         shortDescription: (p.short_description || "").replace(/<[^>]+>/g, ""),
         technicalSpecs: ["Gestionado desde panel WooCommerce de Bassfit"],
-        images: p.images?.map((img: any) => img.src) || ["/images/products/kits-deportivos-1.jpg"],
+        images: p.images?.map((img: any) => img.src) || ["images/products/barras-8en1-multifuncional-1.jpg"],
         driveFolderId: "",
         featured: Boolean(p.featured),
         relatedArticleSlugs: p.bassfit_headless_meta?.related_article_ids || [],
