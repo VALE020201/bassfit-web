@@ -37,8 +37,7 @@ next-env.d.ts
 *.bak
 *.bak_*
 *.backup_old
-apply_*.py
-update_*.py
+*.py
 test_*.html
 temp_*.html
 

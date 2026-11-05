@@ -39,9 +39,9 @@ interface CartItem {
 type TabType = "home" | "shop" | "categorias" | "asesorias" | "vlogs" | "contacto";
 
 export default function BassfitClientApp() {
-  const [activeTab, setActiveTab] = useState<TabType>("home");
-  const [selectedCategory, setSelectedCategory] = useState<string>("todos");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<TabType>(() => { try { const p = typeof window !== "undefined" ? (new URLSearchParams(window.location.search).get("tab") || window.location.hash.replace("#", "")) : ""; if (["home", "shop", "asesorias", "vlogs", "contacto"].includes(p)) return p as TabType; } catch(e) {} return "home"; });
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => { try { const p = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("cat") : ""; if (p) return p; } catch(e) {} return "todos"; });
+  const [searchQuery, setSearchQuery] = useState<string>(() => { try { const p = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("q") : ""; if (p) return p; } catch(e) {} return ""; });
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<BassfitProduct | null>(null);
@@ -58,7 +58,18 @@ export default function BassfitClientApp() {
 
   // Noticias tab state & Dynamic Events Agenda
   const [selectedTutorial, setSelectedTutorial] = useState<TutorialItem | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<CommunityEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CommunityEvent | null>(() => {
+    try {
+      const p = new URLSearchParams(window.location.search).get("event");
+      if (p !== null) {
+        const idx = parseInt(p, 10);
+        if (!isNaN(idx) && COMMUNITY_EVENTS_DATA[idx]) return COMMUNITY_EVENTS_DATA[idx];
+        const found = COMMUNITY_EVENTS_DATA.find(e => e.id === p || e.title.toLowerCase().includes(p.toLowerCase().replace(/-/g, " ")));
+        if (found) return found;
+      }
+    } catch (e) {}
+    return null;
+  });
   const [newsCategoryFilter, setNewsCategoryFilter] = useState<string>("todos");
   const [eventCategoryFilter, setEventCategoryFilter] = useState<string>("todos");
   const [eventModalityFilter, setEventModalityFilter] = useState<string>("todos");
@@ -488,16 +499,6 @@ export default function BassfitClientApp() {
               TIENDA
             </button>
             <button
-              onClick={() => setActiveTab("categorias")}
-              className={`text-xs font-bold uppercase tracking-wider transition cursor-pointer py-1 border-b-2 ${
-                activeTab === "categorias"
-                  ? "border-[#FF5500] text-[#0F172A]"
-                  : "border-transparent text-slate-600 hover:text-[#0F172A]"
-              }`}
-            >
-              CATEGORÍAS
-            </button>
-            <button
               onClick={() => setActiveTab("asesorias")}
               className={`text-xs font-bold uppercase tracking-wider transition cursor-pointer py-1 border-b-2 ${
                 activeTab === "asesorias"
@@ -574,21 +575,45 @@ export default function BassfitClientApp() {
               )}
             </button>
 
-            {/* Mobile Hamburger Menu Toggle */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 cursor-pointer"
-              title="Abrir menú"
-              aria-label="Abrir menú"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+
           </div>
         </div>
 
-        </header>
+        {/* Mobile Dedicated Search Bar (Always visible on mobile, outside menus) */}
+        <div className="md:hidden max-w-7xl mx-auto px-3 pb-2.5 -mt-0.5">
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              placeholder="Buscar en Bassfit (pesas, bandas, yoga...)"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (activeTab !== "shop") setActiveTab("shop");
+              }}
+              className="w-full bg-slate-100 focus:bg-white text-xs text-slate-800 placeholder-slate-400 pl-9 pr-8 py-2 rounded-xl border border-slate-200 focus:border-[#FF5500] focus:ring-1 focus:ring-[#FF5500] focus:outline-hidden transition shadow-2xs"
+            />
+            <svg
+              className="w-4 h-4 absolute left-3 text-slate-400 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 p-1 text-slate-400 hover:text-slate-600 cursor-pointer text-xs font-bold"
+                title="Borrar búsqueda"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+
+      </header>
 
       {/* MAIN BODY CONTENT */}
       <main className="flex-1 w-full pb-16 sm:pb-8">
@@ -1309,8 +1334,9 @@ export default function BassfitClientApp() {
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
-                    Catálogo Oficial Bassfit Perú
+                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight flex flex-wrap items-center gap-2">
+                    <span>Tienda</span>
+                    <span className="text-xs font-bold bg-[#FF5500]/10 text-[#FF5500] border border-[#FF5500]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Bassfit Perú</span>
                   </h1>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Mostrando {filteredProducts.length} de {BASSFIT_PRODUCTS.length} productos verificados
@@ -1331,21 +1357,62 @@ export default function BassfitClientApp() {
                 )}
               </div>
 
-              {/* Category Filter Pills (Horizontal scroll on mobile) */}
-              <div className="flex overflow-x-auto sm:flex-wrap gap-2 pt-1 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar select-none">
-                {PRODUCT_CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.slug}
-                    onClick={() => setSelectedCategory(cat.slug)}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
-                      selectedCategory === cat.slug
-                        ? "bg-[#0F172A] text-white shadow-md shadow-slate-900/20 scale-102"
-                        : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80"
-                    }`}
-                  >
-                    <span>{cat.label}</span>
-                  </button>
-                ))}
+              {/* UNIFIED CATEGORY CARDS & FILTERS (Tienda + Categorías unidas) */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center space-x-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#FF5500]"></span>
+                    <span>Explora por Categorías</span>
+                  </span>
+                  {selectedCategory !== "todos" && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCategory("todos")}
+                      className="text-xs font-bold text-[#FF5500] hover:underline cursor-pointer"
+                    >
+                      Ver todos (36)
+                    </button>
+                  )}
+                </div>
+
+                {/* Visual Category Boxes with Corporate Orange Minimalist Icons */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-2 select-none">
+                  {[
+                    { slug: "todos", label: "Todos", icon: "🛒", count: BASSFIT_PRODUCTS.length },
+                    { slug: "entrenamiento-fuerza", label: "Fuerza", icon: "🏋️‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "entrenamiento-fuerza").length },
+                    { slug: "calistenia", label: "Calistenia", icon: "🤸‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "calistenia").length },
+                    { slug: "yoga-pilates", label: "Yoga & Pilates", icon: "🧘‍♀️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "yoga-pilates").length },
+                    { slug: "fajas-reductoras", label: "Fajas", icon: "⏳", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "fajas-reductoras").length },
+                    { slug: "natacion-acuaticos", label: "Natación", icon: "🏊‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "natacion-acuaticos").length },
+                    { slug: "boxeo-artes-marciales", label: "Boxeo", icon: "🥊", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "boxeo-artes-marciales").length },
+                    { slug: "electronicos", label: "Electrónicos", icon: "⚡", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "electronicos").length },
+                    { slug: "funcional-resistencia", label: "Funcional", icon: "🎯", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "funcional-resistencia").length },
+                  ].map((cat) => {
+                    const isSelected = selectedCategory === cat.slug;
+                    return (
+                      <button
+                        key={cat.slug}
+                        type="button"
+                        onClick={() => setSelectedCategory(cat.slug)}
+                        className={`p-2.5 sm:p-3 rounded-2xl border transition-all cursor-pointer flex flex-col items-center justify-center text-center ${
+                          isSelected
+                            ? "bg-[#0F172A] text-white border-[#0F172A] shadow-md shadow-slate-900/25 scale-102 ring-2 ring-orange-500/50"
+                            : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200/90 hover:border-orange-300 shadow-2xs"
+                        }`}
+                      >
+                        <span className="text-xl sm:text-2xl mb-1">{cat.icon}</span>
+                        <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-tight line-clamp-1">
+                          {cat.label}
+                        </span>
+                        <span className={`text-[9px] font-semibold mt-0.5 ${
+                          isSelected ? "text-orange-400 font-bold" : "text-slate-400"
+                        }`}>
+                          {cat.count} {cat.count === 1 ? "prod" : "prods"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -1612,95 +1679,6 @@ export default function BassfitClientApp() {
         )}
 
         {/* ========================================================================= */}
-        {/* TAB 3: CATEGORÍAS (Categorized view of all 33 products)                  */}
-        {/* ========================================================================= */}
-        {activeTab === "categorias" && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-10">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">
-                Categorías de Equipamiento Bassfit
-              </h1>
-              <p className="text-xs text-slate-500 mt-1">
-                Explora cada una de nuestras líneas especializadas para entrenamiento profesional
-              </p>
-            </div>
-
-            <div className="space-y-12">
-              {PRODUCT_CATEGORIES.filter(c => c.slug !== "todos").map((cat) => {
-                const prodsInCat = BASSFIT_PRODUCTS.filter(p => p.categorySlug === cat.slug);
-                if (prodsInCat.length === 0) return null;
-
-                return (
-                  <div key={cat.slug} className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                      <div className="flex items-center space-x-2.5">
-                        <span className="text-2xl">{cat.icon}</span>
-                        <div>
-                          <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">
-                            {cat.label}
-                          </h2>
-                          <p className="text-xs text-slate-400">
-                            {prodsInCat.length} productos disponibles
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setSelectedCategory(cat.slug);
-                          setActiveTab("shop");
-                        }}
-                        className="text-xs font-bold text-[#FF5500] hover:underline cursor-pointer"
-                      >
-                        Ver en tienda →
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                      {prodsInCat.map((product) => (
-                        <div
-                          key={product.id}
-                          onClick={() => openProductModal(product)}
-                          className="bg-white rounded-2xl border border-slate-200 p-3 hover:shadow-lg transition cursor-pointer flex flex-col justify-between group"
-                        >
-                          <div className="aspect-square w-full bg-white rounded-xl flex items-center justify-center p-1.5 overflow-hidden">
-                            <img
-                        loading="lazy"
-                        decoding="async"
-                              src={resolveImg(product.images[0])}
-                              alt={product.name}
-                              onError={(e) => {
-                                const target = e.currentTarget;
-                                if (!target.src.endsWith("barras-8en1-multifuncional-1.jpg")) {
-                                  target.src = "images/products/barras-8en1-multifuncional-1.jpg";
-                                }
-                              }}
-                              className="w-full h-full object-contain scale-105 group-hover:scale-115 transition"
-                            />
-                          </div>
-                          <div className="pt-2 space-y-1">
-                            <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#FF5500] transition line-clamp-1">
-                              {product.name}
-                            </h4>
-                            <div className="flex justify-between items-baseline">
-                              <span className="text-sm font-black text-[#FF5500]">
-                                S/ {product.price.toFixed(2)}
-                              </span>
-                              <span className="text-[10px] text-slate-400">
-                                Stock: {product.stock}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
         {/* TAB 4: ASESORÍAS (Training & Longevity Programs)                          */}
         {/* ========================================================================= */}
         {activeTab === "asesorias" && (
@@ -1779,40 +1757,19 @@ export default function BassfitClientApp() {
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="bg-[#FF5500] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    NOTICIAS & COMUNIDAD
+                    COMUNIDAD
                   </span>
                   <span className="text-xs text-slate-500 font-bold">Bassfit Perú Oficial</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight mt-1">
-                  Noticias & Agenda de Actividades
+                  Agenda de Actividades
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
                   Aprende la técnica correcta con nuestros tutoriales, mantente al día con lanzamientos y participa en nuestros eventos oficiales presenciales y virtuales.
                 </p>
               </div>
 
-              <div className="flex items-center space-x-2 w-full sm:w-auto">
-                <button
-                  type="button"
-                  onClick={() => handleOpenNewEventModal()}
-                  className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-xs transition flex items-center justify-center space-x-1.5 cursor-pointer flex-1 sm:flex-initial"
-                >
-                  <span>+</span>
-                  <span>Publicar Evento</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAdminTab("list");
-                    setIsAdminEventsOpen(true);
-                  }}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider px-3.5 py-2.5 rounded-xl transition flex items-center justify-center space-x-1.5 cursor-pointer"
-                  title="Administrar eventos y agenda"
-                >
-                  <span>⚙️</span>
-                  <span>Gestor</span>
-                </button>
-              </div>
+
             </div>
 
             {/* ============================================================= */}
@@ -1923,28 +1880,7 @@ export default function BassfitClientApp() {
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-2 self-stretch sm:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenNewEventModal()}
-                    className="bg-[#0F172A] hover:bg-[#FF5500] text-white text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition flex items-center space-x-1.5 cursor-pointer shadow-xs flex-1 sm:flex-initial justify-center"
-                  >
-                    <span>+</span>
-                    <span>Publicar Evento</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAdminTab("list");
-                      setIsAdminEventsOpen(true);
-                    }}
-                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl transition flex items-center space-x-1 cursor-pointer"
-                    title="Panel de administración de eventos"
-                  >
-                    <span>⚙️</span>
-                    <span>Administrar Agenda</span>
-                  </button>
-                </div>
+
               </div>
 
               {/* Category & Modality Filters */}
@@ -1975,24 +1911,7 @@ export default function BassfitClientApp() {
                   ))}
                 </div>
 
-                {/* Modality toggle */}
-                <div className="flex items-center space-x-2 text-xs">
-                  <span className="text-slate-400 font-bold uppercase text-[10px]">Modalidad:</span>
-                  {(["todos", "Presencial", "Online"] as const).map((mod) => (
-                    <button
-                      key={mod}
-                      type="button"
-                      onClick={() => setEventModalityFilter(mod)}
-                      className={`px-2.5 py-0.5 rounded-md font-bold transition text-[11px] cursor-pointer ${
-                        eventModalityFilter === mod
-                          ? "bg-slate-900 text-white"
-                          : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-                      }`}
-                    >
-                      {mod === "todos" ? "Todas" : mod === "Presencial" ? "📍 Presencial" : "💻 Online"}
-                    </button>
-                  ))}
-                </div>
+                
               </div>
 
               {/* Events Cards Grid */}
@@ -2016,13 +1935,7 @@ export default function BassfitClientApp() {
                     >
                       Mostrar todos
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenNewEventModal()}
-                      className="bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
-                    >
-                      + Publicar nuevo evento
-                    </button>
+
                   </div>
                 </div>
               ) : (
@@ -2092,18 +2005,7 @@ export default function BassfitClientApp() {
                               )}
                             </div>
 
-                            {/* Quick Admin Edit Button */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenEditEventModal(evt);
-                              }}
-                              className="w-7 h-7 rounded-full bg-white/90 hover:bg-white text-slate-700 hover:text-[#FF5500] flex items-center justify-center text-xs shadow-md transition cursor-pointer"
-                              title="Editar este evento"
-                            >
-                              ✏️
-                            </button>
+
                           </div>
 
                           {/* Bottom Category pill on image */}
@@ -2330,7 +2232,7 @@ export default function BassfitClientApp() {
           >
             <div className="flex justify-between items-center border-b pb-4 mb-6 sticky -top-6 bg-white/95 backdrop-blur-md pt-2 z-10">
               <span className="text-xs font-bold text-[#FF5500] uppercase tracking-wider">
-                {selectedProduct.categoryLabel} · SKU: {selectedProduct.sku}
+                {selectedProduct.categoryLabel}
               </span>
               <button
                 onClick={() => setSelectedProduct(null)}
@@ -2639,14 +2541,14 @@ export default function BassfitClientApp() {
       {/* ========================================================================= */}
       {isVideoModalOpen && (
         <div
-          className="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md overflow-y-auto flex justify-center p-3 sm:p-6 items-center"
+          className="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md overflow-y-auto flex justify-center items-start sm:items-center p-2.5 sm:p-6"
           onClick={() => setIsVideoModalOpen(false)}
         >
           <div
-            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative"
+            className="bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-8 shadow-2xl relative space-y-4 my-2 sm:my-auto max-h-[92vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center border-b pb-4 mb-4">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3 sticky -top-4 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-20">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#FF5500] animate-pulse"></span>
                 <span className="text-xs font-black text-[#FF5500] uppercase tracking-wider">
@@ -2655,20 +2557,22 @@ export default function BassfitClientApp() {
               </div>
               <button
                 onClick={() => setIsVideoModalOpen(false)}
-                className="bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
+                className="flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shrink-0"
               >
-                ✕ Cerrar
+                <span>Cerrar</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
             <div className="space-y-4">
-              {/* Video Player Frame */}
               <div className="relative rounded-2xl overflow-hidden bg-black shadow-lg">
                 <img
                   src="images/mockup_vlog_hd.jpg"
-                      fetchPriority="high"
-                      loading="eager"
-                      decoding="async"
+                  fetchPriority="high"
+                  loading="eager"
+                  decoding="async"
                   alt="Entrenamiento Fitness Video Frame"
                   className="w-full h-64 sm:h-72 object-cover opacity-90"
                 />
@@ -2703,7 +2607,6 @@ export default function BassfitClientApp() {
                 </p>
               </div>
 
-              {/* Key Takeaways */}
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 text-xs">
                 <span className="font-bold text-slate-900 uppercase tracking-wider block">
                   Puntos Clave del Entrenamiento:
@@ -2724,8 +2627,7 @@ export default function BassfitClientApp() {
                 </ul>
               </div>
 
-              {/* Consultation Button */}
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
                 <a
                   href="https://wa.me/51967581481?text=Hola%20Coach%20Bassfit%20%F0%9F%91%8B%2C%20vi%20el%20video%20Fitness%20Training%20en%20la%20web%20y%20deseo%20asesor%C3%ADa%20personalizada."
                   target="_blank"
@@ -2735,14 +2637,19 @@ export default function BassfitClientApp() {
                   <span>Consultar al Coach por WhatsApp</span>
                   <span>→</span>
                 </a>
+                <button
+                  type="button"
+                  onClick={() => setIsVideoModalOpen(false)}
+                  className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer text-center shadow-xs"
+                >
+                  ✕ Cerrar video
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL: EVERGREEN ARTICLE DETAIL                                           */}
       {/* ========================================================================= */}
       {selectedArticle && (
         <div
@@ -2808,177 +2715,6 @@ export default function BassfitClientApp() {
       {/* DRAWER: MOBILE FULL NAVIGATION MENU                                      */}
       {/* ========================================================================= */}
       {/* REDESIGNED MODERN MOBILE SIDE DRAWER */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex justify-end">
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-
-            {/* Slide-out Drawer */}
-            <div className="relative w-[85%] max-w-xs bg-white h-full shadow-2xl flex flex-col justify-between z-10 overflow-y-auto">
-              <div className="p-5 space-y-5">
-                {/* Drawer Header */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center space-x-2">
-                    <img
-                      src="images/brand/logo_bassfit_peru.png"
-                      alt="Bassfit Perú"
-                      className="h-8 w-auto object-contain"
-                    />
-                    <span className="font-athletic font-black text-sm uppercase tracking-tight text-slate-900">
-                      BASSFIT <span className="text-[#FF5500]">PERÚ</span>
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
-                    aria-label="Cerrar menú"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Drawer Search Input */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Buscar en el catálogo..."
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      if (activeTab !== "shop") setActiveTab("shop");
-                    }}
-                    className="w-full bg-slate-50 text-xs text-slate-800 placeholder-slate-400 pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF5500] focus:outline-hidden"
-                  />
-                  <svg
-                    className="w-4 h-4 absolute right-3 top-3 text-slate-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-
-                {/* Navigation Links with Icons & Badges */}
-                <div className="space-y-1 text-xs font-bold uppercase tracking-wider">
-                  <button
-                    onClick={() => { setActiveTab("home"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
-                      activeTab === "home" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
-                    }`}
-                  >
-                    <span className="flex items-center space-x-2.5">
-                      <span className="text-base">🏠</span>
-                      <span>INICIO</span>
-                    </span>
-                    <span className="text-xs">→</span>
-                  </button>
-
-                  <button
-                    onClick={() => { setActiveTab("shop"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
-                      activeTab === "shop" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
-                    }`}
-                  >
-                    <span className="flex items-center space-x-2.5">
-                      <span className="text-base">🛍️</span>
-                      <span>TIENDA OFICIAL</span>
-                    </span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
-                      activeTab === "shop" ? "bg-white text-[#FF5500]" : "bg-slate-100 text-slate-600"
-                    }`}>
-                      33
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => { setActiveTab("categorias"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
-                      activeTab === "categorias" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
-                    }`}
-                  >
-                    <span className="flex items-center space-x-2.5">
-                      <span className="text-base">📂</span>
-                      <span>CATEGORÍAS</span>
-                    </span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
-                      activeTab === "categorias" ? "bg-white text-[#FF5500]" : "bg-slate-100 text-slate-600"
-                    }`}>
-                      8
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => { setActiveTab("asesorias"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
-                      activeTab === "asesorias" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
-                    }`}
-                  >
-                    <span className="flex items-center space-x-2.5">
-                      <span className="text-base">⚡</span>
-                      <span>ASESORÍAS & PLANES</span>
-                    </span>
-                    <span className="text-xs">→</span>
-                  </button>
-
-                  <button
-                    onClick={() => { setActiveTab("vlogs"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
-                      activeTab === "vlogs" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
-                    }`}
-                  >
-                    <span className="flex items-center space-x-2.5">
-                      <span className="text-base">📰</span>
-                      <span>NOTICIAS & EVENTOS</span>
-                    </span>
-                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
-                      activeTab === "vlogs" ? "bg-white text-[#FF5500]" : "bg-orange-100 text-[#FF5500]"
-                    }`}>
-                      NUEVO
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => { setActiveTab("contacto"); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    className={`w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${
-                      activeTab === "contacto" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"
-                    }`}
-                  >
-                    <span className="flex items-center space-x-2.5">
-                      <span className="text-base">📞</span>
-                      <span>CONTACTO OFICIAL</span>
-                    </span>
-                    <span className="text-xs">→</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Drawer Bottom: Direct WhatsApp Card */}
-              <div className="p-5 border-t border-slate-100 bg-slate-50 space-y-3">
-                <a
-                  href="https://wa.me/51967581481"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-[#25D366] hover:bg-[#20ba59] text-white p-3 rounded-2xl flex items-center space-x-3 shadow-md transition"
-                >
-                  <span className="text-xl">💬</span>
-                  <div>
-                    <h5 className="text-xs font-black uppercase">Asesoría por WhatsApp</h5>
-                    <p className="text-[10px] text-emerald-100">+51 967 581 481 · Respuesta rápida</p>
-                  </div>
-                </a>
-                <p className="text-[10px] text-slate-400 text-center">
-                  Envíos a todo el Perú · Lun a Sáb 8am - 9pm
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
       {/* ========================================================================= */}
       {/* DRAWER: SHOPPING CART                                                     */}
@@ -3123,15 +2859,15 @@ export default function BassfitClientApp() {
       {/* ========================================================================= */}
       {selectedEvent && (
         <div
-          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center p-3 sm:p-6 items-center"
+          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center items-end sm:items-center p-0 sm:p-6"
           onClick={() => setSelectedEvent(null)}
         >
           <div
-            className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative space-y-5"
+            className="bg-white rounded-t-3xl sm:rounded-3xl max-w-xl w-full p-4 sm:p-8 shadow-2xl relative space-y-4 max-h-[92vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center border-b pb-4">
-              <div className="flex items-center space-x-2">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3 sticky -top-4 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-20">
+              <div className="flex items-center space-x-2 min-w-0 pr-2">
                 <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
                   selectedEvent.modality === "Online"
                     ? "bg-blue-600 text-white"
@@ -3151,17 +2887,20 @@ export default function BassfitClientApp() {
               <button
                 type="button"
                 onClick={() => setSelectedEvent(null)}
-                className="bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
+                className="flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shrink-0"
               >
-                ✕ Cerrar
+                <span>Cerrar</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
             <div className="space-y-4">
               <div className="relative h-48 rounded-2xl overflow-hidden bg-slate-900">
                 <img
-                        loading="lazy"
-                        decoding="async"
+                  loading="lazy"
+                  decoding="async"
                   src={resolveImg(selectedEvent.image)}
                   alt={selectedEvent.title}
                   className="w-full h-full object-cover opacity-90"
@@ -3272,606 +3011,30 @@ export default function BassfitClientApp() {
                   <span>→</span>
                 </a>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedEvent(null)}
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer text-center mt-2 shadow-xs"
+              >
+                ✕ Cerrar ventana
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL: PANEL DE ADMINISTRACIÓN Y GESTIÓN DE EVENTOS (CMS)                  */}
-      {/* ========================================================================= */}
-      {isAdminEventsOpen && (
+      {selectedTutorial && (
         <div
-          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md overflow-y-auto flex justify-center p-3 sm:p-6 items-start"
-          onClick={() => setIsAdminEventsOpen(false)}
-        >
-          <div
-            className="bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-8 shadow-2xl relative space-y-6 my-auto max-h-[92vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-4 border-b border-slate-200 gap-3">
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="bg-[#0F172A] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    PANEL DE CONTROL
-                  </span>
-                  <span className="text-xs text-emerald-600 font-bold">● Sincronizado en LocalStorage</span>
-                </div>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight mt-1">
-                  Gestor de Agenda & Eventos Bassfit
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAdminEventsOpen(false)}
-                className="self-end sm:self-auto bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3.5 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
-              >
-                ✕ Cerrar Panel
-              </button>
-            </div>
-
-            {/* Navigation Tabs inside Admin Modal */}
-            <div className="flex items-center justify-between border-b border-slate-200 pb-2 gap-2 overflow-x-auto">
-              <div className="flex space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setAdminTab("form")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-1.5 ${
-                    adminTab === "form"
-                      ? "bg-[#FF5500] text-white shadow-xs"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  <span>📝</span>
-                  <span>{editingEventId ? "Editar Evento" : "Crear Nuevo Evento"}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAdminTab("list")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-1.5 ${
-                    adminTab === "list"
-                      ? "bg-[#FF5500] text-white shadow-xs"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  <span>📋</span>
-                  <span>Lista de Eventos ({eventsList.length})</span>
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleResetDefaultEvents}
-                className="text-[11px] text-slate-500 hover:text-red-600 hover:underline font-bold transition cursor-pointer whitespace-nowrap"
-                title="Restaura los 5 eventos oficiales iniciales"
-              >
-                🔄 Restablecer valores por defecto
-              </button>
-            </div>
-
-            {/* TAB 1: FORM WITH LIVE PREVIEW */}
-            {adminTab === "form" && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Form fields (Left) */}
-                <form onSubmit={handleSaveEvent} className="lg:col-span-7 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
-                      {editingEventId ? "✏️ Modificar datos del evento" : "✨ Información del nuevo evento"}
-                    </h4>
-                    {editingEventId && (
-                      <button
-                        type="button"
-                        onClick={handleOpenNewEventModal}
-                        className="text-[11px] text-[#FF5500] hover:underline font-bold"
-                      >
-                        + Cambiar a nuevo evento
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Title */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                      Título del Evento *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={eventFormData.title}
-                      onChange={(e) => setEventFormData({ ...eventFormData, title: e.target.value })}
-                      placeholder="Ej: Masterclass de Calistenia: Dominadas y Fondos"
-                      className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-                    />
-                  </div>
-
-                  {/* Category and Modality */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                        Categoría *
-                      </label>
-                      <select
-                        value={eventFormData.category}
-                        onChange={(e) => setEventFormData({ ...eventFormData, category: e.target.value as any })}
-                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white"
-                      >
-                        <option value="Clases online">💻 Clases online</option>
-                        <option value="Eventos presenciales">📍 Eventos presenciales</option>
-                        <option value="Stands y ferias">🎪 Stands y ferias</option>
-                        <option value="Entrenamientos especiales">🏋️‍♂️ Entrenamientos especiales</option>
-                        <option value="Otros eventos">⚡ Otros eventos</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                        Modalidad *
-                      </label>
-                      <select
-                        value={eventFormData.modality}
-                        onChange={(e) => {
-                          const mod = e.target.value as "Presencial" | "Online";
-                          setEventFormData({
-                            ...eventFormData,
-                            modality: mod,
-                            isVirtual: mod === "Online",
-                            location: mod === "Online" ? "Google Meet / YouTube Live" : eventFormData.location
-                          });
-                        }}
-                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white"
-                      >
-                        <option value="Presencial">📍 Presencial</option>
-                        <option value="Online">💻 Online (Virtual)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Date and Time */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                        Fecha Visible *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={eventFormData.date}
-                        onChange={(e) => setEventFormData({ ...eventFormData, date: e.target.value })}
-                        placeholder="Ej: Sábado, 28 de Noviembre 2026"
-                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                        Horario *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={eventFormData.time}
-                        onChange={(e) => setEventFormData({ ...eventFormData, time: e.target.value })}
-                        placeholder="Ej: 09:00 AM - 11:30 AM"
-                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Location or Virtual Link */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                      {eventFormData.modality === "Online" ? "Enlace Virtual (Google Meet / Zoom) *" : "Ubicación / Dirección Presencial *"}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={eventFormData.location}
-                      onChange={(e) => setEventFormData({
-                        ...eventFormData,
-                        location: e.target.value,
-                        virtualLink: eventFormData.modality === "Online" ? e.target.value : eventFormData.virtualLink
-                      })}
-                      placeholder={eventFormData.modality === "Online" ? "https://meet.google.com/..." : "Ej: Parque Miguel de Cervantes, San Isidro, Lima"}
-                      className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-                    />
-                  </div>
-
-                  {/* Instructor / Responsible & Price */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                        Instructor / A cargo
-                      </label>
-                      <input
-                        type="text"
-                        value={eventFormData.instructor || ""}
-                        onChange={(e) => setEventFormData({ ...eventFormData, instructor: e.target.value })}
-                        placeholder="Ej: Coach Marco Antonio"
-                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                        Cupos Disponibles
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="500"
-                        value={eventFormData.spotsLeft ?? 20}
-                        onChange={(e) => setEventFormData({ ...eventFormData, spotsLeft: parseInt(e.target.value) || 0 })}
-                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                        Precio / Acceso
-                      </label>
-                      <input
-                        type="text"
-                        value={eventFormData.price || "Gratuito"}
-                        onChange={(e) => setEventFormData({ ...eventFormData, price: e.target.value })}
-                        placeholder="Ej: Gratuito / Ingreso Libre"
-                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Image Selector & Custom URL */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                      Imagen de Portada
-                    </label>
-                    <select
-                      value={eventFormData.image}
-                      onChange={(e) => setEventFormData({ ...eventFormData, image: e.target.value })}
-                      className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white mb-2"
-                    >
-                      <option value="images/products/barras-8en1-multifuncional-1.jpg">Calistenia & Barras 8en1</option>
-                      <option value="images/products/foam-roller-1.jpg">Movilidad & Foam Roller</option>
-                      <option value="images/mockup_vlog_hd.jpg">Feria & Stand Oficial Bassfit</option>
-                      <option value="images/products/bandas-elasticas-abiertas-1.jpg">Bandas Elásticas & Entrenamiento Funcional</option>
-                      <option value="images/products/escalera-pliometrica-1.jpg">Escalera Pliométrica & Desafío</option>
-                      <option value="images/products/set-de-mancuernas-1.jpg">Fuerza & Mancuernas Cromadas</option>
-                      <option value="images/products/push-up-board-tablero-dinamico-para-flexiones-1.jpg">Core & Rueda Abdominal</option>
-                      <option value="images/products/colchoneta-de-ejercicios-1.jpg">Yoga & Colchoneta Alta Densidad</option>
-                    </select>
-                    <input
-                      type="text"
-                      value={eventFormData.image}
-                      onChange={(e) => setEventFormData({ ...eventFormData, image: e.target.value })}
-                      placeholder="O ingresa una URL personalizada de imagen..."
-                      className="w-full text-xs p-2 rounded-lg border border-slate-200 text-slate-600 focus:outline-none focus:border-[#FF5500]"
-                    />
-                  </div>
-
-                  {/* Requirements Manager */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                      Requisitos & Qué llevar
-                    </label>
-                    <div className="flex space-x-2 mb-2">
-                      <input
-                        type="text"
-                        value={reqInput}
-                        onChange={(e) => setReqInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            if (reqInput.trim()) {
-                              setEventFormData({
-                                ...eventFormData,
-                                requirements: [...(eventFormData.requirements || []), reqInput.trim()]
-                              });
-                              setReqInput("");
-                            }
-                          }
-                        }}
-                        placeholder="Ej: Mat propio, botella de agua..."
-                        className="flex-1 text-xs p-2 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (reqInput.trim()) {
-                            setEventFormData({
-                              ...eventFormData,
-                              requirements: [...(eventFormData.requirements || []), reqInput.trim()]
-                            });
-                            setReqInput("");
-                          }
-                        }}
-                        className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-2 rounded-xl transition"
-                      >
-                        + Añadir
-                      </button>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5">
-                      {(eventFormData.requirements || []).map((req, idx) => (
-                        <span
-                          key={idx}
-                          className="bg-slate-100 border border-slate-200 text-slate-700 text-[11px] px-2.5 py-1 rounded-full flex items-center space-x-1.5"
-                        >
-                          <span>{req}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const updated = [...(eventFormData.requirements || [])];
-                              updated.splice(idx, 1);
-                              setEventFormData({ ...eventFormData, requirements: updated });
-                            }}
-                            className="text-slate-400 hover:text-red-500 font-bold"
-                          >
-                            ✕
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                      Descripción del Evento *
-                    </label>
-                    <textarea
-                      required
-                      rows={3}
-                      value={eventFormData.description}
-                      onChange={(e) => setEventFormData({ ...eventFormData, description: e.target.value })}
-                      placeholder="Describe los objetivos, la dinámica y el valor que aportará esta actividad..."
-                      className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] resize-none"
-                    />
-                  </div>
-
-                  {/* Status & Featured options */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                        Estado de Publicación
-                      </label>
-                      <select
-                        value={eventFormData.status || "published"}
-                        onChange={(e) => setEventFormData({ ...eventFormData, status: e.target.value as any })}
-                        className="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white"
-                      >
-                        <option value="published">🟢 Publicado (Visible)</option>
-                        <option value="draft">🟡 Borrador (Oculto)</option>
-                        <option value="cancelled">🔴 Cancelado</option>
-                        <option value="completed">⚪ Finalizado</option>
-                      </select>
-                    </div>
-
-                    <div className="flex items-center space-x-2 pt-6">
-                      <input
-                        type="checkbox"
-                        id="featuredEventCheck"
-                        checked={!!eventFormData.featured}
-                        onChange={(e) => setEventFormData({ ...eventFormData, featured: e.target.checked })}
-                        className="w-4 h-4 text-[#FF5500] rounded-sm focus:ring-[#FF5500]"
-                      />
-                      <label htmlFor="featuredEventCheck" className="text-xs font-bold text-slate-800 cursor-pointer">
-                        ⭐ Marcar como evento destacado
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="pt-4 flex items-center justify-end space-x-3 border-t border-slate-200">
-                    <button
-                      type="button"
-                      onClick={() => setIsAdminEventsOpen(false)}
-                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      className="bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-black uppercase tracking-wider px-6 py-2.5 rounded-xl shadow-md transition cursor-pointer"
-                    >
-                      {editingEventId ? "Actualizar Evento" : "Guardar & Publicar Evento"}
-                    </button>
-                  </div>
-                </form>
-
-                {/* Live Real-Time Preview (Right) */}
-                <div className="lg:col-span-5 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
-                      👁️ Vista previa en tiempo real
-                    </h4>
-                    <span className="text-[10px] text-slate-500 font-bold">Tarjeta de evento</span>
-                  </div>
-
-                  <div className="bg-slate-100 p-3 rounded-3xl border border-slate-200">
-                    <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-md flex flex-col justify-between">
-                      {/* Image */}
-                      <div className="relative h-44 bg-slate-900 overflow-hidden">
-                        <img
-                        loading="lazy"
-                        decoding="async"
-                          src={resolveImg(eventFormData.image || "images/products/barras-8en1-multifuncional-1.jpg")}
-                          alt={eventFormData.title || "Previa"}
-                          className="w-full h-full object-cover opacity-90"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
-                        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1">
-                          <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider text-white ${
-                            eventFormData.modality === "Online" ? "bg-blue-600" : "bg-[#FF5500]"
-                          }`}>
-                            {eventFormData.modality === "Online" ? "💻 Online" : "📍 Presencial"}
-                          </span>
-                          {eventFormData.featured && (
-                            <span className="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">
-                              ⭐ Destacado
-                            </span>
-                          )}
-                          {eventFormData.status === "cancelled" && (
-                            <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase">
-                              CANCELADO
-                            </span>
-                          )}
-                        </div>
-                        <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between">
-                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-800">
-                            {eventFormData.category}
-                          </span>
-                          <span className="text-[9px] font-bold text-white bg-black/60 px-2 py-0.5 rounded-full">
-                            {eventFormData.price || "Gratuito"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-4 space-y-2">
-                        <div className="text-[11px] font-bold text-[#FF5500]">
-                          📅 {eventFormData.date || "Fecha no especificada"} • {eventFormData.time}
-                        </div>
-                        <h4 className="text-sm font-black text-slate-900 line-clamp-2 leading-snug">
-                          {eventFormData.title || "Título del evento en Bassfit"}
-                        </h4>
-                        <p className="text-[11px] text-slate-500 line-clamp-1">
-                          📍 {eventFormData.location || "Ubicación en Lima / Online"}
-                        </p>
-                        {eventFormData.instructor && (
-                          <p className="text-[10px] text-slate-600">
-                            <strong>A cargo:</strong> {eventFormData.instructor}
-                          </p>
-                        )}
-                        <p className="text-[11px] text-slate-600 line-clamp-2">
-                          {eventFormData.description || "Breve descripción informativa del evento..."}
-                        </p>
-
-                        <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2">
-                          <div className="bg-slate-100 text-slate-700 text-center py-1.5 rounded-lg text-[10px] font-bold">
-                            Ver detalles
-                          </div>
-                          <div className="bg-[#0F172A] text-white text-center py-1.5 rounded-lg text-[10px] font-bold">
-                            📅 + Calendario
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 2: EVENTS LIST MANAGEMENT */}
-            {adminTab === "list" && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
-                    Lista completa de actividades programadas ({eventsList.length})
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={handleOpenNewEventModal}
-                    className="bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-black px-3.5 py-1.5 rounded-xl transition"
-                  >
-                    + Nuevo Evento
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {eventsList.map((evt) => (
-                    <div
-                      key={evt.id}
-                      className="bg-slate-50 border border-slate-200 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center space-x-3 min-w-0">
-                        <img
-                        loading="lazy"
-                        decoding="async"
-                          src={resolveImg(evt.image)}
-                          alt={evt.title}
-                          className="w-14 h-14 rounded-xl object-cover shrink-0"
-                        />
-                        <div className="min-w-0">
-                          <div className="flex items-center space-x-1.5">
-                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                              evt.modality === "Online" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"
-                            }`}>
-                              {evt.modality}
-                            </span>
-                            <span className="text-[9px] font-semibold text-slate-500">
-                              {evt.category}
-                            </span>
-                            {evt.featured && (
-                              <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-sm">
-                                ⭐ Destacado
-                              </span>
-                            )}
-                          </div>
-                          <h5 className="text-xs sm:text-sm font-black text-slate-900 truncate mt-0.5">
-                            {evt.title}
-                          </h5>
-                          <p className="text-[11px] text-slate-500 truncate">
-                            📅 {evt.date} ({evt.time}) • 📍 {evt.location}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-2 self-end sm:self-auto shrink-0">
-                        {/* Status badge */}
-                        <select
-                          value={evt.status || "published"}
-                          onChange={(e) => handleToggleEventStatus(evt.id, e.target.value as any)}
-                          className="text-[11px] font-bold p-1 rounded-lg border border-slate-300 bg-white"
-                        >
-                          <option value="published">🟢 Publicado</option>
-                          <option value="draft">🟡 Borrador</option>
-                          <option value="cancelled">🔴 Cancelado</option>
-                          <option value="completed">⚪ Finalizado</option>
-                        </select>
-
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditEventModal(evt)}
-                          className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold"
-                          title="Editar"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDuplicateEvent(evt)}
-                          className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold"
-                          title="Duplicar"
-                        >
-                          📄
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteEvent(evt.id, evt.title)}
-                          className="p-1.5 rounded-lg bg-white border border-red-200 hover:bg-red-50 text-red-600 text-xs font-bold"
-                          title="Eliminar"
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-{selectedTutorial && (
-        <div
-          className="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md overflow-y-auto flex justify-center p-3 sm:p-6 items-center"
+          className="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md overflow-y-auto flex justify-center items-start sm:items-center p-2.5 sm:p-6"
           onClick={() => setSelectedTutorial(null)}
         >
           <div
-            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative space-y-5"
+            className="bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-8 shadow-2xl relative space-y-4 my-2 sm:my-auto max-h-[92vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center border-b pb-4">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3 sticky -top-4 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-20">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#FF5500] animate-pulse"></span>
                 <span className="text-xs font-black text-[#FF5500] uppercase tracking-wider">
@@ -3880,17 +3043,20 @@ export default function BassfitClientApp() {
               </div>
               <button
                 onClick={() => setSelectedTutorial(null)}
-                className="bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
+                className="flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shrink-0"
               >
-                ✕ Cerrar
+                <span>Cerrar</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
             <div className="space-y-4">
               <div className="relative rounded-2xl overflow-hidden bg-black shadow-lg">
                 <img
-                        loading="lazy"
-                        decoding="async"
+                  loading="lazy"
+                  decoding="async"
                   src={resolveImg(selectedTutorial.image)}
                   alt={selectedTutorial.title}
                   className="w-full h-64 sm:h-72 object-cover opacity-90"
@@ -3981,13 +3147,19 @@ export default function BassfitClientApp() {
                   </div>
                 );
               })()}
+
+              <button
+                type="button"
+                onClick={() => setSelectedTutorial(null)}
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer text-center mt-2 shadow-xs"
+              >
+                ✕ Cerrar tutorial
+              </button>
             </div>
           </div>
         </div>
       )}
 
-
-            {/* FOOTER */}
       <footer className="bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 pb-20 sm:pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -4012,22 +3184,22 @@ export default function BassfitClientApp() {
               <ul className="space-y-1 text-slate-400 text-xs">
                 <li><button onClick={() => { setActiveTab("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Inicio</button></li>
                 <li><button onClick={() => { setActiveTab("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Tienda (33 productos)</button></li>
-                <li><button onClick={() => { setActiveTab("categorias"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Categorías</button></li>
-                <li><button onClick={() => { setActiveTab("asesorias"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Asesorías & Programas</button></li>
-                <li><button onClick={() => { setActiveTab("vlogs"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Noticias & Eventos</button></li>
+                <li><button onClick={() => { setActiveTab("asesorias"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Asesorías & Planes</button></li>
+                <li><button onClick={() => { setActiveTab("vlogs"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Noticias & Vlogs</button></li>
+                <li><button onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Contacto Oficial</button></li>
               </ul>
             </div>
 
             <div className="space-y-2">
               <h4 className="font-bold text-white uppercase tracking-wider text-[11px]">
-                Categorías Populares
+                Categorías Principales
               </h4>
               <ul className="space-y-1 text-slate-400 text-xs">
-                <li>Calistenia & Barras Multifunción</li>
-                <li>Fuerza, Mancuernas & Pesas</li>
-                <li>Fajas Reductoras & Gel Lipo Cream</li>
-                <li>Yoga, Pilates & Colchonetas</li>
-                <li>Natación & Deportes Acuáticos</li>
+                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("fuerza"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Barras y Mancuernas</button></li>
+                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("pesas-rusas"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Pesas Rusas (Kettlebells)</button></li>
+                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("cardio"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Cardio y Cuerdas</button></li>
+                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("funcional"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Bandas y Funcional</button></li>
+                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("proteccion"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Pisos y Protección</button></li>
               </ul>
             </div>
 
@@ -4045,12 +3217,12 @@ export default function BassfitClientApp() {
 
           <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-500 gap-2">
             <span>© 2026 BASSFIT PERÚ · Todos los derechos reservados.</span>
-            <span>Diseñado para alto rendimiento deportivo</span>
+            <span>Desarrollado por <a href="#" className="text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer" id="daf-developer-credit" href="https://www.dafsoluciones.site/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer" title="Daf soluciones tecnológicas">Daf soluciones tecnológicas</a></span>
           </div>
         </div>
       </footer>
 
-      {/* STICKY BOTTOM MOBILE NAVIGATION BAR (Instant 1-Tap Access) */}
+      {/* MOBILE QUICK BOTTOM NAVIGATION BAR */}
       <nav
         aria-label="Navegación Móvil Rápida"
         className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1 flex items-center justify-around select-none"
@@ -4087,17 +3259,17 @@ export default function BassfitClientApp() {
 
         <button
           onClick={() => {
-            setActiveTab("categorias");
+            setActiveTab("asesorias");
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
-            activeTab === "categorias" ? "text-[#FF5500] font-black" : "text-slate-500 font-medium hover:text-slate-800"
+            activeTab === "asesorias" ? "text-[#FF5500] font-black" : "text-slate-500 font-medium hover:text-slate-800"
           }`}
         >
-          <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth={activeTab === "categorias" ? "2.5" : "2"} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" strokeWidth={activeTab === "asesorias" ? "2.5" : "2"} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
-          <span className="text-[10px]">Categorías</span>
+          <span className="text-[10px]">Asesorías</span>
         </button>
 
         <button

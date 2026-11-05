@@ -1717,9 +1717,9 @@ function buildGoogleCalendarUrl(event) {
 }
 
 function App() {
-  const [activeTab, setActiveTab] = useState("home");
-  const [selectedCategory, setSelectedCategory] = useState("todos");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState(() => { try { const p = new URLSearchParams(window.location.search).get("tab") || window.location.hash.replace("#", ""); if (["home", "shop", "asesorias", "vlogs", "contacto"].includes(p)) return p; } catch(e) {} return "home"; });
+  const [selectedCategory, setSelectedCategory] = useState(() => { try { const p = new URLSearchParams(window.location.search).get("cat"); if (p) return p; } catch(e) {} return "todos"; });
+  const [searchQuery, setSearchQuery] = useState(() => { try { const p = new URLSearchParams(window.location.search).get("q"); if (p) return p; } catch(e) {} return ""; });
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -1736,7 +1736,7 @@ function App() {
 
   // Noticias tab state & Dynamic Events Agenda
   const [selectedTutorial, setSelectedTutorial] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(() => { try { const p = new URLSearchParams(window.location.search).get("event"); if (p !== null) { const idx = parseInt(p, 10); if (!isNaN(idx) && COMMUNITY_EVENTS_DATA[idx]) return COMMUNITY_EVENTS_DATA[idx]; const found = COMMUNITY_EVENTS_DATA.find(e => e.id === p || e.title.toLowerCase().includes(p.toLowerCase().replace(/-/g, " "))); if (found) return found; } } catch(e) {} return null; });
   const [newsCategoryFilter, setNewsCategoryFilter] = useState("todos");
   const [eventCategoryFilter, setEventCategoryFilter] = useState("todos");
   const [eventModalityFilter, setEventModalityFilter] = useState("todos");
@@ -2116,9 +2116,6 @@ function App() {
     onClick: () => setActiveTab("shop"),
     className: `text-xs font-bold uppercase tracking-wider transition cursor-pointer py-1 border-b-2 ${activeTab === "shop" ? "border-[#FF5500] text-[#0F172A]" : "border-transparent text-slate-600 hover:text-[#0F172A]"}`
   }, "TIENDA"), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setActiveTab("categorias"),
-    className: `text-xs font-bold uppercase tracking-wider transition cursor-pointer py-1 border-b-2 ${activeTab === "categorias" ? "border-[#FF5500] text-[#0F172A]" : "border-transparent text-slate-600 hover:text-[#0F172A]"}`
-  }, "CATEGORÍAS"), /*#__PURE__*/React.createElement("button", {
     onClick: () => setActiveTab("asesorias"),
     className: `text-xs font-bold uppercase tracking-wider transition cursor-pointer py-1 border-b-2 ${activeTab === "asesorias" ? "border-[#FF5500] text-[#0F172A]" : "border-transparent text-slate-600 hover:text-[#0F172A]"}`
   }, "ASESORÍAS"), /*#__PURE__*/React.createElement("button", {
@@ -2170,13 +2167,21 @@ function App() {
     className: "bg-white text-[#FF5500] text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center"
   }, cartCount) : /*#__PURE__*/React.createElement("span", {
     className: "bg-[#0F172A] text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center"
-  }, "0")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setIsMobileMenuOpen(!isMobileMenuOpen),
-    className: "lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 cursor-pointer",
-    title: "Abrir menú",
-    "aria-label": "Abrir menú"
-  }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-5 h-5",
+  }, "0")))), /*#__PURE__*/React.createElement("div", {
+    className: "md:hidden max-w-7xl mx-auto px-3 pb-2.5 -mt-0.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative flex items-center"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    placeholder: "Buscar en Bassfit (pesas, bandas, yoga...)",
+    value: searchQuery,
+    onChange: e => {
+      setSearchQuery(e.target.value);
+      if (activeTab !== "shop") setActiveTab("shop");
+    },
+    className: "w-full bg-slate-100 focus:bg-white text-xs text-slate-800 placeholder-slate-400 pl-9 pr-8 py-2 rounded-xl border border-slate-200 focus:border-[#FF5500] focus:ring-1 focus:ring-[#FF5500] focus:outline-hidden transition shadow-2xs"
+  }), /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4 absolute left-3 text-slate-400 pointer-events-none",
     fill: "none",
     stroke: "currentColor",
     viewBox: "0 0 24 24"
@@ -2184,8 +2189,13 @@ function App() {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     strokeWidth: "2.5",
-    d: "M4 6h16M4 12h16M4 18h16"
-  })))))), /*#__PURE__*/React.createElement("main", {
+    d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+  })), searchQuery ? /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setSearchQuery(""),
+    className: "absolute right-2.5 p-1 text-slate-400 hover:text-slate-600 cursor-pointer text-xs font-bold",
+    title: "Borrar búsqueda"
+  }, "✕") : null))), /*#__PURE__*/React.createElement("main", {
     className: "flex-1 w-full pb-16 sm:pb-8"
   }, activeTab === "home" && /*#__PURE__*/React.createElement("div", {
   className: "space-y-12 sm:space-y-16 pb-16"
@@ -2690,11 +2700,9 @@ function App() {
     });
   },
   className: "group relative inline-flex items-center justify-center space-x-3 bg-gradient-to-r from-[#FF5500] via-[#FF6600] to-[#FF7A00] hover:from-[#e04a00] hover:to-[#ea580c] text-white font-black text-sm sm:text-base uppercase tracking-wider px-8 sm:px-12 py-4 rounded-full shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
-}, /*#__PURE__*/React.createElement("span", null, "Explorar todo el catálogo de implementos (", BASSFIT_PRODUCTS.length, ")"), /*#__PURE__*/React.createElement("span", {
+}, /*#__PURE__*/React.createElement("span", null, "Ver catálogo completo"), /*#__PURE__*/React.createElement("span", {
   className: "w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-1"
-}, "→")), /*#__PURE__*/React.createElement("p", {
-  className: "text-[11px] sm:text-xs text-slate-400 font-medium flex items-center justify-center space-x-2"
-}, /*#__PURE__*/React.createElement("span", null, "⚡ Stock disponible"), /*#__PURE__*/React.createElement("span", null, "•"), /*#__PURE__*/React.createElement("span", null, "🚚 Envíos a todo el Perú"), /*#__PURE__*/React.createElement("span", null, "•"), /*#__PURE__*/React.createElement("span", null, "💬 Asesoría directa WhatsApp")))), /*#__PURE__*/React.createElement("section", {
+}, "→")))), /*#__PURE__*/React.createElement("section", {
   className: "max-w-7xl mx-auto px-4 sm:px-6"
 }, /*#__PURE__*/React.createElement("div", {
   className: "bg-gradient-to-br from-slate-950 via-slate-900 to-[#0F172A] rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden border border-slate-800 shadow-2xl"
@@ -2707,23 +2715,23 @@ function App() {
 }, "¿NO ESTÁS SEGURO DE POR DÓNDE EMPEZAR?"), /*#__PURE__*/React.createElement("p", {
   className: "text-xs sm:text-sm text-slate-300 leading-relaxed"
 }, "Escríbenos directamente por WhatsApp para una breve evaluación de 10 minutos con nuestro Head Coach. Analizaremos tu caso y te recomendaremos el plan o rutina exacta que necesitas."), /*#__PURE__*/React.createElement("div", {
-  className: "pt-2 flex flex-col sm:flex-row items-start sm:items-center gap-3"
+  className: "pt-2"
 }, /*#__PURE__*/React.createElement("a", {
   href: "https://wa.me/51967581481?text=Hola%20Head%20Coach%20Bassfit,%20deseo%20agendar%20una%20breve%20orientaci%C3%B3n%20gratuita%20sobre%20los%20planes%20de%20entrenamiento.",
   target: "_blank",
   rel: "noopener noreferrer",
-  className: "bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs sm:text-sm font-black uppercase tracking-wider px-6 sm:px-8 py-3.5 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition flex items-center space-x-2 cursor-pointer"
-}, /*#__PURE__*/React.createElement("span", null, "💬 Hablar con el Head Coach por WhatsApp"), /*#__PURE__*/React.createElement("span", null, "→")), /*#__PURE__*/React.createElement("span", {
-  className: "text-[11px] text-slate-400"
-}, "⚡ Respuesta promedio: < 15 minutos")))))), activeTab === "shop" && /*#__PURE__*/React.createElement("div", {
+  className: "inline-flex bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs sm:text-sm font-black uppercase tracking-wider px-6 sm:px-8 py-3.5 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition items-center space-x-2 cursor-pointer"
+}, /*#__PURE__*/React.createElement("span", null, "Escribir por WhatsApp"), /*#__PURE__*/React.createElement("span", null, "→"))))))), activeTab === "shop" && /*#__PURE__*/React.createElement("div", {
     className: "max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8"
   }, /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
-    className: "text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight"
-  }, "Catálogo Oficial Bassfit Perú"), /*#__PURE__*/React.createElement("p", {
+    className: "text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight flex flex-wrap items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", null, "Tienda"), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold bg-[#FF5500]/10 text-[#FF5500] border border-[#FF5500]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider"
+  }, "Bassfit Perú")), /*#__PURE__*/React.createElement("p", {
     className: "text-xs text-slate-500 mt-0.5"
   }, "Mostrando ", filteredProducts.length, " de ", BASSFIT_PRODUCTS.length, " productos verificados")), (selectedCategory !== "todos" || searchQuery !== "") && /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -2732,12 +2740,44 @@ function App() {
     },
     className: "text-xs font-bold text-[#FF5500] hover:underline cursor-pointer"
   }, "Restablecer filtros ✕")), /*#__PURE__*/React.createElement("div", {
-    className: "flex overflow-x-auto sm:flex-wrap gap-2 pt-1 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar select-none"
-  }, PRODUCT_CATEGORIES.map(cat => /*#__PURE__*/React.createElement("button", {
-    key: cat.slug,
-    onClick: () => setSelectedCategory(cat.slug),
-    className: `px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${selectedCategory === cat.slug ? "bg-[#0F172A] text-white shadow-md shadow-slate-900/20 scale-102" : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80"}`
-  }, /*#__PURE__*/React.createElement("span", null, cat.label))))), selectedCategory !== "todos" && categoryRecommendations.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-black uppercase tracking-wider text-slate-500 flex items-center space-x-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-2 h-2 rounded-full bg-[#FF5500]"
+  }), /*#__PURE__*/React.createElement("span", null, "Explora por Categorías")), selectedCategory !== "todos" && /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setSelectedCategory("todos"),
+    className: "text-xs font-bold text-[#FF5500] hover:underline cursor-pointer"
+  }, "Ver todos (", BASSFIT_PRODUCTS.length, ")")), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-2 select-none"
+  }, [
+    { slug: "todos", label: "Todos", icon: "🛒", count: BASSFIT_PRODUCTS.length },
+    { slug: "entrenamiento-fuerza", label: "Fuerza", icon: "🏋️‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "entrenamiento-fuerza").length },
+    { slug: "calistenia", label: "Calistenia", icon: "🤸‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "calistenia").length },
+    { slug: "yoga-pilates", label: "Yoga & Pilates", icon: "🧘‍♀️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "yoga-pilates").length },
+    { slug: "fajas-reductoras", label: "Fajas", icon: "⏳", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "fajas-reductoras").length },
+    { slug: "natacion-acuaticos", label: "Natación", icon: "🏊‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "natacion-acuaticos").length },
+    { slug: "boxeo-artes-marciales", label: "Boxeo", icon: "🥊", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "boxeo-artes-marciales").length },
+    { slug: "electronicos", label: "Electrónicos", icon: "⚡", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "electronicos").length },
+    { slug: "funcional-resistencia", label: "Funcional", icon: "🎯", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "funcional-resistencia").length }
+  ].map(cat => {
+    const isSelected = selectedCategory === cat.slug;
+    return /*#__PURE__*/React.createElement("button", {
+      key: cat.slug,
+      type: "button",
+      onClick: () => setSelectedCategory(cat.slug),
+      className: `p-2.5 sm:p-3 rounded-2xl border transition-all cursor-pointer flex flex-col items-center justify-center text-center ${isSelected ? "bg-[#0F172A] text-white border-[#0F172A] shadow-md shadow-slate-900/25 scale-102 ring-2 ring-orange-500/50" : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200/90 hover:border-orange-300 shadow-2xs"}`
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-xl sm:text-2xl mb-1"
+    }, cat.icon), /*#__PURE__*/React.createElement("span", {
+      className: "text-[10px] sm:text-[11px] font-black uppercase tracking-tight line-clamp-1"
+    }, cat.label), /*#__PURE__*/React.createElement("span", {
+      className: `text-[9px] font-semibold mt-0.5 ${isSelected ? "text-orange-400 font-bold" : "text-slate-400"}`
+    }, cat.count, " ", cat.count === 1 ? "prod" : "prods"));
+  })))), selectedCategory !== "todos" && categoryRecommendations.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "bg-gradient-to-r from-orange-50/80 via-white to-orange-50/40 border border-orange-200/80 rounded-2xl p-4 sm:p-5 space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col sm:flex-row sm:items-center justify-between gap-1"
@@ -2913,61 +2953,6 @@ function App() {
     }, /*#__PURE__*/React.createElement("path", {
       d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z"
     })), /*#__PURE__*/React.createElement("span", null, "Consultar Asesor WhatsApp"))))));
-  }))), activeTab === "categorias" && /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-10"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
-    className: "text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight"
-  }, "Categorías de Equipamiento Bassfit"), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-slate-500 mt-1"
-  }, "Explora cada una de nuestras líneas especializadas para entrenamiento profesional")), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-12"
-  }, PRODUCT_CATEGORIES.filter(c => c.slug !== "todos").map(cat => {
-    const prodsInCat = BASSFIT_PRODUCTS.filter(p => p.categorySlug === cat.slug);
-    if (prodsInCat.length === 0) return null;
-    return /*#__PURE__*/React.createElement("div", {
-      key: cat.slug,
-      className: "space-y-4"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center justify-between border-b border-slate-200 pb-3"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex items-center space-x-2.5"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "text-2xl"
-    }, cat.icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
-      className: "text-lg font-black text-slate-900 uppercase tracking-tight"
-    }, cat.label), /*#__PURE__*/React.createElement("p", {
-      className: "text-xs text-slate-400"
-    }, prodsInCat.length, " productos disponibles"))), /*#__PURE__*/React.createElement("button", {
-      onClick: () => {
-        setSelectedCategory(cat.slug);
-        setActiveTab("shop");
-      },
-      className: "text-xs font-bold text-[#FF5500] hover:underline cursor-pointer"
-    }, "Ver en tienda →")), /*#__PURE__*/React.createElement("div", {
-      className: "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
-    }, prodsInCat.map(product => /*#__PURE__*/React.createElement("div", {
-      key: product.id,
-      onClick: () => openProductModal(product),
-      className: "bg-white rounded-2xl border border-slate-200 p-3 hover:shadow-lg transition cursor-pointer flex flex-col justify-between group"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "aspect-square w-full bg-white rounded-xl flex items-center justify-center p-1.5 overflow-hidden"
-    }, /*#__PURE__*/React.createElement("img", {
-  loading: "lazy",
-  decoding: "async",
-      src: resolveImg(product.images[0]),
-      alt: product.name,
-      className: "w-full h-full object-contain scale-105 group-hover:scale-115 transition"
-    })), /*#__PURE__*/React.createElement("div", {
-      className: "pt-2 space-y-1"
-    }, /*#__PURE__*/React.createElement("h4", {
-      className: "text-xs font-bold text-slate-900 group-hover:text-[#FF5500] transition line-clamp-1"
-    }, product.name), /*#__PURE__*/React.createElement("div", {
-      className: "flex justify-between items-baseline"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "text-sm font-black text-[#FF5500]"
-    }, "S/ ", product.price.toFixed(2)), /*#__PURE__*/React.createElement("span", {
-      className: "text-[10px] text-slate-400"
-    }, "Stock: ", product.stock)))))));
   }))), activeTab === "asesorias" && /*#__PURE__*/React.createElement("div", {
     className: "max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8"
   }, /*#__PURE__*/React.createElement("div", {
@@ -3021,27 +3006,13 @@ function App() {
     className: "flex items-center space-x-2"
   }, /*#__PURE__*/React.createElement("span", {
     className: "bg-[#FF5500] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider"
-  }, "NOTICIAS & COMUNIDAD"), /*#__PURE__*/React.createElement("span", {
+  }, "COMUNIDAD"), /*#__PURE__*/React.createElement("span", {
     className: "text-xs text-slate-500 font-bold"
   }, "Bassfit Perú Oficial")), /*#__PURE__*/React.createElement("h1", {
     className: "text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight mt-1"
-  }, "Noticias & Agenda de Actividades"), /*#__PURE__*/React.createElement("p", {
+  }, "Agenda de Actividades"), /*#__PURE__*/React.createElement("p", {
     className: "text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl"
-  }, "Aprende la técnica correcta con nuestros tutoriales, mantente al día con lanzamientos y participa en nuestros eventos oficiales presenciales y virtuales.")), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2 w-full sm:w-auto"
-  }, /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => handleOpenNewEventModal(),
-    className: "bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl shadow-xs transition flex items-center justify-center space-x-1.5 cursor-pointer flex-1 sm:flex-initial"
-  }, /*#__PURE__*/React.createElement("span", null, "+"), /*#__PURE__*/React.createElement("span", null, "Publicar Evento")), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => {
-      setAdminTab("list");
-      setIsAdminEventsOpen(true);
-    },
-    className: "bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider px-3.5 py-2.5 rounded-xl transition flex items-center justify-center space-x-1.5 cursor-pointer",
-    title: "Administrar eventos y agenda"
-  }, /*#__PURE__*/React.createElement("span", null, "⚙️"), /*#__PURE__*/React.createElement("span", null, "Gestor")))), /*#__PURE__*/React.createElement("div", {
+  }, "Aprende la técnica correcta con nuestros tutoriales, mantente al día con lanzamientos y participa en nuestros eventos oficiales presenciales y virtuales."))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col sm:flex-row justify-between sm:items-end gap-2"
@@ -3113,21 +3084,7 @@ function App() {
     className: "text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight mt-1"
   }, "Próximos eventos y actividades"), /*#__PURE__*/React.createElement("p", {
     className: "text-xs sm:text-sm text-slate-600 max-w-3xl mt-1"
-  }, "¡Entérate de nuestras próximas actividades! Participa en clases online, encuentros presenciales, eventos deportivos, ferias y muchas experiencias más.")), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2 self-stretch sm:self-auto"
-  }, /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => handleOpenNewEventModal(),
-    className: "bg-[#0F172A] hover:bg-[#FF5500] text-white text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition flex items-center space-x-1.5 cursor-pointer shadow-xs flex-1 sm:flex-initial justify-center"
-  }, /*#__PURE__*/React.createElement("span", null, "+"), /*#__PURE__*/React.createElement("span", null, "Publicar Evento")), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => {
-      setAdminTab("list");
-      setIsAdminEventsOpen(true);
-    },
-    className: "bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2.5 rounded-xl transition flex items-center space-x-1 cursor-pointer",
-    title: "Panel de administración de eventos"
-  }, /*#__PURE__*/React.createElement("span", null, "⚙️"), /*#__PURE__*/React.createElement("span", null, "Administrar Agenda")))), /*#__PURE__*/React.createElement("div", {
+  }, "¡Entérate de nuestras próximas actividades! Participa en clases online, encuentros presenciales, eventos deportivos, ferias y muchas experiencias más."))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2.5"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar"
@@ -3160,16 +3117,7 @@ function App() {
     type: "button",
     onClick: () => setEventCategoryFilter(cat.id),
     className: `text-xs px-3.5 py-1.5 rounded-full font-bold transition whitespace-nowrap cursor-pointer flex items-center space-x-1.5 border ${eventCategoryFilter === cat.id ? "bg-[#FF5500] text-white border-[#FF5500] shadow-xs" : "bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50"}`
-  }, /*#__PURE__*/React.createElement("span", null, cat.icon), /*#__PURE__*/React.createElement("span", null, cat.label)))), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2 text-xs"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-slate-400 font-bold uppercase text-[10px]"
-  }, "Modalidad:"), ["todos", "Presencial", "Online"].map(mod => /*#__PURE__*/React.createElement("button", {
-    key: mod,
-    type: "button",
-    onClick: () => setEventModalityFilter(mod),
-    className: `px-2.5 py-0.5 rounded-md font-bold transition text-[11px] cursor-pointer ${eventModalityFilter === mod ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"}`
-  }, mod === "todos" ? "Todas" : mod === "Presencial" ? "📍 Presencial" : "💻 Online")))), filteredEvents.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, cat.icon), /*#__PURE__*/React.createElement("span", null, cat.label))))), filteredEvents.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-10 text-center space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "text-4xl"
@@ -3186,11 +3134,7 @@ function App() {
       setEventModalityFilter("todos");
     },
     className: "bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
-  }, "Mostrar todos"), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => handleOpenNewEventModal(),
-    className: "bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
-  }, "+ Publicar nuevo evento"))) : /*#__PURE__*/React.createElement("div", {
+  }, "Mostrar todos"))) : /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
   }, filteredEvents.map(evt => {
     const isCancelled = evt.status === "cancelled";
@@ -3232,15 +3176,7 @@ function App() {
       className: "bg-slate-700 text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-xs"
     }, "BORRADOR"), isCompleted && /*#__PURE__*/React.createElement("span", {
       className: "bg-slate-500 text-white text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-xs"
-    }, "FINALIZADO")), /*#__PURE__*/React.createElement("button", {
-      type: "button",
-      onClick: e => {
-        e.stopPropagation();
-        handleOpenEditEventModal(evt);
-      },
-      className: "w-7 h-7 rounded-full bg-white/90 hover:bg-white text-slate-700 hover:text-[#FF5500] flex items-center justify-center text-xs shadow-md transition cursor-pointer",
-      title: "Editar este evento"
-    }, "✏️")), /*#__PURE__*/React.createElement("div", {
+    }, "FINALIZADO"))), /*#__PURE__*/React.createElement("div", {
       className: "absolute bottom-3 left-3 right-3 flex items-center justify-between"
     }, /*#__PURE__*/React.createElement("span", {
       className: `text-[10px] font-bold px-2.5 py-0.5 rounded-full border bg-white/95 backdrop-blur-xs ${categoryColors[evt.category] || "text-slate-800"}`
@@ -3379,7 +3315,7 @@ function App() {
     className: "flex justify-between items-center border-b pb-4 mb-6 sticky -top-6 bg-white/95 backdrop-blur-md pt-2 z-10"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-xs font-bold text-[#FF5500] uppercase tracking-wider"
-  }, selectedProduct.categoryLabel, " · SKU: ", selectedProduct.sku), /*#__PURE__*/React.createElement("button", {
+  }, selectedProduct.categoryLabel), /*#__PURE__*/React.createElement("button", {
     onClick: () => setSelectedProduct(null),
     className: "flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
   }, /*#__PURE__*/React.createElement("span", null, "Cerrar"), /*#__PURE__*/React.createElement("svg", {
@@ -3578,13 +3514,13 @@ function App() {
     className: "bg-[#0F172A] hover:bg-[#FF5500] text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg transition flex items-center space-x-1 cursor-pointer shadow-2xs",
     title: "Añadir accesorio complementario al carrito"
   }, /*#__PURE__*/React.createElement("span", null, "+ Añadir"))))))))))), isVideoModalOpen && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md overflow-y-auto flex justify-center p-3 sm:p-6 items-center",
+    className: "fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md overflow-y-auto flex justify-center items-start sm:items-center p-2.5 sm:p-6",
     onClick: () => setIsVideoModalOpen(false)
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative",
+    className: "bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-8 shadow-2xl relative space-y-4 my-2 sm:my-auto max-h-[92vh] overflow-y-auto",
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center border-b pb-4 mb-4"
+    className: "flex justify-between items-center border-b border-slate-100 pb-3 sticky -top-4 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-20"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center space-x-2"
   }, /*#__PURE__*/React.createElement("span", {
@@ -3593,8 +3529,18 @@ function App() {
     className: "text-xs font-black text-[#FF5500] uppercase tracking-wider"
   }, "VLOG & TUTORIAL EXCLUSIVO BASSFIT")), /*#__PURE__*/React.createElement("button", {
     onClick: () => setIsVideoModalOpen(false),
-    className: "bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
-  }, "✕ Cerrar")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shrink-0"
+  }, /*#__PURE__*/React.createElement("span", null, "Cerrar"), /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M6 18L18 6M6 6l12 12"
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative rounded-2xl overflow-hidden bg-black shadow-lg"
@@ -3646,13 +3592,17 @@ function App() {
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-[#FF5500] font-bold"
   }, "3."), /*#__PURE__*/React.createElement("span", null, "Uso recomendado de faja lumbar o guantes con muñequera para mayor soporte.")))), /*#__PURE__*/React.createElement("div", {
-    className: "pt-2"
+    className: "pt-2 space-y-2"
   }, /*#__PURE__*/React.createElement("a", {
     href: "https://wa.me/51967581481?text=Hola%20Coach%20Bassfit%20%F0%9F%91%8B%2C%20vi%20el%20video%20Fitness%20Training%20en%20la%20web%20y%20deseo%20asesor%C3%ADa%20personalizada.",
     target: "_blank",
     rel: "noopener noreferrer",
     className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider transition flex items-center justify-center space-x-2 text-center shadow-md cursor-pointer"
-  }, /*#__PURE__*/React.createElement("span", null, "Consultar al Coach por WhatsApp"), /*#__PURE__*/React.createElement("span", null, "→")))))), selectedArticle && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "Consultar al Coach por WhatsApp"), /*#__PURE__*/React.createElement("span", null, "→")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setIsVideoModalOpen(false),
+    className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer text-center shadow-xs"
+  }, "✕ Cerrar video"))))), selectedArticle && /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center p-3 sm:p-6 items-start",
     onClick: () => setSelectedArticle(null)
   }, /*#__PURE__*/React.createElement("div", {
@@ -3691,176 +3641,7 @@ function App() {
     className: "flex items-center space-x-2"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-[#FF5500] font-bold"
-  }, "✓"), /*#__PURE__*/React.createElement("span", null, tip)))))))), isMobileMenuOpen && /*#__PURE__*/React.createElement("div", {
-    className: "lg:hidden fixed inset-0 z-50 flex justify-end"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity",
-    onClick: () => setIsMobileMenuOpen(false)
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "relative w-[85%] max-w-xs bg-white h-full shadow-2xl flex flex-col justify-between z-10 overflow-y-auto"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "p-5 space-y-5"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between border-b border-slate-100 pb-3"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: "images/brand/logo_bassfit_peru.png",
-    alt: "Bassfit Perú",
-    className: "h-8 w-auto object-contain"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "font-athletic font-black text-sm uppercase tracking-tight text-slate-900"
-  }, "BASSFIT ", /*#__PURE__*/React.createElement("span", {
-    className: "text-[#FF5500]"
-  }, "PERÚ"))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setIsMobileMenuOpen(false),
-    className: "p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer",
-    "aria-label": "Cerrar menú"
-  }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-5 h-5",
-    fill: "none",
-    stroke: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2.5",
-    d: "M6 18L18 6M6 6l12 12"
-  })))), /*#__PURE__*/React.createElement("div", {
-    className: "relative"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    placeholder: "Buscar en el catálogo...",
-    value: searchQuery,
-    onChange: e => {
-      setSearchQuery(e.target.value);
-      if (activeTab !== "shop") setActiveTab("shop");
-    },
-    className: "w-full bg-slate-50 text-xs text-slate-800 placeholder-slate-400 pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 focus:border-[#FF5500] focus:outline-hidden"
-  }), /*#__PURE__*/React.createElement("svg", {
-    className: "w-4 h-4 absolute right-3 top-3 text-slate-400",
-    fill: "none",
-    stroke: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2.5",
-    d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-1 text-xs font-bold uppercase tracking-wider"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("home");
-      setIsMobileMenuOpen(false);
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    },
-    className: `w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${activeTab === "home" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"}`
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "flex items-center space-x-2.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-base"
-  }, "🏠"), /*#__PURE__*/React.createElement("span", null, "INICIO")), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs"
-  }, "→")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("shop");
-      setIsMobileMenuOpen(false);
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    },
-    className: `w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${activeTab === "shop" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"}`
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "flex items-center space-x-2.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-base"
-  }, "🛍️"), /*#__PURE__*/React.createElement("span", null, "TIENDA OFICIAL")), /*#__PURE__*/React.createElement("span", {
-    className: `text-[10px] px-2 py-0.5 rounded-full font-black ${activeTab === "shop" ? "bg-white text-[#FF5500]" : "bg-slate-100 text-slate-600"}`
-  }, "33")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("categorias");
-      setIsMobileMenuOpen(false);
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    },
-    className: `w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${activeTab === "categorias" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"}`
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "flex items-center space-x-2.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-base"
-  }, "📂"), /*#__PURE__*/React.createElement("span", null, "CATEGORÍAS")), /*#__PURE__*/React.createElement("span", {
-    className: `text-[10px] px-2 py-0.5 rounded-full font-black ${activeTab === "categorias" ? "bg-white text-[#FF5500]" : "bg-slate-100 text-slate-600"}`
-  }, "8")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("asesorias");
-      setIsMobileMenuOpen(false);
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    },
-    className: `w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${activeTab === "asesorias" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"}`
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "flex items-center space-x-2.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-base"
-  }, "⚡"), /*#__PURE__*/React.createElement("span", null, "ASESORÍAS & PLANES")), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs"
-  }, "→")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("vlogs");
-      setIsMobileMenuOpen(false);
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    },
-    className: `w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${activeTab === "vlogs" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"}`
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "flex items-center space-x-2.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-base"
-  }, "📰"), /*#__PURE__*/React.createElement("span", null, "NOTICIAS & EVENTOS")), /*#__PURE__*/React.createElement("span", {
-    className: `text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${activeTab === "vlogs" ? "bg-white text-[#FF5500]" : "bg-orange-100 text-[#FF5500]"}`
-  }, "NUEVO")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("contacto");
-      setIsMobileMenuOpen(false);
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    },
-    className: `w-full py-3 px-3.5 rounded-xl text-left flex items-center justify-between transition ${activeTab === "contacto" ? "bg-[#FF5500] text-white shadow-md shadow-orange-500/20" : "hover:bg-slate-50 text-slate-800"}`
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "flex items-center space-x-2.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-base"
-  }, "📞"), /*#__PURE__*/React.createElement("span", null, "CONTACTO OFICIAL")), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs"
-  }, "→")))), /*#__PURE__*/React.createElement("div", {
-    className: "p-5 border-t border-slate-100 bg-slate-50 space-y-3"
-  }, /*#__PURE__*/React.createElement("a", {
-    href: "https://wa.me/51967581481",
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "bg-[#25D366] hover:bg-[#20ba59] text-white p-3 rounded-2xl flex items-center space-x-3 shadow-md transition"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-xl"
-  }, "💬"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h5", {
-    className: "text-xs font-black uppercase"
-  }, "Asesoría por WhatsApp"), /*#__PURE__*/React.createElement("p", {
-    className: "text-[10px] text-emerald-100"
-  }, "+51 967 581 481 · Respuesta rápida"))), /*#__PURE__*/React.createElement("p", {
-    className: "text-[10px] text-slate-400 text-center"
-  }, "Envíos a todo el Perú · Lun a Sáb 8am - 9pm")))), isCartOpen && /*#__PURE__*/React.createElement("div", {
+  }, "✓"), /*#__PURE__*/React.createElement("span", null, tip)))))))), isCartOpen && /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex justify-end",
     onClick: () => setIsCartOpen(false)
   }, /*#__PURE__*/React.createElement("div", {
@@ -3950,15 +3731,15 @@ function App() {
   })), /*#__PURE__*/React.createElement("span", null, "Pedir por WhatsApp (S/ ", cartSubtotal.toFixed(2), ")")), /*#__PURE__*/React.createElement("div", {
     className: "text-center text-[10px] text-slate-400"
   }, "Coordinarás la dirección de entrega y forma de pago directamente por WhatsApp")))), selectedEvent && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center p-3 sm:p-6 items-center",
+    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center items-end sm:items-center p-0 sm:p-6",
     onClick: () => setSelectedEvent(null)
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative space-y-5",
+    className: "bg-white rounded-t-3xl sm:rounded-3xl max-w-xl w-full p-4 sm:p-8 shadow-2xl relative space-y-4 max-h-[92vh] overflow-y-auto",
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center border-b pb-4"
+    className: "flex justify-between items-center border-b border-slate-100 pb-3 sticky -top-4 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-20"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2"
+    className: "flex items-center space-x-2 min-w-0 pr-2"
   }, /*#__PURE__*/React.createElement("span", {
     className: `text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${selectedEvent.modality === "Online" ? "bg-blue-600 text-white" : "bg-[#FF5500] text-white"}`
   }, selectedEvent.modality === "Online" ? "💻 Online" : "📍 Presencial"), /*#__PURE__*/React.createElement("span", {
@@ -3968,8 +3749,18 @@ function App() {
   }, "⭐ Destacado")), /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: () => setSelectedEvent(null),
-    className: "bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
-  }, "✕ Cerrar")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shrink-0"
+  }, /*#__PURE__*/React.createElement("span", null, "Cerrar"), /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M6 18L18 6M6 6l12 12"
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative h-48 rounded-2xl overflow-hidden bg-slate-900"
@@ -4049,448 +3840,18 @@ function App() {
     target: "_blank",
     rel: "noopener noreferrer",
     className: "w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black py-3 rounded-xl text-xs transition flex items-center justify-center space-x-2 text-center cursor-pointer shadow-xs"
-  }, /*#__PURE__*/React.createElement("span", null, "📲 Inscribirme por WhatsApp"), /*#__PURE__*/React.createElement("span", null, "→")))))), isAdminEventsOpen && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md overflow-y-auto flex justify-center p-3 sm:p-6 items-start",
-    onClick: () => setIsAdminEventsOpen(false)
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-8 shadow-2xl relative space-y-6 my-auto max-h-[92vh] overflow-y-auto",
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col sm:flex-row justify-between sm:items-center pb-4 border-b border-slate-200 gap-3"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "bg-[#0F172A] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider"
-  }, "PANEL DE CONTROL"), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs text-emerald-600 font-bold"
-  }, "● Sincronizado en LocalStorage")), /*#__PURE__*/React.createElement("h3", {
-    className: "text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight mt-1"
-  }, "Gestor de Agenda & Eventos Bassfit")), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("span", null, "📲 Inscribirme por WhatsApp"), /*#__PURE__*/React.createElement("span", null, "→"))), /*#__PURE__*/React.createElement("button", {
     type: "button",
-    onClick: () => setIsAdminEventsOpen(false),
-    className: "self-end sm:self-auto bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3.5 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
-  }, "✕ Cerrar Panel")), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between border-b border-slate-200 pb-2 gap-2 overflow-x-auto"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex space-x-2"
-  }, /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => setAdminTab("form"),
-    className: `px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-1.5 ${adminTab === "form" ? "bg-[#FF5500] text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`
-  }, /*#__PURE__*/React.createElement("span", null, "📝"), /*#__PURE__*/React.createElement("span", null, editingEventId ? "Editar Evento" : "Crear Nuevo Evento")), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => setAdminTab("list"),
-    className: `px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-1.5 ${adminTab === "list" ? "bg-[#FF5500] text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`
-  }, /*#__PURE__*/React.createElement("span", null, "📋"), /*#__PURE__*/React.createElement("span", null, "Lista de Eventos (", eventsList.length, ")"))), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: handleResetDefaultEvents,
-    className: "text-[11px] text-slate-500 hover:text-red-600 hover:underline font-bold transition cursor-pointer whitespace-nowrap",
-    title: "Restaura los 5 eventos oficiales iniciales"
-  }, "🔄 Restablecer valores por defecto")), adminTab === "form" && /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 lg:grid-cols-12 gap-8"
-  }, /*#__PURE__*/React.createElement("form", {
-    onSubmit: handleSaveEvent,
-    className: "lg:col-span-7 space-y-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center"
-  }, /*#__PURE__*/React.createElement("h4", {
-    className: "text-xs font-black uppercase tracking-wider text-slate-900"
-  }, editingEventId ? "✏️ Modificar datos del evento" : "✨ Información del nuevo evento"), editingEventId && /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: handleOpenNewEventModal,
-    className: "text-[11px] text-[#FF5500] hover:underline font-bold"
-  }, "+ Cambiar a nuevo evento")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Título del Evento *"), /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    required: true,
-    value: eventFormData.title,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      title: e.target.value
-    }),
-    placeholder: "Ej: Masterclass de Calistenia: Dominadas y Fondos",
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 sm:grid-cols-2 gap-3"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Categoría *"), /*#__PURE__*/React.createElement("select", {
-    value: eventFormData.category,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      category: e.target.value
-    }),
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "Clases online"
-  }, "💻 Clases online"), /*#__PURE__*/React.createElement("option", {
-    value: "Eventos presenciales"
-  }, "📍 Eventos presenciales"), /*#__PURE__*/React.createElement("option", {
-    value: "Stands y ferias"
-  }, "🎪 Stands y ferias"), /*#__PURE__*/React.createElement("option", {
-    value: "Entrenamientos especiales"
-  }, "🏋️‍♂️ Entrenamientos especiales"), /*#__PURE__*/React.createElement("option", {
-    value: "Otros eventos"
-  }, "⚡ Otros eventos"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Modalidad *"), /*#__PURE__*/React.createElement("select", {
-    value: eventFormData.modality,
-    onChange: e => {
-      const mod = e.target.value;
-      setEventFormData({
-        ...eventFormData,
-        modality: mod,
-        isVirtual: mod === "Online",
-        location: mod === "Online" ? "Google Meet / YouTube Live" : eventFormData.location
-      });
-    },
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "Presencial"
-  }, "📍 Presencial"), /*#__PURE__*/React.createElement("option", {
-    value: "Online"
-  }, "💻 Online (Virtual)")))), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 sm:grid-cols-2 gap-3"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Fecha Visible *"), /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    required: true,
-    value: eventFormData.date,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      date: e.target.value
-    }),
-    placeholder: "Ej: Sábado, 28 de Noviembre 2026",
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Horario *"), /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    required: true,
-    value: eventFormData.time,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      time: e.target.value
-    }),
-    placeholder: "Ej: 09:00 AM - 11:30 AM",
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, eventFormData.modality === "Online" ? "Enlace Virtual (Google Meet / Zoom) *" : "Ubicación / Dirección Presencial *"), /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    required: true,
-    value: eventFormData.location,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      location: e.target.value,
-      virtualLink: eventFormData.modality === "Online" ? e.target.value : eventFormData.virtualLink
-    }),
-    placeholder: eventFormData.modality === "Online" ? "https://meet.google.com/..." : "Ej: Parque Miguel de Cervantes, San Isidro, Lima",
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 sm:grid-cols-3 gap-3"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Instructor / A cargo"), /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    value: eventFormData.instructor || "",
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      instructor: e.target.value
-    }),
-    placeholder: "Ej: Coach Marco Antonio",
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Cupos Disponibles"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    min: "1",
-    max: "500",
-    value: eventFormData.spotsLeft ?? 20,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      spotsLeft: parseInt(e.target.value) || 0
-    }),
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Precio / Acceso"), /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    value: eventFormData.price || "Gratuito",
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      price: e.target.value
-    }),
-    placeholder: "Ej: Gratuito / Ingreso Libre",
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Imagen de Portada"), /*#__PURE__*/React.createElement("select", {
-    value: eventFormData.image,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      image: e.target.value
-    }),
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white mb-2"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "images/products/barras-8en1-multifuncional-1.jpg"
-  }, "Calistenia & Barras 8en1"), /*#__PURE__*/React.createElement("option", {
-    value: "images/products/foam-roller-1.jpg"
-  }, "Movilidad & Foam Roller"), /*#__PURE__*/React.createElement("option", {
-    value: "images/mockup_vlog_hd.jpg"
-  }, "Feria & Stand Oficial Bassfit"), /*#__PURE__*/React.createElement("option", {
-    value: "images/products/bandas-elasticas-abiertas-1.jpg"
-  }, "Bandas Elásticas & Entrenamiento Funcional"), /*#__PURE__*/React.createElement("option", {
-    value: "images/products/escalera-pliometrica-1.jpg"
-  }, "Escalera Pliométrica & Desafío"), /*#__PURE__*/React.createElement("option", {
-    value: "images/products/set-de-mancuernas-1.jpg"
-  }, "Fuerza & Mancuernas Cromadas"), /*#__PURE__*/React.createElement("option", {
-    value: "images/products/push-up-board-tablero-dinamico-para-flexiones-1.jpg"
-  }, "Core & Rueda Abdominal"), /*#__PURE__*/React.createElement("option", {
-    value: "images/products/colchoneta-de-ejercicios-1.jpg"
-  }, "Yoga & Colchoneta Alta Densidad")), /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    value: eventFormData.image,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      image: e.target.value
-    }),
-    placeholder: "O ingresa una URL personalizada de imagen...",
-    className: "w-full text-xs p-2 rounded-lg border border-slate-200 text-slate-600 focus:outline-none focus:border-[#FF5500]"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Requisitos & Qué llevar"), /*#__PURE__*/React.createElement("div", {
-    className: "flex space-x-2 mb-2"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    value: reqInput,
-    onChange: e => setReqInput(e.target.value),
-    onKeyDown: e => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        if (reqInput.trim()) {
-          setEventFormData({
-            ...eventFormData,
-            requirements: [...(eventFormData.requirements || []), reqInput.trim()]
-          });
-          setReqInput("");
-        }
-      }
-    },
-    placeholder: "Ej: Mat propio, botella de agua...",
-    className: "flex-1 text-xs p-2 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500]"
-  }), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => {
-      if (reqInput.trim()) {
-        setEventFormData({
-          ...eventFormData,
-          requirements: [...(eventFormData.requirements || []), reqInput.trim()]
-        });
-        setReqInput("");
-      }
-    },
-    className: "bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3 py-2 rounded-xl transition"
-  }, "+ Añadir")), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap gap-1.5"
-  }, (eventFormData.requirements || []).map((req, idx) => /*#__PURE__*/React.createElement("span", {
-    key: idx,
-    className: "bg-slate-100 border border-slate-200 text-slate-700 text-[11px] px-2.5 py-1 rounded-full flex items-center space-x-1.5"
-  }, /*#__PURE__*/React.createElement("span", null, req), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => {
-      const updated = [...(eventFormData.requirements || [])];
-      updated.splice(idx, 1);
-      setEventFormData({
-        ...eventFormData,
-        requirements: updated
-      });
-    },
-    className: "text-slate-400 hover:text-red-500 font-bold"
-  }, "✕"))))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Descripción del Evento *"), /*#__PURE__*/React.createElement("textarea", {
-    required: true,
-    rows: 3,
-    value: eventFormData.description,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      description: e.target.value
-    }),
-    placeholder: "Describe los objetivos, la dinámica y el valor que aportará esta actividad...",
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] resize-none"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-200"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
-    className: "block text-[11px] font-bold text-slate-700 uppercase mb-1"
-  }, "Estado de Publicación"), /*#__PURE__*/React.createElement("select", {
-    value: eventFormData.status || "published",
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      status: e.target.value
-    }),
-    className: "w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-[#FF5500] bg-white"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "published"
-  }, "🟢 Publicado (Visible)"), /*#__PURE__*/React.createElement("option", {
-    value: "draft"
-  }, "🟡 Borrador (Oculto)"), /*#__PURE__*/React.createElement("option", {
-    value: "cancelled"
-  }, "🔴 Cancelado"), /*#__PURE__*/React.createElement("option", {
-    value: "completed"
-  }, "⚪ Finalizado"))), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2 pt-6"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    id: "featuredEventCheck",
-    checked: !!eventFormData.featured,
-    onChange: e => setEventFormData({
-      ...eventFormData,
-      featured: e.target.checked
-    }),
-    className: "w-4 h-4 text-[#FF5500] rounded-sm focus:ring-[#FF5500]"
-  }), /*#__PURE__*/React.createElement("label", {
-    htmlFor: "featuredEventCheck",
-    className: "text-xs font-bold text-slate-800 cursor-pointer"
-  }, "⭐ Marcar como evento destacado"))), /*#__PURE__*/React.createElement("div", {
-    className: "pt-4 flex items-center justify-end space-x-3 border-t border-slate-200"
-  }, /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => setIsAdminEventsOpen(false),
-    className: "bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer"
-  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
-    type: "submit",
-    className: "bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-black uppercase tracking-wider px-6 py-2.5 rounded-xl shadow-md transition cursor-pointer"
-  }, editingEventId ? "Actualizar Evento" : "Guardar & Publicar Evento"))), /*#__PURE__*/React.createElement("div", {
-    className: "lg:col-span-5 space-y-3"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between"
-  }, /*#__PURE__*/React.createElement("h4", {
-    className: "text-xs font-black uppercase tracking-wider text-slate-900"
-  }, "👁️ Vista previa en tiempo real"), /*#__PURE__*/React.createElement("span", {
-    className: "text-[10px] text-slate-500 font-bold"
-  }, "Tarjeta de evento")), /*#__PURE__*/React.createElement("div", {
-    className: "bg-slate-100 p-3 rounded-3xl border border-slate-200"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-md flex flex-col justify-between"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "relative h-44 bg-slate-900 overflow-hidden"
-  }, /*#__PURE__*/React.createElement("img", {
-  loading: "lazy",
-  decoding: "async",
-    src: resolveImg(eventFormData.image || "images/products/barras-8en1-multifuncional-1.jpg"),
-    alt: eventFormData.title || "Previa",
-    className: "w-full h-full object-cover opacity-90"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "absolute top-2.5 left-2.5 flex flex-wrap gap-1"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: `text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider text-white ${eventFormData.modality === "Online" ? "bg-blue-600" : "bg-[#FF5500]"}`
-  }, eventFormData.modality === "Online" ? "💻 Online" : "📍 Presencial"), eventFormData.featured && /*#__PURE__*/React.createElement("span", {
-    className: "bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider"
-  }, "⭐ Destacado"), eventFormData.status === "cancelled" && /*#__PURE__*/React.createElement("span", {
-    className: "bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase"
-  }, "CANCELADO")), /*#__PURE__*/React.createElement("div", {
-    className: "absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[9px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-800"
-  }, eventFormData.category), /*#__PURE__*/React.createElement("span", {
-    className: "text-[9px] font-bold text-white bg-black/60 px-2 py-0.5 rounded-full"
-  }, eventFormData.price || "Gratuito"))), /*#__PURE__*/React.createElement("div", {
-    className: "p-4 space-y-2"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "text-[11px] font-bold text-[#FF5500]"
-  }, "📅 ", eventFormData.date || "Fecha no especificada", " • ", eventFormData.time), /*#__PURE__*/React.createElement("h4", {
-    className: "text-sm font-black text-slate-900 line-clamp-2 leading-snug"
-  }, eventFormData.title || "Título del evento en Bassfit"), /*#__PURE__*/React.createElement("p", {
-    className: "text-[11px] text-slate-500 line-clamp-1"
-  }, "📍 ", eventFormData.location || "Ubicación en Lima / Online"), eventFormData.instructor && /*#__PURE__*/React.createElement("p", {
-    className: "text-[10px] text-slate-600"
-  }, /*#__PURE__*/React.createElement("strong", null, "A cargo:"), " ", eventFormData.instructor), /*#__PURE__*/React.createElement("p", {
-    className: "text-[11px] text-slate-600 line-clamp-2"
-  }, eventFormData.description || "Breve descripción informativa del evento..."), /*#__PURE__*/React.createElement("div", {
-    className: "pt-2 border-t border-slate-100 grid grid-cols-2 gap-2"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-slate-100 text-slate-700 text-center py-1.5 rounded-lg text-[10px] font-bold"
-  }, "Ver detalles"), /*#__PURE__*/React.createElement("div", {
-    className: "bg-[#0F172A] text-white text-center py-1.5 rounded-lg text-[10px] font-bold"
-  }, "📅 + Calendario"))))))), adminTab === "list" && /*#__PURE__*/React.createElement("div", {
-    className: "space-y-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center"
-  }, /*#__PURE__*/React.createElement("h4", {
-    className: "text-xs font-black uppercase tracking-wider text-slate-900"
-  }, "Lista completa de actividades programadas (", eventsList.length, ")"), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: handleOpenNewEventModal,
-    className: "bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-black px-3.5 py-1.5 rounded-xl transition"
-  }, "+ Nuevo Evento")), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-3"
-  }, eventsList.map(evt => /*#__PURE__*/React.createElement("div", {
-    key: evt.id,
-    className: "bg-slate-50 border border-slate-200 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-3 min-w-0"
-  }, /*#__PURE__*/React.createElement("img", {
-  loading: "lazy",
-  decoding: "async",
-    src: resolveImg(evt.image),
-    alt: evt.title,
-    className: "w-14 h-14 rounded-xl object-cover shrink-0"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-1.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: `text-[9px] font-bold px-2 py-0.5 rounded-full ${evt.modality === "Online" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`
-  }, evt.modality), /*#__PURE__*/React.createElement("span", {
-    className: "text-[9px] font-semibold text-slate-500"
-  }, evt.category), evt.featured && /*#__PURE__*/React.createElement("span", {
-    className: "text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-sm"
-  }, "⭐ Destacado")), /*#__PURE__*/React.createElement("h5", {
-    className: "text-xs sm:text-sm font-black text-slate-900 truncate mt-0.5"
-  }, evt.title), /*#__PURE__*/React.createElement("p", {
-    className: "text-[11px] text-slate-500 truncate"
-  }, "📅 ", evt.date, " (", evt.time, ") • 📍 ", evt.location))), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2 self-end sm:self-auto shrink-0"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: evt.status || "published",
-    onChange: e => handleToggleEventStatus(evt.id, e.target.value),
-    className: "text-[11px] font-bold p-1 rounded-lg border border-slate-300 bg-white"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "published"
-  }, "🟢 Publicado"), /*#__PURE__*/React.createElement("option", {
-    value: "draft"
-  }, "🟡 Borrador"), /*#__PURE__*/React.createElement("option", {
-    value: "cancelled"
-  }, "🔴 Cancelado"), /*#__PURE__*/React.createElement("option", {
-    value: "completed"
-  }, "⚪ Finalizado")), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => handleOpenEditEventModal(evt),
-    className: "p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold",
-    title: "Editar"
-  }, "✏️"), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => handleDuplicateEvent(evt),
-    className: "p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold",
-    title: "Duplicar"
-  }, "📄"), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => handleDeleteEvent(evt.id, evt.title),
-    className: "p-1.5 rounded-lg bg-white border border-red-200 hover:bg-red-50 text-red-600 text-xs font-bold",
-    title: "Eliminar"
-  }, "🗑️")))))))), selectedTutorial && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md overflow-y-auto flex justify-center p-3 sm:p-6 items-center",
+    onClick: () => setSelectedEvent(null),
+    className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer text-center mt-2 shadow-xs"
+  }, "✕ Cerrar ventana")))), selectedTutorial && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-md overflow-y-auto flex justify-center items-start sm:items-center p-2.5 sm:p-6",
     onClick: () => setSelectedTutorial(null)
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative space-y-5",
+    className: "bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-8 shadow-2xl relative space-y-4 my-2 sm:my-auto max-h-[92vh] overflow-y-auto",
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center border-b pb-4"
+    className: "flex justify-between items-center border-b border-slate-100 pb-3 sticky -top-4 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-20"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center space-x-2"
   }, /*#__PURE__*/React.createElement("span", {
@@ -4499,8 +3860,18 @@ function App() {
     className: "text-xs font-black text-[#FF5500] uppercase tracking-wider"
   }, "TUTORIAL EXCLUSIVO BASSFIT")), /*#__PURE__*/React.createElement("button", {
     onClick: () => setSelectedTutorial(null),
-    className: "bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer"
-  }, "✕ Cerrar")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shrink-0"
+  }, /*#__PURE__*/React.createElement("span", null, "Cerrar"), /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "none",
+    stroke: "currentColor",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.5",
+    d: "M6 18L18 6M6 6l12 12"
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative rounded-2xl overflow-hidden bg-black shadow-lg"
@@ -4572,7 +3943,11 @@ function App() {
       },
       className: "bg-[#0F172A] hover:bg-[#FF5500] text-white text-xs font-bold px-3 py-2 rounded-xl transition cursor-pointer whitespace-nowrap shadow-xs"
     }, "Ver en tienda →"));
-  })()))), /*#__PURE__*/React.createElement("footer", {
+  })(), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setSelectedTutorial(null),
+    className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer text-center mt-2 shadow-xs"
+  }, "✕ Cerrar tutorial")))), /*#__PURE__*/React.createElement("footer", {
     className: "bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 pb-20 sm:pb-8"
   }, /*#__PURE__*/React.createElement("div", {
     className: "max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-8"
@@ -4616,14 +3991,14 @@ function App() {
     className: "hover:text-white transition"
   }, "Tienda (33 productos)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      setActiveTab("categorias");
+      setActiveTab("shop");
       window.scrollTo({
         top: 0,
         behavior: "smooth"
       });
     },
     className: "hover:text-white transition"
-  }, "Categorías")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+  }, "Explorar Categorías")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setActiveTab("asesorias");
       window.scrollTo({
@@ -4655,7 +4030,7 @@ function App() {
     className: "space-y-1 text-slate-400 text-xs"
   }, /*#__PURE__*/React.createElement("p", null, "WhatsApp: +51 967 581 481"), /*#__PURE__*/React.createElement("p", null, "Envíos: Todo el territorio peruano"), /*#__PURE__*/React.createElement("p", null, "Horario: Lunes a Sábado 8:00am - 9:00pm")))), /*#__PURE__*/React.createElement("div", {
     className: "border-t border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-500 gap-2"
-  }, /*#__PURE__*/React.createElement("span", null, "© 2026 BASSFIT PERÚ · Todos los derechos reservados."), /*#__PURE__*/React.createElement("span", null, "Diseñado para alto rendimiento deportivo")))), /*#__PURE__*/React.createElement("nav", {
+  }, /*#__PURE__*/React.createElement("span", null, "© 2026 BASSFIT PERÚ · Todos los derechos reservados."), /*#__PURE__*/React.createElement("span", null, "Desarrollado por ", /*#__PURE__*/React.createElement("a", { id: "daf-developer-credit", href: "https://www.dafsoluciones.site/", target: "_blank", rel: "noopener noreferrer", className: "text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer", title: "Daf soluciones tecnológicas" }, "Daf soluciones tecnológicas"))))), /*#__PURE__*/React.createElement("nav", {
     "aria-label": "Navegación Móvil Rápida",
     className: "sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1 flex items-center justify-around select-none"
   }, /*#__PURE__*/React.createElement("button", {
@@ -4702,26 +4077,26 @@ function App() {
     className: "text-[10px]"
   }, "Tienda")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      setActiveTab("categorias");
+      setActiveTab("asesorias");
       window.scrollTo({
         top: 0,
         behavior: "smooth"
       });
     },
-    className: `flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${activeTab === "categorias" ? "text-[#FF5500] font-black" : "text-slate-500 font-medium hover:text-slate-800"}`
+    className: `flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${activeTab === "asesorias" ? "text-[#FF5500] font-black" : "text-slate-500 font-medium hover:text-slate-800"}`
   }, /*#__PURE__*/React.createElement("svg", {
     className: "w-5 h-5 mb-0.5",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: activeTab === "categorias" ? "2.5" : "2",
+    strokeWidth: activeTab === "asesorias" ? "2.5" : "2",
     viewBox: "0 0 24 24"
   }, /*#__PURE__*/React.createElement("path", {
     strokeLinecap: "round",
     strokeLinejoin: "round",
-    d: "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+    d: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
   })), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px]"
-  }, "Categorías")), /*#__PURE__*/React.createElement("button", {
+  }, "Asesorías")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setActiveTab("vlogs");
       window.scrollTo({
