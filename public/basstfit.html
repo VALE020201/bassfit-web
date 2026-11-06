@@ -2237,6 +2237,14 @@ function renderLibroModal(isLibroOpen, setIsLibroOpen, libroForm, setLibroForm, 
       localStorage.setItem("bassfit_libro_reclamaciones", JSON.stringify(prev));
     } catch(err) {}
 
+    try {
+      fetch("/api/reclamaciones", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(record)
+      }).catch(function(){});
+    } catch(apiErr) {}
+
     setLibroSubmitted(record);
   };
 
