@@ -4202,11 +4202,9 @@ function App() {
     onClick: () => setSelectedTutorial(null),
     className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer text-center mt-2 shadow-xs"
   }, "✕ Cerrar tutorial")))), /*#__PURE__*/React.createElement("footer", {
-    className: "bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 pb-20 sm:pb-8"
+    className: "bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 py-6 pb-20 sm:pb-6"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-4 gap-2"
+    className: "max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center space-x-2"
   }, /*#__PURE__*/React.createElement("span", {
@@ -4216,97 +4214,53 @@ function App() {
   }, "FIT")), /*#__PURE__*/React.createElement("span", {
     className: "bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase"
   }, "PERÚ"), /*#__PURE__*/React.createElement("span", {
-    className: "text-slate-500 text-xs hidden sm:inline ml-2"
+    className: "text-slate-500 text-xs hidden sm:inline ml-1"
   }, "· «...fitness sin límites de edad..»")), /*#__PURE__*/React.createElement("div", {
-    className: "text-[11px] text-slate-400 flex flex-wrap items-center gap-3"
-  }, /*#__PURE__*/React.createElement("a", {
+    className: "flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("home");
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    },
+    className: "hover:text-white transition cursor-pointer"
+  }, "Inicio"), /*#__PURE__*/React.createElement("span", null, "•"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("shop");
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    },
+    className: "hover:text-white transition cursor-pointer"
+  }, "Tienda"), /*#__PURE__*/React.createElement("span", null, "•"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("asesorias");
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    },
+    className: "hover:text-white transition cursor-pointer"
+  }, "Asesorías"), /*#__PURE__*/React.createElement("span", null, "•"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("vlogs");
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    },
+    className: "hover:text-white transition cursor-pointer"
+  }, "Noticias & Eventos"), /*#__PURE__*/React.createElement("span", null, "•"), /*#__PURE__*/React.createElement("a", {
     href: "https://wa.me/51967581481",
     target: "_blank",
     rel: "noopener noreferrer",
-    className: "hover:text-white transition flex items-center space-x-1"
-  }, /*#__PURE__*/React.createElement("span", null, "💬"), /*#__PURE__*/React.createElement("span", null, "+51 967 581 481")), /*#__PURE__*/React.createElement("span", {
-    className: "text-slate-600"
-  }, "•"), /*#__PURE__*/React.createElement("span", null, "🚚 Envíos a todo el Perú"), /*#__PURE__*/React.createElement("span", {
-    className: "text-slate-600 hidden sm:inline"
-  }, "•"), /*#__PURE__*/React.createElement("span", {
-    className: "hidden sm:inline"
-  }, "🕒 Lun-Sáb 8am-9pm"))), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-1 text-[11px]"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
-    className: "font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400"
-  }, "Navegación"), /*#__PURE__*/React.createElement("ul", {
-    className: "space-y-1 text-slate-400"
-  }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("home");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    className: "hover:text-white transition text-left cursor-pointer"
-  }, "Inicio")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("shop");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    className: "hover:text-white transition text-left cursor-pointer"
-  }, "Tienda (33 productos)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("asesorias");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    className: "hover:text-white transition text-left cursor-pointer"
-  }, "Asesorías & Programas")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("vlogs");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    className: "hover:text-white transition text-left cursor-pointer"
-  }, "Noticias & Eventos")))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
-    className: "font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400"
-  }, "Categorías Top"), /*#__PURE__*/React.createElement("ul", {
-    className: "space-y-1 text-slate-400"
-  }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("shop");
-      setSelectedCategory("calistenia");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    className: "hover:text-white transition text-left cursor-pointer"
-  }, "Barras 8en1 & Calistenia")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("shop");
-      setSelectedCategory("entrenamiento-fuerza");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    className: "hover:text-white transition text-left cursor-pointer"
-  }, "Fuerza, Mancuernas & Pesas")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("shop");
-      setSelectedCategory("fajas-reductoras");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    className: "hover:text-white transition text-left cursor-pointer"
-  }, "Fajas Reductoras & Lipo")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setActiveTab("shop");
-      setSelectedCategory("yoga-pilates");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    className: "hover:text-white transition text-left cursor-pointer"
-  }, "Yoga, Pilates & Mats")))), /*#__PURE__*/React.createElement("div", {
-    className: "hidden sm:block"
-  }, /*#__PURE__*/React.createElement("h4", {
-    className: "font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400"
-  }, "Atención & Despachos"), /*#__PURE__*/React.createElement("ul", {
-    className: "space-y-1 text-slate-400 text-[11px]"
-  }, /*#__PURE__*/React.createElement("li", null, "Despachos express Lima 24h"), /*#__PURE__*/React.createElement("li", null, "Envíos Shalom / Olva a provincias"), /*#__PURE__*/React.createElement("li", null, "Garantía oficial Bassfit Perú"), /*#__PURE__*/React.createElement("li", null, "Atención: Lun-Sáb 8am a 9pm"))), /*#__PURE__*/React.createElement("div", {
-    className: "hidden sm:block"
-  }, /*#__PURE__*/React.createElement("h4", {
-    className: "font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400"
-  }, "Medios de Pago"), /*#__PURE__*/React.createElement("ul", {
-    className: "space-y-1 text-slate-400 text-[11px]"
-  }, /*#__PURE__*/React.createElement("li", null, "Yape & Plin directo"), /*#__PURE__*/React.createElement("li", null, "Transferencias BCP, BBVA, Interbank"), /*#__PURE__*/React.createElement("li", null, "Pago contra entrega Lima"), /*#__PURE__*/React.createElement("li", null, "Coordinación por WhatsApp")))), /*#__PURE__*/React.createElement("div", {
-    className: "border-t border-slate-800/80 pt-3 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-500 gap-1.5"
-  }, /*#__PURE__*/React.createElement("span", null, "© 2026 BASSFIT PERÚ · Todos los derechos reservados."), /*#__PURE__*/React.createElement("span", null, "Desarrollado por ", /*#__PURE__*/React.createElement("a", {
+    className: "hover:text-white transition inline-flex items-center space-x-1"
+  }, /*#__PURE__*/React.createElement("span", null, "💬 +51 967 581 481"))), /*#__PURE__*/React.createElement("div", {
+    className: "pt-2 border-t border-slate-800/80 w-full max-w-md text-[10px] text-slate-500 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3"
+  }, /*#__PURE__*/React.createElement("span", null, "© 2026 BASSFIT PERÚ. Todos los derechos reservados."), /*#__PURE__*/React.createElement("span", null, "Desarrollado por ", /*#__PURE__*/React.createElement("a", {
     id: "daf-developer-credit",
     href: "https://www.dafsoluciones.site/",
     target: "_blank",

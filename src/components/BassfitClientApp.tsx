@@ -3326,83 +3326,74 @@ export default function BassfitClientApp() {
         </div>
       )}
 
-      <footer className="bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 pb-20 sm:pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-4 gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="text-xl font-black italic tracking-tight text-white uppercase">
-                BASS<span className="text-[#FF5500]">FIT</span>
-              </span>
-              <span className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase">
-                PERÚ
-              </span>
-              <span className="text-slate-500 text-xs hidden sm:inline ml-2">· «...fitness sin límites de edad..»</span>
-            </div>
-            <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-3">
-              <a href="https://wa.me/51967581481" target="_blank" rel="noopener noreferrer" className="hover:text-white transition flex items-center space-x-1">
-                <span>💬</span>
-                <span>+51 967 581 481</span>
+      <footer className="bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 py-6 pb-20 sm:pb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center space-y-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-xl font-black italic tracking-tight text-white uppercase">
+              BASS<span className="text-[#FF5500]">FIT</span>
+            </span>
+            <span className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase">
+              PERÚ
+            </span>
+            <span className="text-slate-500 text-xs hidden sm:inline ml-1">
+              · «...fitness sin límites de edad..»
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400">
+            <button
+              onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              className="hover:text-white transition cursor-pointer"
+            >
+              Inicio
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => { setActiveTab('shop'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              className="hover:text-white transition cursor-pointer"
+            >
+              Tienda
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => { setActiveTab('asesorias'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              className="hover:text-white transition cursor-pointer"
+            >
+              Asesorías
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => { setActiveTab('vlogs'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              className="hover:text-white transition cursor-pointer"
+            >
+              Noticias & Eventos
+            </button>
+            <span>•</span>
+            <a
+              href="https://wa.me/51967581481"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition inline-flex items-center space-x-1"
+            >
+              <span>💬 +51 967 581 481</span>
+            </a>
+          </div>
+
+          <div className="pt-2 border-t border-slate-800/80 w-full max-w-md text-[10px] text-slate-500 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3">
+            <span>© 2026 BASSFIT PERÚ. Todos los derechos reservados.</span>
+            <span>
+              Desarrollado por{' '}
+              <a
+                id="daf-developer-credit"
+                href="https://www.dafsoluciones.site/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer"
+                title="Daf soluciones tecnológicas"
+              >
+                Daf soluciones tecnológicas
               </a>
-              <span className="text-slate-600">•</span>
-              <span>🚚 Envíos a todo el Perú</span>
-              <span className="text-slate-600 hidden sm:inline">•</span>
-              <span className="hidden sm:inline">🕒 Lun-Sáb 8am-9pm</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-1 text-[11px]">
-            <div>
-              <h4 className="font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400">
-                Navegación
-              </h4>
-              <ul className="space-y-1 text-slate-400">
-                <li><button onClick={() => { setActiveTab("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Inicio</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Tienda (33 productos)</button></li>
-                <li><button onClick={() => { setActiveTab("asesorias"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Asesorías & Programas</button></li>
-                <li><button onClick={() => { setActiveTab("vlogs"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Noticias & Eventos</button></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400">
-                Categorías Top
-              </h4>
-              <ul className="space-y-1 text-slate-400">
-                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("calistenia"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Barras 8en1 & Calistenia</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("entrenamiento-fuerza"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Fuerza, Mancuernas & Pesas</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("fajas-reductoras"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Fajas Reductoras & Lipo</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("yoga-pilates"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Yoga, Pilates & Mats</button></li>
-              </ul>
-            </div>
-
-            <div className="hidden sm:block">
-              <h4 className="font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400">
-                Atención & Despachos
-              </h4>
-              <ul className="space-y-1 text-slate-400 text-[11px]">
-                <li>Despachos express Lima 24h</li>
-                <li>Envíos Shalom / Olva a provincias</li>
-                <li>Garantía oficial Bassfit Perú</li>
-                <li>Atención: Lun-Sáb 8am a 9pm</li>
-              </ul>
-            </div>
-
-            <div className="hidden sm:block">
-              <h4 className="font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400">
-                Medios de Pago
-              </h4>
-              <ul className="space-y-1 text-slate-400 text-[11px]">
-                <li>Yape & Plin directo</li>
-                <li>Transferencias BCP, BBVA, Interbank</li>
-                <li>Pago contra entrega Lima</li>
-                <li>Coordinación por WhatsApp</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-800/80 pt-3 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-500 gap-1.5">
-            <span>© 2026 BASSFIT PERÚ · Todos los derechos reservados.</span>
-            <span>Desarrollado por <a id="daf-developer-credit" href="https://www.dafsoluciones.site/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer" title="Daf soluciones tecnológicas">Daf soluciones tecnológicas</a></span>
+            </span>
           </div>
         </div>
       </footer>
