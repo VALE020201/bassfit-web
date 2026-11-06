@@ -1771,6 +1771,702 @@ const FajaIcon = /*#__PURE__*/React.createElement("svg", {
   stopColor: "#CC2900"
 }))));
 
+
+const PERU_LEGAL_DOCS = {
+  "terminos": {
+    id: "terminos",
+    title: "Términos y Condiciones de Uso",
+    subtitle: "Conforme a la Ley N° 29571 (Código de Protección y Defensa del Consumidor), D.L. N° 1524 y Código Civil Peruano",
+    badge: "Normativa Nacional Vigente",
+    sections: [
+      {
+        heading: "1. Identificación del Proveedor y Ámbito de Aplicación",
+        paragraphs: [
+          "El presente portal web es operado bajo la denominación comercial BASSFIT PERÚ, con domicilio operativo y fiscal en la ciudad de Lima, República del Perú. Teléfono y canal oficial de atención WhatsApp: +51 967 581 481. Correo electrónico oficial de contacto: contacto@bassfit.pe.",
+          "Conforme al Decreto Legislativo N° 1524 que modifica la Ley del Registro Único de Contribuyentes (RUC), BASSFIT PERÚ cumple con consignar su identificación ante los usuarios y la administración tributaria (SUNAT), encontrándose en curso de regularización y validación formal de su partida registral y RUC [por confirmar: 20XXXXXXXXX / 10XXXXXXXXX].",
+          "Estos Términos y Condiciones regulan el acceso, navegación y las transacciones comerciales que se efectúen a través de este catálogo digital de implementos de calistenia, fuerza, barras multifunción, fajas deportivas, accesorios fitness y programas de entrenamiento personal en todo el territorio del Perú."
+        ]
+      },
+      {
+        heading: "2. Formación del Consentimiento y Proceso de Compra",
+        paragraphs: [
+          "La exhibición de productos en este sitio web constituye una invitación a cotizar y contratar en entorno digital. El consumidor selecciona los productos y variantes deseadas a través del carrito interactivo y formaliza su solicitud mediante el canal oficial de WhatsApp o medios electrónicos vinculados.",
+          "La confirmación final del pedido queda perfeccionada una vez validada la disponibilidad física de stock, la dirección exacta de despacho y la acreditación del pago mediante los medios autorizados."
+        ]
+      },
+      {
+        heading: "3. Precios, Moneda y Régimen Tributario (IGV)",
+        paragraphs: [
+          "De conformidad con el artículo 5 de la Ley N° 29571 y las normas tributarias de la SUNAT, todos los precios se encuentran expresados en moneda nacional de curso legal: Soles peruanos (S/).",
+          "Todos los precios detallados en el carrito de compras y en el resumen final desglosan de forma expresa y transparente el Impuesto General a las Ventas (IGV del 18%), compuesto por el 16% de IGV y el 2% de Impuesto de Promoción Municipal (IPM), conforme al TUO de la Ley del IGV e ISC (D.S. N° 055-99-EF).",
+          "Los gastos de envío o transporte no se encuentran incluidos en el precio base de cada implemento y son informados de manera clara y previa al cliente antes de la confirmación final de la compra, según el destino (Lima o provincias) y el peso del paquete."
+        ]
+      },
+      {
+        heading: "4. Medios de Pago Autorizados",
+        paragraphs: [
+          "BASSFIT PERÚ acepta como medios de pago válidos: transferencias interbancarias y depósitos en cuentas de entidades financieras reguladas por la SBS en el Perú (BCP, BBVA, Interbank, Banco de la Nación), billeteras digitales autorizadas (Yape y Plin) y pago contra entrega en efectivo o POS móvil en zonas y distritos autorizados de Lima Metropolitana.",
+          "El comprobante de pago electrónico (Boleta de Venta Electrónica o Factura Electrónica) será emitido y remitido al consumidor al correo o WhatsApp proporcionado tras la validación de la operación."
+        ]
+      },
+      {
+        heading: "5. Capacidad Legal del Usuario",
+        paragraphs: [
+          "Los servicios y productos ofrecidos están destinados exclusivamente a personas mayores de 18 años con plena capacidad legal para celebrar actos jurídicos y contratos de compraventa de acuerdo con el Código Civil Peruano. En caso de compras realizadas por menores de edad, se presumirá la autorización de sus padres o tutores legales."
+        ]
+      },
+      {
+        heading: "6. Uso Responsable y Advertencia de Seguridad Deportiva",
+        paragraphs: [
+          "Los implementos comercializados (barras 8en1, mancuernas, bancas, bandas elásticas, colchonetas y accesorios) están diseñados para la actividad física y el entrenamiento. El usuario declara contar con un estado de salud apto para el ejercicio físico.",
+          "Es responsabilidad del consumidor seguir rigurosamente las pautas de instalación y uso técnico: las barras multifunción y estructuras de anclaje a pared deben ser instaladas únicamente sobre muros portantes macizos (ladrillo, cemento o concreto) y bajo ninguna circunstancia sobre paredes de drywall o tabiquería hueca sin refuerzo estructural.",
+          "BASSFIT PERÚ no asume responsabilidad por accidentes o daños derivados de una instalación deficiente realizada por terceros, o por el uso que exceda la carga máxima nominal especificada en cada producto."
+        ]
+      },
+      {
+        heading: "7. Propiedad Intelectual",
+        paragraphs: [
+          "Todos los signos distintivos, marcas, logotipos 'BASSFIT PERÚ', fotografías, textos, catálogos, iconos y software de la plataforma son propiedad de BASSFIT PERÚ o cuentan con las autorizaciones debidas, protegidas por el Decreto Legislativo N° 822 (Ley sobre el Derecho de Autor) y la Decisión 486 de la Comisión de la Comunidad Andina.",
+          "Queda expresamente prohibida su reproducción, comercialización, copia o uso no autorizado sin previo consentimiento escrito."
+        ]
+      },
+      {
+        heading: "8. Legislación Aplicable y Jurisdicción",
+        paragraphs: [
+          "Estos términos se rigen e interpretan conforme a las leyes vigentes en la República del Perú. Toda controversia o reclamación que no sea resuelta de mutuo acuerdo será sometida administrativamente a la competencia del Instituto Nacional de Defensa de la Competencia y de la Protección de la Propiedad Intelectual (INDECOPI) o, en su defecto, a la jurisdicción de los Jueces y Tribunales del Distrito Judicial de Lima."
+        ]
+      }
+    ]
+  },
+  "privacidad": {
+    id: "privacidad",
+    title: "Política de Privacidad",
+    subtitle: "Conforme a la Ley N° 29733 (Ley de Protección de Datos Personales) y D.S. N° 003-2013-JUS",
+    badge: "Privacidad & Seguridad Digital",
+    sections: [
+      {
+        heading: "1. Declaración de Privacidad y Compromiso",
+        paragraphs: [
+          "BASSFIT PERÚ garantiza el irrestricto respeto a la intimidad, confidencialidad y buen uso de la información personal de cada uno de sus visitantes, clientes y usuarios, en estricto cumplimiento de la Ley N° 29733 y su Reglamento aprobado por Decreto Supremo N° 003-2013-JUS.",
+          "Adoptamos medidas de seguridad de índole técnica, legal y organizativa necesarias para resguardar los datos recopilados contra accesos no autorizados, pérdida, alteración o tratamiento indebido."
+        ]
+      },
+      {
+        heading: "2. Información Recopilada",
+        paragraphs: [
+          "BASSFIT PERÚ recopila únicamente los datos estrictamente necesarios para concretar la atención, asesoría y despacho de implementos deportivos:",
+          "(a) Datos de contacto e identificación: Nombres y apellidos completos, tipo y número de documento de identidad (DNI, Carné de Extranjería o RUC), número de teléfono móvil o WhatsApp, y dirección de correo electrónico.",
+          "(b) Datos de entrega: Dirección de domicilio, referencias de ubicación, distrito, provincia y departamento en el Perú.",
+          "(c) Datos para el Libro de Reclamaciones: Aquellos exigidos por el D.S. N° 011-2011-PCM cuando se formula un reclamo o queja formal."
+        ]
+      },
+      {
+        heading: "3. No Recopilación de Datos Financieros Sensibles",
+        paragraphs: [
+          "En ningún momento este sitio web recopila, almacena ni procesa números de tarjetas de crédito o débito, códigos CVV ni claves secretas de seguridad bancaria. Toda transacción se coordina mediante transferencias directas o pasarelas autorizadas fuera de los servidores de la web."
+        ]
+      },
+      {
+        heading: "4. Canales Externos y Mensajería",
+        paragraphs: [
+          "Nuestra web utiliza la API oficial de WhatsApp (Meta Platforms Inc.) para facilitar el contacto directo y el envío del pedido estructurado. La interacción en dicha aplicación se rige por las políticas de privacidad y cifrado de extremo a extremo de WhatsApp."
+        ]
+      }
+    ]
+  },
+  "datos": {
+    id: "datos",
+    title: "Tratamiento de Datos Personales",
+    subtitle: "Conforme al Artículo 18 de la Ley N° 29733 y Directivas de la ANPDP (MINJUS)",
+    badge: "LPDP Ley 29733 - Perú",
+    sections: [
+      {
+        heading: "1. Identidad y Domicilio del Titular del Banco de Datos",
+        paragraphs: [
+          "El titular y responsable del tratamiento de los datos personales es BASSFIT PERÚ, con domicilio operativo y legal en la ciudad de Lima, Perú. Correo de atención especializado: contacto@bassfit.pe."
+        ]
+      },
+      {
+        heading: "2. Denominación del Banco de Datos Personales",
+        paragraphs: [
+          "Los datos personales proporcionados son incorporados al banco de datos de administración privada denominado 'Clientes y Usuarios de Bassfit Perú' (en proceso de registro ante el Registro Nacional de Protección de Datos Personales de la Autoridad Nacional de Protección de Datos Personales - ANPDP del Ministerio de Justicia y Derechos Humanos)."
+        ]
+      },
+      {
+        heading: "3. Finalidades Principales del Tratamiento",
+        paragraphs: [
+          "El tratamiento de sus datos personales tiene como finalidades indispensables y legítimas:",
+          "1. Gestionar, procesar y validar los pedidos de compra de implementos deportivos y suscripciones de entrenamiento.",
+          "2. Emitir el comprobante de pago electrónico respectivo ante la SUNAT (Boleta o Factura).",
+          "3. Coordinar y efectuar la entrega a domicilio en Lima o el envío por agencia de transporte a provincias.",
+          "4. Brindar asesoría personalizada, soporte técnico y atención postventa.",
+          "5. Gestionar y conservar el registro de quejas y reclamos en el Libro de Reclamaciones conforme al D.S. N° 011-2011-PCM y Ley N° 31435."
+        ]
+      },
+      {
+        heading: "4. Finalidades Adicionales (Comunicaciones Comerciales)",
+        paragraphs: [
+          "Solo con el consentimiento previo, libre, expreso, inequívoco e informado del titular, BASSFIT PERÚ podrá remitir información sobre nuevos lanzamientos, masterclasses, eventos deportivos y ofertas de implementos. Dicho consentimiento es enteramente facultativo y su negativa no condiciona la compra de ningún producto."
+        ]
+      },
+      {
+        heading: "5. Transferencias a Terceros y Encargados",
+        paragraphs: [
+          "Los datos personales podrán ser comunicados a empresas de transporte y courier de confianza (tales como Olva Courier, Shalom Empresarial, Marvisur o servicios de mensajería local) en calidad de encargados del tratamiento, con el único y exclusivo propósito de cumplir con la entrega material de los implementos.",
+          "BASSFIT PERÚ no vende, alquila ni cede bases de datos personales a terceros bajo ninguna circunstancia."
+        ]
+      },
+      {
+        heading: "6. Plazo de Conservación de la Información",
+        paragraphs: [
+          "Los datos personales se conservarán mientras dure la relación comercial y, posteriormente, durante los plazos legalmente exigibles para la atención de responsabilidades contractuales, tributarias (5 años según el Código Tributario) y de protección al consumidor (2 años para hojas de reclamación según D.S. 011-2011-PCM)."
+        ]
+      },
+      {
+        heading: "7. Ejercicio de Derechos ARCO (Acceso, Rectificación, Cancelación y Oposición)",
+        paragraphs: [
+          "Conforme a la Ley N° 29733 y su Reglamento, el titular de los datos personales puede ejercer en cualquier momento y de forma gratuita sus derechos de:",
+          "• Acceso: Conocer qué datos personales suyos obran en poder de BASSFIT PERÚ y la finalidad de su uso.",
+          "• Rectificación: Actualizar, corregir o completar datos inexactos o erróneos.",
+          "• Cancelación: Solicitar la supresión de sus datos cuando hayan dejado de ser necesarios para la finalidad para la cual fueron recopilados.",
+          "• Oposición: Oponerse al tratamiento de sus datos para finalidades no deseadas, tales como comunicaciones comerciales.",
+          "Procedimiento: El titular puede dirigir una solicitud simple al correo contacto@bassfit.pe o al WhatsApp +51 967 581 481, adjuntando copia legible de su DNI o documento equivalente para verificar su identidad.",
+          "Plazos legales de atención (Art. 55 D.S. 003-2013-JUS): Veinte (20) días hábiles para solicitudes de Acceso; diez (10) días hábiles para solicitudes de Rectificación, Cancelación u Oposición.",
+          "En caso de que considere que su solicitud no ha sido debidamente atendida, el titular tiene expedito su derecho de acudir en vía de tutela ante la Dirección General de Transparencia, Acceso a la Información Pública y Protección de Datos Personales (ANPDP - MINJUS)."
+        ]
+      }
+    ]
+  },
+  "cookies": {
+    id: "cookies",
+    title: "Política de Cookies y Almacenamiento Local",
+    subtitle: "Transparencia técnica de navegación y almacenamiento web",
+    badge: "Navegación Segura",
+    sections: [
+      {
+        heading: "1. ¿Qué son las Cookies y el Almacenamiento Local?",
+        paragraphs: [
+          "Las cookies y tecnologías de almacenamiento local (como localStorage) son pequeños ficheros que se guardan en su dispositivo al visitar una página web, con la finalidad de recordar sus preferencias de navegación y permitir el funcionamiento interactivo de la tienda virtual."
+        ]
+      },
+      {
+        heading: "2. Cookies Técnicas y Funcionales Utilizadas",
+        paragraphs: [
+          "En este sitio web empleamos únicamente tecnologías esenciales para el usuario:",
+          "• Almacenamiento del Carrito de Compras: Permite que los implementos y variantes que seleccione se mantengan guardados durante su sesión.",
+          "• Preferencias de Interfaz: Recuerda las selecciones de pestañas activas, filtros de búsqueda y la aceptación de avisos legales.",
+          "• Respaldo Local del Libro de Reclamaciones: Guarda temporalmente la constancia de su hoja de reclamación en su propio navegador para su descarga e impresión.",
+          "No empleamos cookies publicitarias invasivas de rastreo cruzado entre sitios web."
+        ]
+      },
+      {
+        heading: "3. Cómo Desactivar o Administrar las Cookies",
+        paragraphs: [
+          "El usuario tiene la potestad de restringir, bloquear o borrar las cookies en cualquier momento mediante la configuración de su navegador web (Google Chrome, Microsoft Edge, Mozilla Firefox o Safari). Tenga en cuenta que deshabilitar cookies técnicas indispensables puede impedir el funcionamiento del carrito de compras virtual."
+        ]
+      }
+    ]
+  },
+  "devoluciones": {
+    id: "devoluciones",
+    title: "Política de Cambios, Devoluciones y Reembolsos",
+    subtitle: "Conforme a la Ley N° 29571 (Arts. 19 y 97 del Código de Protección y Defensa del Consumidor)",
+    badge: "Garantía de Satisfacción & Idoneidad",
+    sections: [
+      {
+        heading: "1. Plazo General de Solicitud de Cambio o Devolución",
+        paragraphs: [
+          "De conformidad con el Código de Protección y Defensa del Consumidor y las directrices de comercio electrónico de INDECOPI, el cliente cuenta con un plazo de hasta siete (7) días calendario posteriores a la recepción física del producto para solicitar el cambio o devolución por insatisfacción comercial o desistimiento, y dentro del plazo de garantía legal si se tratase de una falla de fábrica."
+        ]
+      },
+      {
+        heading: "2. Condiciones Generales para Implementos Deportivos",
+        paragraphs: [
+          "Para proceder con el cambio o devolución de implementos generales (barras 8en1, mancuernas de fierro, bandas elásticas de látex, colchonetas, sogas de salto, ruedas abdominales y accesorios metálicos), el producto debe cumplir obligatoriamente los siguientes requisitos:",
+          "• Encontrarse totalmente nuevo, sin señales de desgaste, golpes, ralladuras ni ensamblaje forzado.",
+          "• Conservar sus empaques originales, cajas, etiquetas, manuales y el juego íntegro de pernos, tarugos y accesorios de montaje.",
+          "• Presentar la boleta de venta o factura electrónica emitida por BASSFIT PERÚ."
+        ]
+      },
+      {
+        heading: "3. EXCEPCIÓN LEGAL DE SALUD PÚBLICA E HIGIENE (Fajas y Prendas Íntimas)",
+        paragraphs: [
+          "IMPORTANTE - BIEN CON EXCEPCIÓN SANITARIA: En estricto cumplimiento de las normas de salud pública y los criterios de protección al consumidor emitidos por INDECOPI, las fajas reductoras, chalecos térmicos, fajas avispa y prendas deportivas de uso corporal íntimo o compresión directa sobre la piel NO ADMITEN CAMBIO NI DEVOLUCIÓN una vez abierto su empaque original o probado el producto.",
+          "Esta medida es indispensable por motivos de higiene, asepsia y protección de la salud de todos los consumidores. Solo se admitirán reclamos excepcionales si el cliente reporta un defecto de fábrica evidente (costura abierta, cierre defectuoso) antes de cualquier uso y dentro de las primeras 48 horas de haber recibido el paquete, con sus etiquetas y precintos inviolados."
+        ]
+      },
+      {
+        heading: "4. Cosméticos y Suplementos (Geles y Cremas Liporeductoras)",
+        paragraphs: [
+          "Las cremas liporeductoras (Lipo Cream caliente/fría) y geles corporales no admiten cambio ni devolución si su precinto de seguridad ha sido retirado o violado, por razones de bioseguridad y control sanitario."
+        ]
+      },
+      {
+        heading: "5. Procedimiento y Plazo de Reembolso",
+        paragraphs: [
+          "1. El cliente debe comunicarse al WhatsApp oficial +51 967 581 481 o al correo contacto@bassfit.pe, adjuntando fotografías o videos claros del producto, su empaque y el comprobante de compra.",
+          "2. Evaluada la solicitud, se coordinará la entrega del producto en nuestro punto de recepción en Lima.",
+          "3. Una vez verificado el estado del implemento por el área técnica, si procede el reembolso de dinero, este se efectuará mediante transferencia bancaria o Yape/Plin en un plazo máximo de 7 a 10 días hábiles."
+        ]
+      }
+    ]
+  },
+  "envios": {
+    id: "envios",
+    title: "Política de Envíos y Entregas",
+    subtitle: "Cobertura en Lima Metropolitana y Envíos a Nivel Nacional en todo el Perú",
+    badge: "Logística Nacional",
+    sections: [
+      {
+        heading: "1. Cobertura y Modalidades de Despacho",
+        paragraphs: [
+          "BASSFIT PERÚ realiza despachos a domicilio en Lima Metropolitana y envíos a todo el territorio nacional hacia las principales ciudades y provincias de los 24 departamentos del Perú.",
+          "Para envíos a provincias, trabajamos con empresas de transporte y encomienda reconocidas y autorizadas (Shalom Empresarial, Olva Courier, Marvisur y agencias interprovinciales acreditadas)."
+        ]
+      },
+      {
+        heading: "2. Plazos Estimados de Entrega",
+        paragraphs: [
+          "• Lima Metropolitana: Entre 24 y 48 horas hábiles tras la verificación del pago.",
+          "• Provincias (Capitales de departamento): Entre 2 y 4 días hábiles, sujeto a los tiempos de tránsito del operador logístico.",
+          "• Provincias y zonas remotas: Entre 3 y 6 días hábiles.",
+          "Los días hábiles se computan de lunes a viernes, exceptuando feriados nacionales."
+        ]
+      },
+      {
+        heading: "3. Tarifas y Costos de Envío",
+        paragraphs: [
+          "El costo del flete se calcula en función del peso real, volumen del paquete (especialmente en implementos pesados como barras multifunción o sets de pesas) y la dirección de destino. Dicho valor se cotiza y aprueba de forma previa y transparente antes del pago del pedido."
+        ]
+      },
+      {
+        heading: "4. Deber de Verificación e Inspección en la Recepción",
+        paragraphs: [
+          "Al momento de recibir el pedido en domicilio o al retirarlo en la agencia de encomiendas, el consumidor o la persona designada debe constatar que el embalaje se encuentre en óptimas condiciones, sin roturas, cintas manipuladas ni abolladuras graves.",
+          "En caso de detectarse alguna anomalía atribuible al transporte, deberá dejarse constancia inmediata en la guía de remisión del transportista y comunicarse con BASSFIT PERÚ dentro de las siguientes 24 horas para gestionar la solución correspondiente."
+        ]
+      }
+    ]
+  },
+  "garantias": {
+    id: "garantias",
+    title: "Garantías y Derechos del Consumidor",
+    subtitle: "Conforme a los Artículos 18 al 23 y Art. 97 de la Ley N° 29571 (INDECOPI)",
+    badge: "Garantía Legal & Idoneidad",
+    sections: [
+      {
+        heading: "1. Garantía Legal de Idoneidad",
+        paragraphs: [
+          "En cumplimiento de la Ley N° 29571 (Código de Protección y Defensa del Consumidor), todo producto comercializado por BASSFIT PERÚ cuenta con garantía legal de idoneidad, lo cual asegura que el implemento cumple cabalmente con las especificaciones técnicas, resistencia y prestaciones funcionales ofrecidas."
+        ]
+      },
+      {
+        heading: "2. Garantía Específica por Categoría de Producto",
+        paragraphs: [
+          "• Estructuras de Calistenia y Barras Multifunción (Barras 8en1): Cobertura de garantía estructural de fábrica de hasta 12 meses sobre cordones de soldadura, uniones y tubos de acero principales.",
+          "• Sets de Mancuernas y Bancas de Fuerza: Cobertura de 6 a 12 meses sobre defectos de fabricación de piezas metálicas y pernos de fijación.",
+          "• Accesorios Elásticos y de Desgaste (Bandas elásticas, sogas de salto, colchonetas EVA): Garantía de 3 meses frente a fallas atribuibles a vicios de fabricación en costuras o látex.",
+          "• Fajas Deportivas: Garantía de 30 días frente a desprendimientos de costura o fallas mecánicas de cierres preexistentes a su uso."
+        ]
+      },
+      {
+        heading: "3. Exclusiones de la Garantía",
+        paragraphs: [
+          "La garantía quedará sin efecto en los siguientes supuestos:",
+          "(a) Anclaje o instalación inadecuada en paredes no aptas (drywall, tabiques de yeso o muros huecos sin solidez estructural).",
+          "(b) Sometimiento del equipo a cargas superiores al límite máximo de peso nominal especificado en la ficha técnica del producto.",
+          "(c) Daños provocados por caídas accidentales, golpes indebidos, maltrato o modificaciones estructurales realizadas por el usuario o terceros (cortes, soldaduras externas).",
+          "(d) Desgaste estético natural derivado del uso continuo, así como corrosión provocada por la exposición intemperie o a ambientes con salinidad extrema sin mantenimiento."
+        ]
+      },
+      {
+        heading: "4. Derechos del Consumidor ante Defectos de Fábrica",
+        paragraphs: [
+          "De verificarse un vicio de fabricación dentro del plazo de garantía, el consumidor tiene derecho, de acuerdo con el artículo 97 del Código de Protección y Defensa del Consumidor, a:",
+          "1. La reparación técnica gratuita del producto y reposición de piezas defectuosas.",
+          "2. La sustitución del implemento por uno nuevo e idéntico.",
+          "3. La devolución de la contraprestación pagada si el defecto resultara insubsanable."
+        ]
+      }
+    ]
+  },
+  "atencion": {
+    id: "atencion",
+    title: "Canales de Atención al Cliente",
+    subtitle: "Conforme a la Ley N° 29571 y directrices de atención del INDECOPI",
+    badge: "Soporte Oficial",
+    sections: [
+      {
+        heading: "1. Horarios y Disponibilidad",
+        paragraphs: [
+          "BASSFIT PERÚ pone a disposición de sus clientes canales directos de atención y soporte técnico durante el siguiente horario oficial: Lunes a Sábado de 8:00 AM a 9:00 PM (Hora de Lima, Perú, UTC-5).",
+          "Las consultas recibidas fuera del horario comercial serán respondidas en el primer turno hábil siguiente."
+        ]
+      },
+      {
+        heading: "2. Canal Prioritario de Consultas y Pedidos",
+        paragraphs: [
+          "• WhatsApp Oficial: +51 967 581 481 (atención personalizada directa con nuestros asesores de producto y coaches).",
+          "Tiempo de respuesta promedio: Menos de 15 a 30 minutos dentro del horario comercial."
+        ]
+      },
+      {
+        heading: "3. Correo Electrónico Oficial",
+        paragraphs: [
+          "• Para consultas generales, facturación y soporte: contacto@bassfit.pe.",
+          "• Para notificaciones legales y ejercicio de Derechos ARCO: privacidad@bassfit.pe / contacto@bassfit.pe."
+        ]
+      },
+      {
+        heading: "4. Canal Formal para Reclamos y Quejas",
+        paragraphs: [
+          "Para la presentación formal de reclamaciones o quejas, los consumidores tienen a su disposición el Libro de Reclamaciones Virtual accesible de manera permanente desde este sitio web, con un plazo máximo de respuesta de quince (15) días hábiles improrrogables (Ley N° 31435)."
+        ]
+      }
+    ]
+  }
+};
+
+
+
+function renderLegalModal(legalModalTab, setLegalModalTab, setIsLibroOpen) {
+  if (!legalModalTab || !PERU_LEGAL_DOCS[legalModalTab]) return null;
+  const doc = PERU_LEGAL_DOCS[legalModalTab];
+  const tabsList = [
+    { id: "terminos", label: "Términos y Condiciones" },
+    { id: "privacidad", label: "Política de Privacidad" },
+    { id: "datos", label: "Datos Personales (Ley 29733)" },
+    { id: "cookies", label: "Política de Cookies" },
+    { id: "devoluciones", label: "Cambios & Devoluciones" },
+    { id: "envios", label: "Envíos & Entregas" },
+    { id: "garantias", label: "Garantías & Derechos" },
+    { id: "atencion", label: "Canales de Atención" }
+  ];
+
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in",
+    onClick: () => setLegalModalTab(null)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200 text-left",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#0F172A] text-white p-5 sm:p-6 flex items-start justify-between border-b border-slate-800"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-1 pr-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "inline-flex items-center space-x-1.5 bg-orange-500/20 text-[#FF5500] px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border border-orange-500/30"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-1.5 h-1.5 rounded-full bg-[#FF5500] animate-pulse"
+  }), /*#__PURE__*/React.createElement("span", null, doc.badge || "Normativa Oficial Perú")), /*#__PURE__*/React.createElement("h2", {
+    className: "text-xl sm:text-2xl font-black tracking-tight"
+  }, doc.title), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-400 font-medium leading-relaxed"
+  }, doc.subtitle)), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab(null),
+    className: "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 sm:px-3 sm:py-1.5 rounded-full text-xs font-bold transition cursor-pointer flex items-center space-x-1"
+  }, /*#__PURE__*/React.createElement("span", { className: "hidden sm:inline" }, "Cerrar"), /*#__PURE__*/React.createElement("span", null, "✕"))),
+
+  /* Horizontal Tabs Selector */
+  /*#__PURE__*/React.createElement("div", {
+    className: "bg-slate-100 border-b border-slate-200 px-3 py-2 flex items-center space-x-2 overflow-x-auto select-none no-scrollbar"
+  }, tabsList.map(tab => /*#__PURE__*/React.createElement("button", {
+    key: tab.id,
+    type: "button",
+    onClick: () => setLegalModalTab(tab.id),
+    className: `px-3 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap cursor-pointer ${legalModalTab === tab.id ? "bg-[#FF5500] text-white shadow-xs" : "bg-white text-slate-600 hover:bg-slate-200"}`
+  }, tab.label)), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => { setLegalModalTab(null); setIsLibroOpen(true); },
+    className: "px-3 py-1.5 rounded-full text-xs font-black transition whitespace-nowrap cursor-pointer bg-slate-900 text-white hover:bg-slate-800 flex items-center space-x-1 shadow-xs"
+  }, /*#__PURE__*/React.createElement("span", null, "📖"), /*#__PURE__*/React.createElement("span", null, "Libro de Reclamaciones"))),
+
+  /* Modal Content Body */
+  /*#__PURE__*/React.createElement("div", {
+    className: "p-6 sm:p-8 overflow-y-auto space-y-6 text-slate-700 text-xs sm:text-sm leading-relaxed"
+  }, doc.sections.map((sec, idx) => /*#__PURE__*/React.createElement("div", {
+    key: idx,
+    className: "space-y-2 pb-4 border-b border-slate-100 last:border-b-0"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-sm sm:text-base font-black text-slate-900 uppercase tracking-tight"
+  }, sec.heading), sec.paragraphs.map((p, pIdx) => /*#__PURE__*/React.createElement("p", {
+    key: pIdx,
+    className: "text-slate-600 font-normal leading-relaxed text-justify"
+  }, p))))),
+
+  /* Modal Footer */
+  /*#__PURE__*/React.createElement("div", {
+    className: "p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-slate-500 text-[11px]"
+  }, "BASSFIT PERÚ · Cumplimiento Ley N° 29571, Ley N° 29733 y D.L. N° 1524"), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => window.print(),
+    className: "bg-white hover:bg-slate-100 text-slate-700 font-bold px-3 py-1.5 rounded-xl border border-slate-200 transition cursor-pointer flex items-center space-x-1"
+  }, /*#__PURE__*/React.createElement("span", null, "🖨️"), /*#__PURE__*/React.createElement("span", null, "Imprimir")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => { setLegalModalTab(null); setIsLibroOpen(true); },
+    className: "bg-slate-900 hover:bg-[#FF5500] text-white font-bold px-3.5 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1"
+  }, /*#__PURE__*/React.createElement("span", null, "📖"), /*#__PURE__*/React.createElement("span", null, "Libro de Reclamaciones")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab(null),
+    className: "bg-[#FF5500] hover:bg-[#e04a00] text-white font-black px-4 py-1.5 rounded-xl transition cursor-pointer"
+  }, "Entendido")))));
+}
+
+function renderLibroModal(isLibroOpen, setIsLibroOpen, libroForm, setLibroForm, libroSubmitted, setLibroSubmitted) {
+  if (!isLibroOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!libroForm.nombre || !libroForm.numDoc || !libroForm.telefono || !libroForm.email || !libroForm.direccion || !libroForm.detalle || !libroForm.pedido) {
+      alert("Por favor completa todos los campos obligatorios del Libro de Reclamaciones.");
+      return;
+    }
+    const correlativo = String(Math.floor(1000 + Math.random() * 9000));
+    const prefijo = libroForm.tipoReclamo === "reclamo" ? "REC" : "QUE";
+    const codigo = `${prefijo}-2026-${correlativo}`;
+    const fecha = new Date().toLocaleString("es-PE", { dateStyle: "long", timeStyle: "short" });
+    const record = { ...libroForm, codigo, fecha };
+
+    try {
+      const prev = JSON.parse(localStorage.getItem("bassfit_libro_reclamaciones") || "[]");
+      prev.push(record);
+      localStorage.setItem("bassfit_libro_reclamaciones", JSON.stringify(prev));
+    } catch(err) {}
+
+    setLibroSubmitted(record);
+  };
+
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in",
+    onClick: () => { setIsLibroOpen(false); setLibroSubmitted(null); }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200 text-left",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-[#0F172A] text-white p-5 sm:p-6 flex items-start justify-between border-b border-slate-800"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "inline-flex items-center space-x-1.5 bg-orange-500/20 text-[#FF5500] px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border border-orange-500/30"
+  }, /*#__PURE__*/React.createElement("span", null, "📖"), /*#__PURE__*/React.createElement("span", null, "Libro de Reclamaciones Virtual Oficial")), /*#__PURE__*/React.createElement("h2", {
+    className: "text-xl sm:text-2xl font-black tracking-tight"
+  }, "HOJA DE RECLAMACIÓN VIRTUAL"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-slate-400 font-medium"
+  }, "BASSFIT PERÚ · RUC: [Por confirmar] · Conforme al D.S. N° 011-2011-PCM y Ley N° 31435 INDECOPI")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => { setIsLibroOpen(false); setLibroSubmitted(null); },
+    className: "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-full text-xs font-bold transition cursor-pointer"
+  }, "✕")),
+
+  libroSubmitted ? /*#__PURE__*/React.createElement("div", {
+    className: "p-6 sm:p-8 overflow-y-auto space-y-5 text-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-3xl font-black shadow-inner"
+  }, "✓"), /*#__PURE__*/React.createElement("h3", {
+    className: "text-2xl font-black text-slate-900"
+  }, "¡Reclamación Registrada Exitosamente!"), /*#__PURE__*/React.createElement("div", {
+    className: "bg-orange-50 border border-orange-200 rounded-2xl p-4 text-slate-800 space-y-1.5 text-xs max-w-md mx-auto text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-mono font-black text-sm text-[#FF5500]"
+  }, "CÓDIGO: ", libroSubmitted.codigo), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Fecha y hora: "), libroSubmitted.fecha), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Consumidor: "), libroSubmitted.nombre, " (", libroSubmitted.tipoDoc, ": ", libroSubmitted.numDoc, ")"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, "Tipo: "), libroSubmitted.tipoReclamo === "reclamo" ? "RECLAMO (Disconformidad con producto/servicio)" : "QUEJA (Malestar con la atención)")), /*#__PURE__*/React.createElement("div", {
+    className: "bg-slate-900 text-white rounded-2xl p-4 text-xs max-w-lg mx-auto space-y-2 text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-bold text-[#FF5500] uppercase tracking-wide flex items-center space-x-1.5"
+  }, /*#__PURE__*/React.createElement("span", null, "⚖️"), /*#__PURE__*/React.createElement("span", null, "Plazo Legal de Respuesta (Ley N° 31435):")), /*#__PURE__*/React.createElement("p", {
+    className: "text-slate-300 text-[11px] leading-relaxed"
+  }, "De conformidad con la Ley N° 31435 que modificó el Código de Protección y Defensa del Consumidor, BASSFIT PERÚ dará respuesta a su ", libroSubmitted.tipoReclamo, " en un plazo máximo de ", /*#__PURE__*/React.createElement("strong", { className: "text-white underline" }, "quince (15) días hábiles improrrogables"), " a través de su correo: ", /*#__PURE__*/React.createElement("strong", { className: "text-orange-300" }, libroSubmitted.email), ".")), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center justify-center gap-2 pt-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => window.print(),
+    className: "bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer flex items-center space-x-1.5"
+  }, /*#__PURE__*/React.createElement("span", null, "🖨️"), /*#__PURE__*/React.createElement("span", null, "Imprimir Hoja de Reclamación")), /*#__PURE__*/React.createElement("a", {
+    href: `https://wa.me/51967581481?text=${encodeURIComponent(`Hola Bassfit Perú 👋, confirmo el registro de mi Hoja de Reclamación Virtual con Código Oficial *${libroSubmitted.codigo}* a nombre de ${libroSubmitted.nombre} (${libroSubmitted.tipoDoc} ${libroSubmitted.numDoc}). Quedo atento a la respuesta legal en un plazo máximo de 15 días hábiles.`)}`,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "bg-[#25D366] hover:bg-[#20ba59] text-white font-black px-4 py-2 rounded-xl text-xs transition cursor-pointer flex items-center space-x-1.5 shadow-md"
+  }, /*#__PURE__*/React.createElement("span", null, "💬"), /*#__PURE__*/React.createElement("span", null, "Enviar Constancia a WhatsApp")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => { setLibroSubmitted(null); setIsLibroOpen(false); },
+    className: "bg-[#0F172A] hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer"
+  }, "Cerrar"))) :
+
+  /* The Claim Form */
+  /*#__PURE__*/React.createElement("form", {
+    onSubmit: handleSubmit,
+    className: "p-6 sm:p-8 overflow-y-auto space-y-6 text-xs text-slate-700"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-blue-50 border border-blue-200 p-3.5 rounded-2xl text-[11px] text-blue-900 leading-relaxed flex items-start space-x-2"
+  }, /*#__PURE__*/React.createElement("span", { className: "text-base leading-none" }, "ℹ️"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, "Garantía de Atención INDECOPI (Ley N° 31435):"), " Todo reclamo o queja formulado a través de este Libro de Reclamaciones Virtual será atendido por BASSFIT PERÚ en un plazo máximo de ", /*#__PURE__*/React.createElement("strong", null, "15 días hábiles improrrogables"), ".")),
+
+  /* Sección 1: Datos del Consumidor */
+  /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xs font-black uppercase tracking-wider text-slate-900 border-b pb-1 flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("span", null, "1. Identificación del Consumidor Reclamante"), /*#__PURE__*/React.createElement("span", { className: "text-[10px] text-red-500 font-normal lowercase" }, "* campos obligatorios")), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Nombre y Apellidos *"), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    required: true,
+    value: libroForm.nombre,
+    onChange: e => setLibroForm({ ...libroForm, nombre: e.target.value }),
+    placeholder: "Ej. Juan Pérez Quispe",
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-3 gap-1.5"
+  }, /*#__PURE__*/React.createElement("div", { className: "col-span-1" }, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Doc. *"), /*#__PURE__*/React.createElement("select", {
+    value: libroForm.tipoDoc,
+    onChange: e => setLibroForm({ ...libroForm, tipoDoc: e.target.value }),
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs bg-white"
+  }, /*#__PURE__*/React.createElement("option", { value: "DNI" }, "DNI"), /*#__PURE__*/React.createElement("option", { value: "CE" }, "C.E."), /*#__PURE__*/React.createElement("option", { value: "PAS" }, "Pasaporte"), /*#__PURE__*/React.createElement("option", { value: "RUC" }, "RUC"))), /*#__PURE__*/React.createElement("div", { className: "col-span-2" }, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Número *"), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    required: true,
+    value: libroForm.numDoc,
+    onChange: e => setLibroForm({ ...libroForm, numDoc: e.target.value }),
+    placeholder: "8 dígitos",
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs"
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Teléfono / Celular (WhatsApp) *"), /*#__PURE__*/React.createElement("input", {
+    type: "tel",
+    required: true,
+    value: libroForm.telefono,
+    onChange: e => setLibroForm({ ...libroForm, telefono: e.target.value }),
+    placeholder: "Ej. 967581481",
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Correo Electrónico (para respuesta legal) *"), /*#__PURE__*/React.createElement("input", {
+    type: "email",
+    required: true,
+    value: libroForm.email,
+    onChange: e => setLibroForm({ ...libroForm, email: e.target.value }),
+    placeholder: "tu-correo@ejemplo.com",
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs"
+  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Domicilio Completo en Perú (Dirección, Distrito, Ciudad) *"), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    required: true,
+    value: libroForm.direccion,
+    onChange: e => setLibroForm({ ...libroForm, direccion: e.target.value }),
+    placeholder: "Ej. Av. Larco 123, Miraflores, Lima",
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs"
+  }))),
+
+  /* Sección 2: Identificación del Bien Contratado */
+  /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xs font-black uppercase tracking-wider text-slate-900 border-b pb-1"
+  }, "2. Identificación del Bien Contratado"), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-3 gap-3"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Tipo de Bien:"), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-3 pt-1.5"
+  }, /*#__PURE__*/React.createElement("label", { className: "inline-flex items-center space-x-1 cursor-pointer" }, /*#__PURE__*/React.createElement("input", {
+    type: "radio",
+    name: "tipoBien",
+    value: "producto",
+    checked: libroForm.tipoBien === "producto",
+    onChange: () => setLibroForm({ ...libroForm, tipoBien: "producto" })
+  }), /*#__PURE__*/React.createElement("span", null, "Producto")), /*#__PURE__*/React.createElement("label", { className: "inline-flex items-center space-x-1 cursor-pointer" }, /*#__PURE__*/React.createElement("input", {
+    type: "radio",
+    name: "tipoBien",
+    value: "servicio",
+    checked: libroForm.tipoBien === "servicio",
+    onChange: () => setLibroForm({ ...libroForm, tipoBien: "servicio" })
+  }), /*#__PURE__*/React.createElement("span", null, "Servicio")))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Monto Reclamado (S/):"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    value: libroForm.monto,
+    onChange: e => setLibroForm({ ...libroForm, monto: e.target.value }),
+    placeholder: "Ej. 189.00",
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Descripción del Bien:"), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: libroForm.descripcionBien,
+    onChange: e => setLibroForm({ ...libroForm, descripcionBien: e.target.value }),
+    placeholder: "Ej. Barra 8en1 / Asesoría",
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs"
+  })))),
+
+  /* Sección 3: Detalle de Reclamación */
+  /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "text-xs font-black uppercase tracking-wider text-slate-900 border-b pb-1"
+  }, "3. Detalle de la Reclamación"), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: `p-3 rounded-xl border cursor-pointer transition ${libroForm.tipoReclamo === "reclamo" ? "border-[#FF5500] bg-orange-50/50 shadow-xs" : "border-slate-200 bg-white"}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-2 font-bold text-slate-900"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "radio",
+    name: "tipoReclamo",
+    value: "reclamo",
+    checked: libroForm.tipoReclamo === "reclamo",
+    onChange: () => setLibroForm({ ...libroForm, tipoReclamo: "reclamo" })
+  }), /*#__PURE__*/React.createElement("span", null, "RECLAMO")), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-slate-500 mt-1"
+  }, "Disconformidad relacionada directamente a los productos adquiridos o servicios contratados.")), /*#__PURE__*/React.createElement("label", {
+    className: `p-3 rounded-xl border cursor-pointer transition ${libroForm.tipoReclamo === "queja" ? "border-[#FF5500] bg-orange-50/50 shadow-xs" : "border-slate-200 bg-white"}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-2 font-bold text-slate-900"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "radio",
+    name: "tipoReclamo",
+    value: "queja",
+    checked: libroForm.tipoReclamo === "queja",
+    onChange: () => setLibroForm({ ...libroForm, tipoReclamo: "queja" })
+  }), /*#__PURE__*/React.createElement("span", null, "QUEJA")), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-slate-500 mt-1"
+  }, "Malestar o descontento respecto a la atención al público (no vinculado directamente al bien contratado)."))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Detalle de los Hechos (Explicación clara de lo sucedido) *"), /*#__PURE__*/React.createElement("textarea", {
+    rows: 4,
+    required: true,
+    value: libroForm.detalle,
+    onChange: e => setLibroForm({ ...libroForm, detalle: e.target.value }),
+    placeholder: "Describa con precisión los hechos ocurridos, fechas y motivos de su disconformidad...",
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs leading-relaxed"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", { className: "block font-bold mb-1" }, "Pedido Concreto del Consumidor (Qué solución solicita) *"), /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
+    required: true,
+    value: libroForm.pedido,
+    onChange: e => setLibroForm({ ...libroForm, pedido: e.target.value }),
+    placeholder: "Ej. Solicito la sustitución de la pieza defectuosa / Solicito el reembolso...",
+    className: "w-full p-2.5 rounded-xl border border-slate-300 focus:border-[#FF5500] outline-hidden text-xs leading-relaxed"
+  }))),
+
+  /* Consentimiento de datos (Ley 29733) */
+  /*#__PURE__*/React.createElement("div", {
+    className: "p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 flex items-start space-x-2"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    id: "chk-autoriza",
+    required: true,
+    checked: libroForm.autoriza,
+    onChange: e => setLibroForm({ ...libroForm, autoriza: e.target.checked }),
+    className: "mt-0.5"
+  }), /*#__PURE__*/React.createElement("label", {
+    htmlFor: "chk-autoriza",
+    className: "cursor-pointer"
+  }, "Declaro bajo juramento que los datos consignados son verdaderos y autorizo a BASSFIT PERÚ el tratamiento de mis datos personales para la exclusiva tramitación y respuesta formal de la presente reclamación conforme a la Ley N° 29733.")),
+
+  /* Botones del Formulario */
+  /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-end space-x-3 pt-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setIsLibroOpen(false),
+    className: "px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-100 font-bold text-xs text-slate-700 transition cursor-pointer"
+  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
+    type: "submit",
+    className: "bg-[#FF5500] hover:bg-[#e04a00] text-white font-black px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-md cursor-pointer flex items-center space-x-1.5"
+  }, /*#__PURE__*/React.createElement("span", null, "Enviar Hoja de Reclamación"), /*#__PURE__*/React.createElement("span", null, "→"))))));
+}
+
+
 function App() {
   const [activeTab, setActiveTab] = useState(() => { try { const p = new URLSearchParams(window.location.search).get("tab") || window.location.hash.replace("#", ""); if (["home", "shop", "asesorias", "vlogs", "contacto"].includes(p)) return p; } catch(e) {} return "home"; });
   const [selectedCategory, setSelectedCategory] = useState(() => { try { const p = new URLSearchParams(window.location.search).get("cat"); if (p) return p; } catch(e) {} return "todos"; });
@@ -1785,6 +2481,36 @@ function App() {
   const [cardActiveIndices, setCardActiveIndices] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [legalModalTab, setLegalModalTab] = useState(() => {
+    try {
+      const p = new URLSearchParams(window.location.search).get("legal");
+      if (p) return p;
+    } catch(e) {}
+    return null;
+  });
+  const [isLibroOpen, setIsLibroOpen] = useState(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return p.get("libro") === "true" || p.get("reclamaciones") === "true";
+    } catch(e) {}
+    return false;
+  });
+  const [libroSubmitted, setLibroSubmitted] = useState(null);
+  const [libroForm, setLibroForm] = useState({
+    nombre: "",
+    tipoDoc: "DNI",
+    numDoc: "",
+    telefono: "",
+    email: "",
+    direccion: "",
+    tipoBien: "producto",
+    monto: "",
+    descripcionBien: "",
+    tipoReclamo: "reclamo",
+    detalle: "",
+    pedido: "",
+    autoriza: true
+  });
   const [heroSlide, setHeroSlide] = useState(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -4018,7 +4744,7 @@ function App() {
     d: "M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.206.093.237.144.031.052.031.3-.113.705z"
   })), /*#__PURE__*/React.createElement("span", null, "Pedir por WhatsApp (S/ ", cartTotal.toFixed(2), ")")), /*#__PURE__*/React.createElement("div", {
     className: "text-center text-[10px] text-slate-400"
-  }, "Coordinarás la dirección de entrega y forma de pago directamente por WhatsApp")))), selectedEvent && /*#__PURE__*/React.createElement("div", {
+  }, "Coordinarás la entrega y forma de pago directamente por WhatsApp · Al pedir aceptas los Términos y Condiciones y Tratamiento de Datos (Ley 29733)")))), selectedEvent && /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex justify-center items-end sm:items-center p-0 sm:p-6 overflow-hidden",
     onClick: () => setSelectedEvent(null)
   }, /*#__PURE__*/React.createElement("div", {
@@ -4225,7 +4951,9 @@ function App() {
     type: "button",
     onClick: () => setSelectedTutorial(null),
     className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl text-xs transition cursor-pointer text-center mt-2 shadow-xs"
-  }, "✕ Cerrar tutorial")))), /*#__PURE__*/React.createElement("footer", {
+  }, "✕ Cerrar tutorial")))), renderLegalModal(legalModalTab, setLegalModalTab, setIsLibroOpen),
+    renderLibroModal(isLibroOpen, setIsLibroOpen, libroForm, setLibroForm, libroSubmitted, setLibroSubmitted),
+    /*#__PURE__*/React.createElement("footer", {
     className: "bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 py-6 pb-20 sm:pb-6"
   }, /*#__PURE__*/React.createElement("div", {
     className: "max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center space-y-3"
@@ -4283,7 +5011,55 @@ function App() {
     rel: "noopener noreferrer",
     className: "hover:text-white transition inline-flex items-center space-x-1"
   }, /*#__PURE__*/React.createElement("span", null, "💬 +51 967 581 481"))), /*#__PURE__*/React.createElement("div", {
-    className: "pt-2 border-t border-slate-800/80 w-full max-w-md text-[10px] text-slate-500 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3"
+    className: "flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] text-slate-400 pt-1"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab("terminos"),
+    className: "hover:text-[#FF5500] transition cursor-pointer"
+  }, "Términos y Condiciones"), /*#__PURE__*/React.createElement("span", { className: "text-slate-600" }, "•"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab("privacidad"),
+    className: "hover:text-[#FF5500] transition cursor-pointer"
+  }, "Política de Privacidad"), /*#__PURE__*/React.createElement("span", { className: "text-slate-600" }, "•"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab("datos"),
+    className: "hover:text-[#FF5500] transition cursor-pointer"
+  }, "Protección de Datos (Ley 29733)"), /*#__PURE__*/React.createElement("span", { className: "text-slate-600" }, "•"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab("devoluciones"),
+    className: "hover:text-[#FF5500] transition cursor-pointer"
+  }, "Cambios & Devoluciones"), /*#__PURE__*/React.createElement("span", { className: "text-slate-600" }, "•"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab("envios"),
+    className: "hover:text-[#FF5500] transition cursor-pointer"
+  }, "Envíos & Entregas"), /*#__PURE__*/React.createElement("span", { className: "text-slate-600" }, "•"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab("garantias"),
+    className: "hover:text-[#FF5500] transition cursor-pointer"
+  }, "Garantías & Consumidor"), /*#__PURE__*/React.createElement("span", { className: "text-slate-600" }, "•"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab("cookies"),
+    className: "hover:text-[#FF5500] transition cursor-pointer"
+  }, "Cookies"), /*#__PURE__*/React.createElement("span", { className: "text-slate-600" }, "•"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setLegalModalTab("atencion"),
+    className: "hover:text-[#FF5500] transition cursor-pointer"
+  }, "Canales de Atención")), /*#__PURE__*/React.createElement("div", {
+    className: "pt-1 flex flex-col sm:flex-row items-center justify-center gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setIsLibroOpen(true),
+    className: "inline-flex items-center space-x-2 bg-slate-800/90 hover:bg-slate-800 text-white border border-slate-700/80 hover:border-orange-500/60 px-3.5 py-1.5 rounded-xl text-[10px] font-bold transition shadow-xs cursor-pointer group"
+  }, /*#__PURE__*/React.createElement("span", { className: "text-base" }, "📖"), /*#__PURE__*/React.createElement("div", { className: "text-left" }, /*#__PURE__*/React.createElement("span", {
+    className: "block font-black uppercase text-white group-hover:text-[#FF5500] tracking-wider"
+  }, "Libro de Reclamaciones Virtual"), /*#__PURE__*/React.createElement("span", {
+    className: "block text-[8px] text-slate-400 font-normal"
+  }, "Conforme al D.S. N° 011-2011-PCM · Ley N° 31435 INDECOPI")))), /*#__PURE__*/React.createElement("div", {
+    className: "pt-2 border-t border-slate-800/80 w-full max-w-xl text-[10px] text-slate-500 flex flex-col items-center justify-center gap-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-slate-400 font-medium"
+  }, "BASSFIT PERÚ · RUC: [Por confirmar] · Lima, Perú · Venta electrónica de implementos y equipamiento deportivo"), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3"
   }, /*#__PURE__*/React.createElement("span", null, "© 2026 BASSFIT PERÚ. Todos los derechos reservados."), /*#__PURE__*/React.createElement("span", null, "Desarrollado por ", /*#__PURE__*/React.createElement("a", {
     id: "daf-developer-credit",
     href: "https://www.dafsoluciones.site/",
@@ -4291,7 +5067,7 @@ function App() {
     rel: "noopener noreferrer",
     className: "text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer",
     title: "Daf soluciones tecnológicas"
-  }, "Daf soluciones tecnológicas"))))), /*#__PURE__*/React.createElement("nav", {
+  }, "Daf soluciones tecnológicas")))))), /*#__PURE__*/React.createElement("nav", {
     "aria-label": "Navegación Móvil Rápida",
     className: "sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1 flex items-center justify-around select-none"
   }, /*#__PURE__*/React.createElement("button", {
