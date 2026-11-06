@@ -330,7 +330,9 @@ export default function BassfitClientApp() {
     if (variant && variant.name) {
       title += ` [Variedad: ${variant.name}]`;
     }
-    const text = `Hola Bassfit 👋, deseo consultar y comprar: *${title}* (S/ ${product.price.toFixed(2)}). ¿Tienen disponibilidad inmediata y envíos a mi dirección?`;
+    const tax = product.price * 0.18;
+    const total = product.price + tax;
+    const text = `Hola Bassfit 👋, deseo consultar y comprar: *${title}* (S/ ${product.price.toFixed(2)} + IGV/IVA 18% = S/ ${total.toFixed(2)}). ¿Tienen disponibilidad inmediata y envíos a mi dirección?`;
     return `https://wa.me/51967581481?text=${encodeURIComponent(text)}`;
   };
 
@@ -393,6 +395,14 @@ export default function BassfitClientApp() {
     return cart.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
   }, [cart]);
 
+  const cartTax = useMemo(() => {
+    return cartSubtotal * 0.18;
+  }, [cartSubtotal]);
+
+  const cartTotal = useMemo(() => {
+    return cartSubtotal + cartTax;
+  }, [cartSubtotal, cartTax]);
+
   // WhatsApp cart checkout message
   const handleWhatsAppCartOrder = () => {
     if (cart.length === 0) return;
@@ -401,7 +411,9 @@ export default function BassfitClientApp() {
       const varTxt = item.variant ? ` [Variedad: ${item.variant.name}]` : "";
       message += `${idx + 1}. *${item.product.name}*${varTxt} (x${item.quantity}) - S/ ${(item.product.price * item.quantity).toFixed(2)}\n`;
     });
-    message += `\n*TOTAL DEL PEDIDO: S/ ${cartSubtotal.toFixed(2)}*\n\n`;
+    message += `\nSubtotal productos: S/ ${cartSubtotal.toFixed(2)}\n`;
+    message += `+ IGV / IVA (18% Perú): S/ ${cartTax.toFixed(2)}\n`;
+    message += `*TOTAL DEL PEDIDO: S/ ${cartTotal.toFixed(2)}*\n\n`;
     message += "¿Tienen disponibilidad inmediata para envío a mi dirección?";
     const url = `https://wa.me/51967581481?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
@@ -2508,6 +2520,9 @@ export default function BassfitClientApp() {
                   <span className="text-3xl font-black text-[#FF5500]">
                     S/ {selectedProduct.price.toFixed(2)}
                   </span>
+                  <span className="text-xs font-semibold text-slate-500">
+                    + IGV (18% Perú) al finalizar
+                  </span>
                   {selectedProduct.compareAtPrice && (
                     <span className="text-base text-slate-400 line-through">
                       S/ {selectedProduct.compareAtPrice.toFixed(2)}
@@ -2991,20 +3006,35 @@ export default function BassfitClientApp() {
             {/* Drawer Footer with WhatsApp Checkout */}
             {cart.length > 0 && (
               <div className="p-5 border-t border-slate-100 bg-slate-50 space-y-3">
-                <div className="flex justify-between items-baseline">
-                  <span className="text-xs text-slate-500">Subtotal del pedido:</span>
-                  <span className="text-2xl font-black text-[#FF5500]">
-                    S/ {cartSubtotal.toFixed(2)}
-                  </span>
+                <div className="space-y-1.5 text-xs text-slate-600 bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div className="flex justify-between items-center">
+                    <span>Subtotal productos:</span>
+                    <span className="font-semibold text-slate-800">S/ {cartSubtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="flex items-center space-x-1">
+                      <span>+ IGV / IVA (18% Perú):</span>
+                    </span>
+                    <span className="font-bold text-slate-800">+ S/ {cartTax.toFixed(2)}</span>
+                  </div>
+                  <div className="pt-2 border-t border-slate-200 flex justify-between items-baseline">
+                    <div>
+                      <span className="text-xs font-black uppercase tracking-wider text-slate-900 block">Total a pagar:</span>
+                      <span className="text-[10px] text-slate-500 font-medium">Incluye IGV (18% Perú)</span>
+                    </div>
+                    <span className="text-2xl font-black text-[#FF5500]">
+                      S/ {cartTotal.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
                 <button
                   onClick={handleWhatsAppCartOrder}
                   className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold py-3.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 text-center shadow-md cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.196.052.268-.031.072-.082.309-.36.392-.484.082-.124.165-.103.278-.062.113.041.721.34.845.402.124.062.206.093.237.144.031.052.031.3-.113.705z" />
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.08-1.785-.399-1.234-.515-2.025-1.776-2.086-1.857-.061-.081-.5-.666-.5-1.272 0-.606.315-.904.428-1.026.113-.122.247-.153.33-.153.082 0 .165.002.237.006.076.004.179-.029.28.214.103.249.351.856.382.918.031.062.052.134.01.216-.041.082-.062.133-.124.205-.062.072-.131.16-.187.215-.062.062-.127.129-.055.253.072.124.322.531.691.859.475.423.875.555.998.616.124.062.206.093.237.144.031.052.031.3-.113.705z" />
                   </svg>
-                  <span>Pedir por WhatsApp (S/ {cartSubtotal.toFixed(2)})</span>
+                  <span>Pedir por WhatsApp (S/ {cartTotal.toFixed(2)})</span>
                 </button>
                 <div className="text-center text-[10px] text-slate-400">
                   Coordinarás la dirección de entrega y forma de pago directamente por WhatsApp
