@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
     </div>
 
     <div style="background-color: #0f172a; color: #94a3b8; padding: 14px 24px; text-align: center; font-size: 11px;">
-      BASSFIT PERÚ · RUC: [Por confirmar] · Lima, Perú · Canal oficial: +51 967 581 481
+      BASSFIT PERÚ · Operación comercial en regularización registral · Lima, Perú · Canal oficial: +51 967 581 481
     </div>
   </div>
 </body>
@@ -248,3 +248,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
