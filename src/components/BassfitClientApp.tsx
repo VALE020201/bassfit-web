@@ -791,7 +791,7 @@ export default function BassfitClientApp() {
                               onClick={() => { setActiveTab("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                               className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-orange-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
                             >
-                              <span>EXPLORAR CATÁLOGO (33 PRODS)</span>
+                              <span>EXPLORAR CATÁLOGO</span>
                               <span>→</span>
                             </button>
                             <a
@@ -1370,7 +1370,7 @@ export default function BassfitClientApp() {
                   EQUIPAMIENTO COMPLEMENTARIO RECOMENDADO
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-                  El entrenamiento y la constancia son el motor de tu salud. Estos son los 4 implementos oficiales más recomendados por nuestros coaches para complementar tus sesiones.
+                  El entrenamiento y la constancia son el motor de tu salud. Estos son los implementos oficiales más recomendados por nuestros coaches para complementar tus sesiones.
                 </p>
               </div>
 
@@ -1447,7 +1447,7 @@ export default function BassfitClientApp() {
                   }}
                   className="group relative inline-flex items-center justify-center space-x-3 bg-gradient-to-r from-[#FF5500] via-[#FF6600] to-[#FF7A00] hover:from-[#e04a00] hover:to-[#ea580c] text-white font-black text-sm sm:text-base uppercase tracking-wider px-8 sm:px-12 py-4 rounded-full shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
                 >
-                  <span>Explorar todo el catálogo de implementos ({BASSFIT_PRODUCTS.length})</span>
+                  <span>Explorar todo el catálogo de implementos</span>
                   <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-1">
                     →
                   </span>
@@ -1505,7 +1505,7 @@ export default function BassfitClientApp() {
                     <span className="text-xs font-bold bg-[#FF5500]/10 text-[#FF5500] border border-[#FF5500]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Bassfit Perú</span>
                   </h1>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Mostrando {filteredProducts.length} de {BASSFIT_PRODUCTS.length} productos verificados
+                    Catálogo oficial de implementos deportivos verificados
                   </p>
                 </div>
 
@@ -1536,7 +1536,7 @@ export default function BassfitClientApp() {
                       onClick={() => setSelectedCategory("todos")}
                       className="text-xs font-bold text-[#FF5500] hover:underline cursor-pointer"
                     >
-                      Ver todos (36)
+                      Ver todos
                     </button>
                   )}
                 </div>
@@ -1570,11 +1570,7 @@ export default function BassfitClientApp() {
                         <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-tight line-clamp-1">
                           {cat.label}
                         </span>
-                        <span className={`text-[9px] font-semibold mt-0.5 ${
-                          isSelected ? "text-orange-400 font-bold" : "text-slate-400"
-                        }`}>
-                          {cat.count} {cat.count === 1 ? "prod" : "prods"}
-                        </span>
+                        
                       </button>
                     );
                   })}
@@ -2920,7 +2916,7 @@ export default function BassfitClientApp() {
                   <div className="space-y-1">
                     <h3 className="font-bold text-slate-800 text-sm">Tu carrito está vacío</h3>
                     <p className="text-xs text-slate-400">
-                      Explora nuestro catálogo de 33 implementos y añade lo que necesites
+                      Explora nuestro catálogo de implementos y añade lo que necesites
                     </p>
                   </div>
                   <button

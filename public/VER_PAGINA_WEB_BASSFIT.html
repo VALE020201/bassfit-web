@@ -2438,7 +2438,7 @@ function App() {
     });
   },
   className: "bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-orange-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
-}, /*#__PURE__*/React.createElement("span", null, "EXPLORAR CATÁLOGO (33 PRODS)"), /*#__PURE__*/React.createElement("span", null, "→")), /*#__PURE__*/React.createElement("a", {
+}, /*#__PURE__*/React.createElement("span", null, "EXPLORAR CATÁLOGO"), /*#__PURE__*/React.createElement("span", null, "→")), /*#__PURE__*/React.createElement("a", {
   href: "https://wa.me/51967581481?text=Hola%20Bassfit!%20Deseo%20informaci%C3%B3n%20sobre%20el%20cat%C3%A1logo%20de%20implementos%20y%20barras%208en1.",
   target: "_blank",
   rel: "noopener noreferrer",
@@ -2900,7 +2900,7 @@ function App() {
   className: "font-athletic text-2xl sm:text-3xl md:text-4xl font-black text-[#0F172A] uppercase tracking-tight"
 }, "EQUIPAMIENTO COMPLEMENTARIO RECOMENDADO"), /*#__PURE__*/React.createElement("p", {
   className: "text-xs sm:text-sm text-slate-500 leading-relaxed"
-}, "El entrenamiento y la constancia son el motor de tu salud. Estos son los 4 implementos oficiales más recomendados por nuestros coaches para complementar tus sesiones.")), /*#__PURE__*/React.createElement("div", {
+}, "El entrenamiento y la constancia son el motor de tu salud. Estos son los implementos oficiales más recomendados por nuestros coaches para complementar tus sesiones.")), /*#__PURE__*/React.createElement("div", {
   className: "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6"
 }, featuredProducts.slice(0, 4).map(product => /*#__PURE__*/React.createElement("div", {
   key: product.id,
@@ -2997,7 +2997,7 @@ function App() {
     className: "text-xs font-bold bg-[#FF5500]/10 text-[#FF5500] border border-[#FF5500]/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider"
   }, "Bassfit Perú")), /*#__PURE__*/React.createElement("p", {
     className: "text-xs text-slate-500 mt-0.5"
-  }, "Mostrando ", filteredProducts.length, " de ", BASSFIT_PRODUCTS.length, " productos verificados")), (selectedCategory !== "todos" || searchQuery !== "") && /*#__PURE__*/React.createElement("button", {
+  }, "Catálogo oficial de implementos deportivos verificados")), (selectedCategory !== "todos" || searchQuery !== "") && /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setSelectedCategory("todos");
       setSearchQuery("");
@@ -3015,7 +3015,7 @@ function App() {
     type: "button",
     onClick: () => setSelectedCategory("todos"),
     className: "text-xs font-bold text-[#FF5500] hover:underline cursor-pointer"
-  }, "Ver todos (", BASSFIT_PRODUCTS.length, ")")), /*#__PURE__*/React.createElement("div", {
+  }, "Ver todos")), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-2 select-none"
   }, [
     { slug: "todos", label: "Todos", icon: "🛒", count: BASSFIT_PRODUCTS.length },
@@ -3038,9 +3038,7 @@ function App() {
       className: "text-xl sm:text-2xl mb-1"
     }, cat.icon), /*#__PURE__*/React.createElement("span", {
       className: "text-[10px] sm:text-[11px] font-black uppercase tracking-tight line-clamp-1"
-    }, cat.label), /*#__PURE__*/React.createElement("span", {
-      className: `text-[9px] font-semibold mt-0.5 ${isSelected ? "text-orange-400 font-bold" : "text-slate-400"}`
-    }, cat.count, " ", cat.count === 1 ? "prod" : "prods"));
+    }, cat.label));
   })))), selectedCategory !== "todos" && categoryRecommendations.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "bg-gradient-to-r from-orange-50/80 via-white to-orange-50/40 border border-orange-200/80 rounded-2xl p-4 sm:p-5 space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
@@ -3934,7 +3932,7 @@ function App() {
     className: "font-bold text-slate-800 text-sm"
   }, "Tu carrito está vacío"), /*#__PURE__*/React.createElement("p", {
     className: "text-xs text-slate-400"
-  }, "Explora nuestro catálogo de 33 implementos y añade lo que necesites")), /*#__PURE__*/React.createElement("button", {
+  }, "Explora nuestro catálogo de implementos y añade lo que necesites")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setIsCartOpen(false);
       setActiveTab("shop");
