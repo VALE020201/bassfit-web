@@ -1309,7 +1309,20 @@ if p_diff == 0 and b_diff == 0 and s_diff == 0:
 else:
     print("ERROR: Balance mismatch! File not saved.")
 
-export default function BassfitClientApp() {
+export interface BassfitClientAppProps {
+  initialProducts?: BassfitProduct[];
+}
+
+export default function BassfitClientApp({ initialProducts = BASSFIT_PRODUCTS }: BassfitClientAppProps = {}) {
+  const [products, setProducts] = useState<BassfitProduct[]>(() => {
+    return (initialProducts && initialProducts.length > 0) ? initialProducts : BASSFIT_PRODUCTS;
+  });
+
+  useEffect(() => {
+    if (initialProducts && initialProducts.length > 0) {
+      setProducts(initialProducts);
+    }
+  }, [initialProducts]);
   const [activeTab, setActiveTab] = useState<TabType>(() => { try { const p = typeof window !== "undefined" ? (new URLSearchParams(window.location.search).get("tab") || window.location.hash.replace("#", "")) : ""; if (["home", "shop", "asesorias", "vlogs", "contacto"].includes(p)) return p as TabType; } catch(e) {} return "home"; });
   const [selectedCategory, setSelectedCategory] = useState<string>(() => { try { const p = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("cat") : ""; if (p) return p; } catch(e) {} return "todos"; });
   const [searchQuery, setSearchQuery] = useState<string>(() => { try { const p = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("q") : ""; if (p) return p; } catch(e) {} return ""; });
@@ -1726,7 +1739,7 @@ export default function BassfitClientApp() {
 
   // Filter products
   const filteredProducts = useMemo(() => {
-    return BASSFIT_PRODUCTS.filter((prod) => {
+    return products.filter((prod) => {
       const matchesCat =
         selectedCategory === "todos" || prod.categorySlug === selectedCategory;
       const matchesSearch =
@@ -1750,8 +1763,8 @@ export default function BassfitClientApp() {
       "wa-5403327829758785",  // FascialGun | Pistola de Masaje Muscular
       "wa-4946828758741237",  // Accesorios para Máquina de Polea (Tobilleras y Soga)
     ];
-    const list = ids.map((id) => BASSFIT_PRODUCTS.find((p) => p.id === id)).filter(Boolean) as BassfitProduct[];
-    return list.length ? list : (BASSFIT_PRODUCTS.slice(0, 8) as BassfitProduct[]);
+    const list = ids.map((id) => products.find((p) => p.id === id)).filter(Boolean) as BassfitProduct[];
+    return list.length ? list : (products.slice(0, 8) as BassfitProduct[]);
   }, []);
 
   return (
@@ -2861,15 +2874,15 @@ export default function BassfitClientApp() {
                 {/* Visual Category Boxes with Corporate Orange Minimalist Icons */}
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-9 gap-2 select-none">
                   {[
-                    { slug: "todos", label: "Todos", icon: "🛒", count: BASSFIT_PRODUCTS.length },
-                    { slug: "entrenamiento-fuerza", label: "Fuerza", icon: "🏋️‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "entrenamiento-fuerza").length },
-                    { slug: "calistenia", label: "Calistenia", icon: "🤸‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "calistenia").length },
-                    { slug: "yoga-pilates", label: "Yoga & Pilates", icon: "🧘‍♀️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "yoga-pilates").length },
-                    { slug: "fajas-reductoras", label: "Fajas", icon: FajaIcon, count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "fajas-reductoras").length },
-                    { slug: "natacion-acuaticos", label: "Natación", icon: "🏊‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "natacion-acuaticos").length },
-                    { slug: "boxeo-artes-marciales", label: "Boxeo", icon: "🥊", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "boxeo-artes-marciales").length },
-                    { slug: "electronicos", label: "Electrónicos", icon: "⚡", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "electronicos").length },
-                    { slug: "funcional-resistencia", label: "Funcional", icon: "🎯", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "funcional-resistencia").length },
+                    { slug: "todos", label: "Todos", icon: "🛒", count: products.length },
+                    { slug: "entrenamiento-fuerza", label: "Fuerza", icon: "🏋️‍♂️", count: products.filter(p => p.categorySlug === "entrenamiento-fuerza").length },
+                    { slug: "calistenia", label: "Calistenia", icon: "🤸‍♂️", count: products.filter(p => p.categorySlug === "calistenia").length },
+                    { slug: "yoga-pilates", label: "Yoga & Pilates", icon: "🧘‍♀️", count: products.filter(p => p.categorySlug === "yoga-pilates").length },
+                    { slug: "fajas-reductoras", label: "Fajas", icon: FajaIcon, count: products.filter(p => p.categorySlug === "fajas-reductoras").length },
+                    { slug: "natacion-acuaticos", label: "Natación", icon: "🏊‍♂️", count: products.filter(p => p.categorySlug === "natacion-acuaticos").length },
+                    { slug: "boxeo-artes-marciales", label: "Boxeo", icon: "🥊", count: products.filter(p => p.categorySlug === "boxeo-artes-marciales").length },
+                    { slug: "electronicos", label: "Electrónicos", icon: "⚡", count: products.filter(p => p.categorySlug === "electronicos").length },
+                    { slug: "funcional-resistencia", label: "Funcional", icon: "🎯", count: products.filter(p => p.categorySlug === "funcional-resistencia").length },
                   ].map((cat) => {
                     const isSelected = selectedCategory === cat.slug;
                     return (
@@ -4607,7 +4620,7 @@ export default function BassfitClientApp() {
               </div>
 
               {selectedTutorial.relatedProductSlug && (() => {
-                const relProd = BASSFIT_PRODUCTS.find(p => p.slug === selectedTutorial.relatedProductSlug);
+                const relProd = products.find(p => p.slug === selectedTutorial.relatedProductSlug);
                 if (!relProd) return null;
                 return (
                   <div className="bg-orange-50/70 border border-orange-200/80 rounded-2xl p-4 flex items-center justify-between gap-3">
