@@ -52,7 +52,14 @@ export default function BassfitClientApp() {
   const [cardActiveIndices, setCardActiveIndices] = useState<{ [productId: string]: number }>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [heroSlide, setHeroSlide] = useState(0);
+  const [heroSlide, setHeroSlide] = useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const s = parseInt(params.get("slide") || "", 10);
+      if (!isNaN(s) && s >= 0 && s < 4) return s;
+    }
+    return 0;
+  });
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
@@ -259,13 +266,13 @@ export default function BassfitClientApp() {
   // Auto-advance hero carousel every 10 seconds (2 slides)
   useEffect(() => {
     const timer = setInterval(() => {
-      setHeroSlide((prev) => (prev + 1) % 2);
+      setHeroSlide((prev) => (prev + 1) % 4);
     }, 10000);
     return () => clearInterval(timer);
   }, [heroSlide]);
 
-  const nextHeroSlide = () => setHeroSlide((prev) => (prev + 1) % 2);
-  const prevHeroSlide = () => setHeroSlide((prev) => (prev - 1 + 2) % 2);
+  const nextHeroSlide = () => setHeroSlide((prev) => (prev + 1) % 4);
+  const prevHeroSlide = () => setHeroSlide((prev) => (prev - 1 + 4) % 4);
 
   const handleHeroTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
@@ -622,318 +629,477 @@ export default function BassfitClientApp() {
         {/* ========================================================================= */}
         {activeTab === "home" && (
           <div className="space-y-12 sm:space-y-16 pb-16">
-            {/* ========================================================================= */}
-            {/* HERO BANNER SECTION: ENTRENAMIENTOS & ASESORÍA PRIMERO (10s Auto, Swipe)  */}
-            {/* ========================================================================= */}
-            <section
-              className="relative w-full bg-[#0F172A] border-b border-slate-200 overflow-hidden select-none"
-              onTouchStart={handleHeroTouchStart}
-              onTouchMove={handleHeroTouchMove}
-              onTouchEnd={handleHeroTouchEnd}
-            >
-              {/* Lateral Navigation Arrows */}
-              <button
-                onClick={prevHeroSlide}
-                aria-label="Diapositiva anterior"
-                className="absolute left-2 sm:left-4 top-1/3 sm:top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-black/40 sm:bg-white/90 hover:bg-black/60 sm:hover:bg-white text-white sm:text-slate-800 shadow-md backdrop-blur-xs flex items-center justify-center transition transform hover:scale-105 active:scale-95 cursor-pointer border border-white/20 sm:border-slate-200/80"
+            {/* WRAPPER SIN FRANJA BLANCA: Une Hero y Barra de Ventajas en fondo continuo oscuro */}
+            <div className="w-full bg-[#0F172A]">
+              <section
+                className="relative w-full bg-[#0F172A] overflow-hidden select-none"
+                onTouchStart={handleHeroTouchStart}
+                onTouchMove={handleHeroTouchMove}
+                onTouchEnd={handleHeroTouchEnd}
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={nextHeroSlide}
-                aria-label="Siguiente diapositiva"
-                className="absolute right-2 sm:right-4 top-1/3 sm:top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-black/40 sm:bg-white/90 hover:bg-black/60 sm:hover:bg-white text-white sm:text-slate-800 shadow-md backdrop-blur-xs flex items-center justify-center transition transform hover:scale-105 active:scale-95 cursor-pointer border border-white/20 sm:border-slate-200/80"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+                {/* Lateral Navigation Arrows */}
+                <button
+                  onClick={prevHeroSlide}
+                  aria-label="Diapositiva anterior"
+                  className="absolute left-2 sm:left-4 top-1/3 sm:top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-black/40 sm:bg-white/90 hover:bg-black/60 sm:hover:bg-white text-white sm:text-slate-800 shadow-md backdrop-blur-xs flex items-center justify-center transition transform hover:scale-105 active:scale-95 cursor-pointer border border-white/20 sm:border-slate-200/80"
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={nextHeroSlide}
+                  aria-label="Siguiente diapositiva"
+                  className="absolute right-2 sm:right-4 top-1/3 sm:top-1/2 -translate-y-1/2 z-30 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-black/40 sm:bg-white/90 hover:bg-black/60 sm:hover:bg-white text-white sm:text-slate-800 shadow-md backdrop-blur-xs flex items-center justify-center transition transform hover:scale-105 active:scale-95 cursor-pointer border border-white/20 sm:border-slate-200/80"
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
 
-              {/* Smooth Sliding Track */}
-              <div
-                className="flex w-full transition-transform duration-700 ease-in-out"
-                style={{ transform: `translateX(-${heroSlide * 100}%)` }}
-              >
-                {/* ------------------------------------------------------------- */}
-                {/* SLIDE 1: ENTRENAMIENTOS & ASESORÍAS 1 A 1 (Servicio Principal) */}
-                {/* ------------------------------------------------------------- */}
-                <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#0F172A]">
-                  <div
-                    className="hidden sm:block relative w-full overflow-hidden"
-                    style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}
-                  >
-                    <img
-                      src="images/hero_banner_bf_2x.png"
-                      fetchPriority="high"
-                      loading="eager"
-                      decoding="async"
-                      alt="Bassfit Programas de Entrenamiento y Asesoría 1 a 1"
-                      className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        target.src = "images/hero_banner_bf.png";
-                      }}
-                    />
-
-                    <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
-                      <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
-                        <div className="inline-flex items-center space-x-2 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-orange-200 shadow-2xs">
-                          <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse"></span>
-                          <span className="text-[9px] md:text-[11px] font-black uppercase tracking-wider text-slate-800">
-                            ★ Programas de Entrenamiento & Coaching 1 a 1
-                          </span>
+                {/* Carousel Track (4 Brand-Coherent Slides) */}
+                <div
+                  className="flex w-full transition-transform duration-700 ease-in-out"
+                  style={{ transform: `translateX(-${heroSlide * 100}%)` }}
+                >
+                  {/* SLIDE 0: ASESORÍAS & COACHING 1 A 1 */}
+                  <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#0F172A]">
+                    <div className="hidden sm:block relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}>
+                      <img
+                        src="images/hero_banner_bf_2x.png"
+                        fetchPriority="high"
+                        loading="eager"
+                        decoding="async"
+                        alt="Bassfit Programas de Entrenamiento y Asesoría 1 a 1"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
+                        onError={(e) => { e.currentTarget.src = "images/hero_banner_bf.png"; }}
+                      />
+                      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
+                        <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
+                          <div className="inline-flex items-center space-x-2 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-orange-200 shadow-2xs">
+                            <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
+                            <span className="text-[9px] md:text-[11px] font-black uppercase tracking-wider text-slate-800">
+                              ★ Programas de Entrenamiento & Coaching 1 a 1
+                            </span>
+                          </div>
+                          <h1 className="font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-[#0F172A] uppercase leading-[0.92] tracking-tight">
+                            TRANSFORMA TU VIDA<br />
+                            <span className="text-[#FF5500]">CON ENTRENAMIENTO REAL</span>
+                          </h1>
+                          <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-600 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md">
+                            «...fitness sin límites de edad..» — Planes de fuerza, calistenia y acondicionamiento con seguimiento diario por WhatsApp con el Head Coach.
+                          </p>
+                          <div className="flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2">
+                            <button
+                              onClick={() => {
+                                const el = document.getElementById("programas-entrenamiento");
+                                if (el) el.scrollIntoView({ behavior: "smooth" });
+                                else setActiveTab("asesorias");
+                              }}
+                              className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-orange-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+                            >
+                              <span>UNIRME A LOS ENTRENAMIENTOS</span>
+                              <span>→</span>
+                            </button>
+                            <button
+                              onClick={() => setActiveTab("vlogs")}
+                              className="bg-white/90 hover:bg-white text-slate-800 font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-slate-300 shadow-2xs transition cursor-pointer"
+                            >
+                              Ver Clases & Eventos
+                            </button>
+                          </div>
                         </div>
+                      </div>
+                    </div>
 
-                        <h1 className="font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-[#0F172A] uppercase leading-[0.92] tracking-tight">
-                          TRANSFORMA TU VIDA<br /><span className="text-[#FF5500]">CON ENTRENAMIENTO REAL</span>
+                    {/* Mobile Slide 0 */}
+                    <div className="sm:hidden relative w-full h-[450px] overflow-hidden bg-slate-950 flex flex-col justify-end p-5 select-none">
+                      <img
+                        src="images/mockup_vlog_hd.jpg"
+                        fetchPriority="high"
+                        loading="eager"
+                        decoding="async"
+                        alt="Coaching Deportivo Bassfit"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40"
+                        onError={(e) => { e.currentTarget.src = "images/hero_runner_hd.png"; }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pointer-events-none" />
+                      <div className="relative z-10 space-y-2.5 text-left pb-4">
+                        <div className="inline-flex items-center space-x-1.5 bg-orange-500/20 border border-orange-500/40 px-2.5 py-1 rounded-full backdrop-blur-xs">
+                          <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
+                          <span className="text-[10px] font-black uppercase tracking-wider text-orange-400">★ COACHING PERSONALIZADO 1 A 1</span>
+                        </div>
+                        <h1 className="font-athletic text-2xl font-black text-white uppercase leading-[0.92] tracking-tight">
+                          TRANSFORMA TU VIDA<br />
+                          <span className="text-[#FF5500]">ENTRENAMIENTO REAL</span>
                         </h1>
-
-                        <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-600 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md">
-                          «...fitness sin límites de edad..» — Planes de fuerza, calistenia y acondicionamiento con seguimiento diario por WhatsApp con el Head Coach.
+                        <p className="text-xs text-slate-300 font-normal leading-relaxed line-clamp-2">
+                          Planes personalizados de fuerza, calistenia y longevidad activa con coach 1 a 1 por WhatsApp.
                         </p>
-
-                        <div className="flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2">
+                        <div className="grid grid-cols-2 gap-2 pt-1 w-full">
                           <button
                             onClick={() => {
                               const el = document.getElementById("programas-entrenamiento");
                               if (el) el.scrollIntoView({ behavior: "smooth" });
                               else setActiveTab("asesorias");
                             }}
-                            className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-orange-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+                            className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] uppercase tracking-wider py-3 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
                           >
-                            <span>UNIRME A LOS ENTRENAMIENTOS</span>
+                            <span>Ver Planes</span>
                             <span>→</span>
                           </button>
                           <button
                             onClick={() => setActiveTab("vlogs")}
-                            className="bg-white/90 hover:bg-white text-slate-800 font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-slate-300 shadow-2xs transition cursor-pointer"
+                            className="bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition"
                           >
-                            Ver Clases & Eventos
+                            <span>Ver Clases</span>
                           </button>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Mobile Layout */}
-                  <div className="sm:hidden relative w-full h-[450px] overflow-hidden bg-slate-950 flex flex-col justify-end p-5 select-none">
-                    <img
-                      src="images/mockup_vlog_hd.jpg"
-                      fetchPriority="high"
-                      loading="eager"
-                      decoding="async"
-                      alt="Bassfit Programas de Entrenamiento y Asesoría Móvil"
-                      className="absolute inset-0 w-full h-full object-cover object-center opacity-85 select-none pointer-events-none"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-900/30 pointer-events-none"></div>
-
-                    <div className="relative z-10 space-y-2 text-left pb-4">
-                      <div className="inline-flex items-center space-x-1.5 bg-orange-500/20 border border-orange-500/40 text-orange-400 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF5500] animate-pulse"></span>
-                        <span>Asesoría & Coaching 1 a 1</span>
+                  {/* SLIDE 1: EQUIPAMIENTO & BARRAS 8 EN 1 (CATÁLOGO OFICIAL) */}
+                  <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#0F172A]">
+                    <div className="hidden sm:block relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}>
+                      <img
+                        src="images/hero_runner_hd.png"
+                        loading="eager"
+                        decoding="async"
+                        alt="Bassfit Catálogo Oficial de Implementos y Barras 8en1"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40"
+                        onError={(e) => { e.currentTarget.src = "images/hero_banner_bf.png"; }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/80 to-transparent pointer-events-none" />
+                      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
+                        <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
+                          <div className="inline-flex items-center space-x-2 bg-orange-500/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-orange-500/40 shadow-2xs">
+                            <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
+                            <span className="text-[9px] md:text-[11px] font-black uppercase tracking-wider text-orange-400">
+                              ⚡ TIENDA OFICIAL BASSFIT PERÚ · ENVÍOS A TODO EL PAÍS
+                            </span>
+                          </div>
+                          <h2 className="font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white uppercase leading-[0.92] tracking-tight">
+                            BARRAS 8 EN 1 & PESAS<br />
+                            <span className="text-[#FF5500]">EQUIPAMIENTO DE ÉLITE</span>
+                          </h2>
+                          <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-300 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md">
+                            Barras multifunción de calistenia, mancuernas, bancas y accesorios de alto impacto diseñados para tu entrenamiento en casa o gimnasio.
+                          </p>
+                          <div className="flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2">
+                            <button
+                              onClick={() => { setActiveTab("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                              className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-orange-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+                            >
+                              <span>EXPLORAR CATÁLOGO (33 PRODS)</span>
+                              <span>→</span>
+                            </button>
+                            <a
+                              href="https://wa.me/51967581481?text=Hola%20Bassfit!%20Deseo%20informaci%C3%B3n%20sobre%20el%20cat%C3%A1logo%20de%20implementos%20y%20barras%208en1."
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-white/25 backdrop-blur-xs transition flex items-center space-x-1.5 cursor-pointer"
+                            >
+                              Pedir por WhatsApp
+                            </a>
+                          </div>
+                        </div>
                       </div>
+                    </div>
 
-                      <h1 className="font-athletic text-3xl font-black text-white uppercase leading-[0.92] tracking-tight">
-                        TRANSFORMA TU VIDA<br /><span className="text-[#FF5500]">ENTRENAMIENTO REAL</span>
-                      </h1>
-
-                      <p className="text-xs text-slate-300 font-normal leading-relaxed line-clamp-2 max-w-[280px]">
-                        Planes personalizados de fuerza, calistenia y longevidad activa con coach 1 a 1 por WhatsApp.
-                      </p>
-
-                      <div className="grid grid-cols-2 gap-2 pt-2 w-full">
-                        <button
-                          onClick={() => {
-                            const el = document.getElementById("programas-entrenamiento");
-                            if (el) el.scrollIntoView({ behavior: "smooth" });
-                            else setActiveTab("asesorias");
-                          }}
-                          className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] uppercase tracking-wider py-3 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
-                        >
-                          <span>Ver Planes</span>
-                          <span>→</span>
-                        </button>
-                        <button
-                          onClick={() => setActiveTab("vlogs")}
-                          className="bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition"
-                        >
-                          <span>Ver Clases</span>
-                        </button>
+                    {/* Mobile Slide 1 */}
+                    <div className="sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-end p-5 select-none overflow-hidden">
+                      <img
+                        src="images/products/barras-8en1-multifuncional-1.jpg"
+                        loading="eager"
+                        decoding="async"
+                        alt="Barras 8 en 1 Bassfit"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40"
+                        onError={(e) => { e.currentTarget.src = "images/hero_runner_hd.png"; }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pointer-events-none" />
+                      <div className="relative z-10 space-y-2.5 text-left pb-4">
+                        <div className="inline-flex items-center space-x-1.5 bg-orange-500/20 border border-orange-500/40 px-2.5 py-1 rounded-full backdrop-blur-xs">
+                          <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
+                          <span className="text-[10px] font-black uppercase tracking-wider text-orange-400">⚡ IMPLEMENTOS PRO BASSFIT</span>
+                        </div>
+                        <h2 className="font-athletic text-2xl font-black text-white uppercase leading-[0.92] tracking-tight">
+                          BARRAS 8 EN 1 & PESAS<br />
+                          <span className="text-[#FF5500]">EQUIPAMIENTO DE ÉLITE</span>
+                        </h2>
+                        <p className="text-xs text-slate-300 font-normal leading-relaxed line-clamp-2">
+                          Calistenia, fuerza y accesorios de máxima durabilidad con despacho directo a todo el Perú.
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 pt-1 w-full">
+                          <button
+                            onClick={() => { setActiveTab("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                            className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] uppercase tracking-wider py-3 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
+                          >
+                            <span>Ver Catálogo</span>
+                            <span>→</span>
+                          </button>
+                          <a
+                            href="https://wa.me/51967581481?text=Hola%20Bassfit!%20Deseo%20consultar%20por%20las%20barras%208en1."
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition text-center"
+                          >
+                            WhatsApp
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* ------------------------------------------------------------- */}
-                {/* SLIDE 2: COMUNIDAD, MASTERCLASSES & CLASES EN VIVO             */}
-                {/* ------------------------------------------------------------- */}
-                <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#EAEDF1]">
-                  {/* Desktop / Tablet Layout */}
-                  <div
-                    className="hidden sm:block relative w-full overflow-hidden"
-                    style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}
-                  >
-                    <img
-                      src="images/hero_banner_asesorias.png"
-                      loading="eager"
-                      decoding="async"
-                      alt="Bassfit Comunidad, Masterclasses y Eventos en Vivo"
-                      className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
-                    />
-
-                    <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
-                      <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
-                        <div className="inline-flex items-center space-x-2 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-cyan-300 shadow-2xs">
-                          <span className="w-2 h-2 rounded-full bg-[#00C4D4] animate-pulse"></span>
-                          <span className="text-[9px] md:text-[11px] font-black uppercase tracking-wider text-slate-800">
-                            ★ Comunidad Deportiva & Clases en Vivo
-                          </span>
+                  {/* SLIDE 2: COMUNIDAD & EVENTOS EN VIVO */}
+                  <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#EAEDF1]">
+                    <div className="hidden sm:block relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}>
+                      <img
+                        src="images/hero_banner_asesorias.png"
+                        loading="eager"
+                        decoding="async"
+                        alt="Bassfit Comunidad, Masterclasses y Eventos en Vivo"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
+                      />
+                      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
+                        <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
+                          <div className="inline-flex items-center space-x-2 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-cyan-300 shadow-2xs">
+                            <span className="w-2 h-2 rounded-full bg-[#00C4D4] animate-pulse" />
+                            <span className="text-[9px] md:text-[11px] font-black uppercase tracking-wider text-slate-800">
+                              ★ Comunidad Deportiva & Clases en Vivo
+                            </span>
+                          </div>
+                          <h2 className="font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-[#0F172A] uppercase leading-[0.92] tracking-tight">
+                            APRENDE LA TÉCNICA<br />
+                            <span className="text-[#00C4D4]">SUPERA TUS METAS</span>
+                          </h2>
+                          <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-600 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md">
+                            Masterclasses presenciales en parques de Lima, clases funcionales online y seguimiento biomecánico para entrenar seguro y sin lesiones.
+                          </p>
+                          <div className="flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2">
+                            <button
+                              onClick={() => { setActiveTab("vlogs"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                              className="bg-[#00C4D4] hover:bg-[#00adc0] text-slate-950 font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-cyan-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+                            >
+                              <span>VER PRÓXIMAS ACTIVIDADES</span>
+                              <span>→</span>
+                            </button>
+                            <button
+                              onClick={() => setIsVideoModalOpen(true)}
+                              className="bg-white/90 hover:bg-white text-slate-800 font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-slate-300 shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
+                            >
+                              <span className="w-4 h-4 rounded-full bg-[#00C4D4] text-white flex items-center justify-center text-[8px] font-black">▶</span>
+                              <span>Ver Video Rutina</span>
+                            </button>
+                          </div>
                         </div>
+                      </div>
+                    </div>
 
-                        <h2 className="font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-[#0F172A] uppercase leading-[0.92] tracking-tight">
-                          APRENDE LA TÉCNICA<br /><span className="text-[#00C4D4]">SUPERA TUS METAS</span>
+                    {/* Mobile Slide 2 */}
+                    <div className="sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-between overflow-hidden select-none">
+                      <div className="relative w-full h-[230px] bg-[#EAEDF1] overflow-hidden">
+                        <img
+                          src="images/hero_banner_asesorias.png"
+                          loading="eager"
+                          decoding="async"
+                          alt="Bassfit Comunidad y Clases en Vivo"
+                          className="w-full h-full object-cover select-none pointer-events-none"
+                          style={{ objectPosition: "75% center" }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950 pointer-events-none" />
+                        <div className="absolute top-3 left-3 bg-[#00C4D4] text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md">
+                          ● COMUNIDAD & CLASES EN VIVO
+                        </div>
+                      </div>
+                      <div className="p-4 space-y-2.5 z-10 text-left pb-5">
+                        <h2 className="font-athletic text-2xl font-black text-white uppercase leading-[0.92] tracking-tight">
+                          APRENDE LA TÉCNICA<br />
+                          <span className="text-[#00C4D4]">SUPERA TUS METAS</span>
                         </h2>
-
-                        <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-600 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md">
-                          Masterclasses presenciales en parques de Lima, clases funcionales online y seguimiento biomecánico para entrenar seguro y sin lesiones.
+                        <p className="text-xs text-slate-300 font-normal leading-relaxed line-clamp-2">
+                          Masterclasses presenciales en parques de Lima y clases virtuales en vivo con corrección técnica.
                         </p>
-
-                        <div className="flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2">
+                        <div className="grid grid-cols-2 gap-2 pt-1 w-full">
                           <button
-                            onClick={() => {
-                              setActiveTab("vlogs");
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                            className="bg-[#00C4D4] hover:bg-[#00adc0] text-slate-950 font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-cyan-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+                            onClick={() => { setActiveTab("vlogs"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                            className="bg-[#00C4D4] hover:bg-[#00adc0] text-slate-950 font-black text-xs uppercase tracking-wider py-3 rounded-full shadow-lg shadow-cyan-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
                           >
-                            <span>VER PRÓXIMAS ACTIVIDADES</span>
+                            <span>Ver Agenda</span>
                             <span>→</span>
                           </button>
                           <button
                             onClick={() => setIsVideoModalOpen(true)}
-                            className="bg-white/90 hover:bg-white text-slate-800 font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-slate-300 shadow-2xs transition flex items-center space-x-1.5 cursor-pointer"
+                            className="bg-white/15 hover:bg-white/25 text-white font-bold text-xs uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition"
                           >
-                            <span className="w-4 h-4 rounded-full bg-[#00C4D4] text-white flex items-center justify-center text-[8px] font-black">
-                              ▶
-                            </span>
-                            <span>Ver Video Rutina</span>
+                            <span className="text-[#00D1FF] text-[8px]">▶</span>
+                            <span>Ver Video</span>
                           </button>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Mobile Layout (Balanced 450px: Crisp Artwork on top, Content below) */}
-                  <div className="sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-between overflow-hidden select-none">
-                    {/* Top Artwork: Runner and tech circuits 100% visible and uncropped */}
-                    <div className="relative w-full h-[230px] bg-[#EAEDF1] overflow-hidden">
+                  {/* SLIDE 3: FAJAS REDUCTORAS & RECUPERACIÓN */}
+                  <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#0F172A]">
+                    <div className="hidden sm:block relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}>
                       <img
-                        src="images/hero_banner_asesorias.png"
-                      loading="eager"
-                      decoding="async"
-                        alt="Bassfit Comunidad y Clases en Vivo"
-                        className="w-full h-full object-cover select-none pointer-events-none"
-                        style={{ objectPosition: "75% center" }}
+                        src="images/hero_banner_bf.png"
+                        loading="eager"
+                        decoding="async"
+                        alt="Línea Exclusiva de Fajas Reductoras Bassfit"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40"
+                        onError={(e) => { e.currentTarget.src = "images/hero_runner_hd.png"; }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950 pointer-events-none"></div>
-                      <div className="absolute top-3 left-3 bg-[#00C4D4] text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md">
-                        ● COMUNIDAD &amp; CLASES EN VIVO
+                      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/80 to-transparent pointer-events-none" />
+                      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
+                        <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
+                          <div className="inline-flex items-center space-x-2 bg-orange-500/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-orange-500/40 shadow-2xs">
+                            <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
+                            <span className="text-[9px] md:text-[11px] font-black uppercase tracking-wider text-orange-400">
+                              🔥 LÍNEA EXCLUSIVA DE FAJAS & RECUPERACIÓN
+                            </span>
+                          </div>
+                          <h2 className="font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white uppercase leading-[0.92] tracking-tight">
+                            MOLDEA TU FIGURA<br />
+                            <span className="text-[#FF5500]">MÁXIMO RENDIMIENTO</span>
+                          </h2>
+                          <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-300 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md">
+                            Fajas cinturilla avispa, chalecos térmicos de neopreno y geles lipo reductores para soporte postural y definición de cintura.
+                          </p>
+                          <div className="flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2">
+                            <button
+                              onClick={() => {
+                                setActiveTab("shop");
+                                setSelectedCategory("fajas-reductoras");
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-orange-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+                            >
+                              <span>VER LÍNEA DE FAJAS</span>
+                              <span>→</span>
+                            </button>
+                            <a
+                              href="https://wa.me/51967581481?text=Hola%20Bassfit!%20Deseo%20asesor%C3%ADa%20sobre%20las%20tallas%20de%20fajas%20cinturilla%20avispa%20y%20chalecos."
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-white/25 backdrop-blur-xs transition flex items-center space-x-1.5 cursor-pointer"
+                            >
+                              Guía de Tallas WhatsApp
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Bottom Content: Clean typography and action buttons */}
-                    <div className="p-4 space-y-2.5 z-10 text-left pb-5">
-                      <h2 className="font-athletic text-2xl font-black text-white uppercase leading-[0.92] tracking-tight">
-                        APRENDE LA TÉCNICA<br /><span className="text-[#00C4D4]">SUPERA TUS METAS</span>
-                      </h2>
-                      <p className="text-xs text-slate-300 font-normal leading-relaxed line-clamp-2">
-                        Masterclasses presenciales en parques de Lima y clases virtuales en vivo con corrección técnica.
-                      </p>
-                      <div className="grid grid-cols-2 gap-2 pt-1 w-full">
-                        <button
-                          onClick={() => {
-                            setActiveTab("vlogs");
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                          className="bg-[#00C4D4] hover:bg-[#00adc0] text-slate-950 font-black text-xs uppercase tracking-wider py-3 rounded-full shadow-lg shadow-cyan-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
-                        >
-                          <span>Ver Agenda</span>
-                          <span>→</span>
-                        </button>
-                        <button
-                          onClick={() => setIsVideoModalOpen(true)}
-                          className="bg-white/15 hover:bg-white/25 text-white font-bold text-xs uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition"
-                        >
-                          <span className="text-[#00D1FF] text-[8px]">▶</span>
-                          <span>Ver Video</span>
-                        </button>
+                    {/* Mobile Slide 3 */}
+                    <div className="sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-end p-5 select-none overflow-hidden">
+                      <img
+                        src="images/products/faja-chaleco-1.jpg"
+                        loading="eager"
+                        decoding="async"
+                        alt="Faja Chaleco Neopreno Bassfit"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40"
+                        onError={(e) => { e.currentTarget.src = "images/hero_runner_hd.png"; }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pointer-events-none" />
+                      <div className="relative z-10 space-y-2.5 text-left pb-4">
+                        <div className="inline-flex items-center space-x-1.5 bg-orange-500/20 border border-orange-500/40 px-2.5 py-1 rounded-full backdrop-blur-xs">
+                          <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
+                          <span className="text-[10px] font-black uppercase tracking-wider text-orange-400">🔥 FAJAS & MOLDEADO CORPORAL</span>
+                        </div>
+                        <h2 className="font-athletic text-2xl font-black text-white uppercase leading-[0.92] tracking-tight">
+                          MOLDEA TU FIGURA<br />
+                          <span className="text-[#FF5500]">MÁXIMO RENDIMIENTO</span>
+                        </h2>
+                        <p className="text-xs text-slate-300 font-normal leading-relaxed line-clamp-2">
+                          Fajas avispa de neopreno y chalecos térmicos para soporte lumbar y quema calórica.
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 pt-1 w-full">
+                          <button
+                            onClick={() => {
+                              setActiveTab("shop");
+                              setSelectedCategory("fajas-reductoras");
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            className="bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] uppercase tracking-wider py-3 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
+                          >
+                            <span>Ver Fajas</span>
+                            <span>→</span>
+                          </button>
+                          <a
+                            href="https://wa.me/51967581481?text=Hola%20Bassfit!%20Deseo%20consultar%20tallas%20de%20fajas."
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition text-center"
+                          >
+                            Guía Tallas
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
+                </div>
 
+                {/* 4 Pagination Indicators */}
+                <div className="absolute bottom-2.5 sm:bottom-4 inset-x-0 flex justify-center items-center space-x-2 z-30 pointer-events-auto">
+                  {[0, 1, 2, 3].map((idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setHeroSlide(idx)}
+                      aria-label={`Ir a diapositiva ${idx + 1}`}
+                      className={`transition-all duration-300 rounded-full cursor-pointer border border-black/10 ${
+                        heroSlide === idx
+                          ? "w-7 sm:w-9 h-2 sm:h-2.5 bg-[#FF5500] shadow-sm"
+                          : "w-2 sm:w-2.5 h-2 sm:h-2.5 bg-slate-300/90 hover:bg-slate-400"
+                      }`}
+                    />
+                  ))}
                 </div>
-              </div>
+              </section>
 
-              {/* Bottom Interactive Indicators (Dots / Pills) */}
-              <div className="absolute bottom-2.5 sm:bottom-4 inset-x-0 flex justify-center items-center space-x-2 z-30 pointer-events-auto">
-                {[0, 1].map((idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setHeroSlide(idx)}
-                    aria-label={`Ir a diapositiva ${idx + 1}`}
-                    className={`transition-all duration-300 rounded-full cursor-pointer border border-black/10 ${
-                      heroSlide === idx
-                        ? "w-7 sm:w-9 h-2 sm:h-2.5 bg-[#FF5500] shadow-sm"
-                        : "w-2 sm:w-2.5 h-2 sm:h-2.5 bg-slate-300/90 hover:bg-slate-400"
-                    }`}
-                  />
-                ))}
-              </div>
-            </section>
-
-            {/* HERO VALUE PROOF STRIP (PILARES DEL ENTRENAMIENTO BASSFIT) */}
-            <section className="bg-slate-900 border-b border-slate-800 text-white py-5 px-4 sm:px-6">
-              <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                <div className="flex items-start space-x-3 p-2">
-                  <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-[#FF5500] font-black text-lg flex-shrink-0">
-                    🎯
+              {/* SECCIÓN VENTAJAS CORPORATIVAS (Conectada directamente al fondo oscuro sin franja blanca) */}
+              <section className="bg-slate-900 border-b border-slate-800 text-white py-5 px-4 sm:px-6">
+                <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                  <div className="flex items-start space-x-3 p-2">
+                    <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-[#FF5500] font-black text-lg flex-shrink-0">
+                      🎯
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-white">Planes a tu Medida</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Adaptados a tu espacio, nivel y metas personales</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-white">Planes a tu Medida</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Adaptados a tu espacio, nivel y metas personales</p>
+                  <div className="flex items-start space-x-3 p-2">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-[#00C4D4] font-black text-lg flex-shrink-0">
+                      📱
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-white">Coaching por WhatsApp</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Corrección de técnica por video 1 a 1</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start space-x-3 p-2">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-[#00C4D4] font-black text-lg flex-shrink-0">
-                    📱
+                  <div className="flex items-start space-x-3 p-2">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black text-lg flex-shrink-0">
+                      🌿
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-white">Sin Límites de Edad</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Salud articular y longevidad activa (+40)</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-white">Coaching por WhatsApp</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Corrección de técnica por video 1 a 1</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3 p-2">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black text-lg flex-shrink-0">
-                    🌿
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-white">Sin Límites de Edad</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Salud articular y longevidad activa (+40)</p>
+                  <div className="flex items-start space-x-3 p-2">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-lg flex-shrink-0">
+                      🤝
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-white">Comunidad Activa</h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Masterclasses y entrenamientos grupales</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start space-x-3 p-2">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-lg flex-shrink-0">
-                    🤝
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-white">Comunidad Activa</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Masterclasses y entrenamientos grupales</p>
-                  </div>
-                </div>
-              </div>
-            </section>
+              </section>
+            </div>
 
             {/* ===================================================================== */}
             {/* SECCIÓN 1: PROGRAMAS DE ASESORÍA PERSONALIZADA (SERVICIOS CORE)       */}
@@ -1382,7 +1548,7 @@ export default function BassfitClientApp() {
                     { slug: "entrenamiento-fuerza", label: "Fuerza", icon: "🏋️‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "entrenamiento-fuerza").length },
                     { slug: "calistenia", label: "Calistenia", icon: "🤸‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "calistenia").length },
                     { slug: "yoga-pilates", label: "Yoga & Pilates", icon: "🧘‍♀️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "yoga-pilates").length },
-                    { slug: "fajas-reductoras", label: "Fajas", icon: "⏳", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "fajas-reductoras").length },
+                    { slug: "fajas-reductoras", label: "Fajas", icon: FajaIcon, count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "fajas-reductoras").length },
                     { slug: "natacion-acuaticos", label: "Natación", icon: "🏊‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "natacion-acuaticos").length },
                     { slug: "boxeo-artes-marciales", label: "Boxeo", icon: "🥊", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "boxeo-artes-marciales").length },
                     { slug: "electronicos", label: "Electrónicos", icon: "⚡", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "electronicos").length },
@@ -3161,63 +3327,82 @@ export default function BassfitClientApp() {
       )}
 
       <footer className="bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 pb-20 sm:pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl font-black italic tracking-tight text-white uppercase">
-                  BASS<span className="text-[#FF5500]">FIT</span>
-                </span>
-                <span className="bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase">
-                  PERÚ
-                </span>
-              </div>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                «...fitness sin límites de edad..» — Pasión por el rendimiento físico, equipamiento de gimnasio profesional y asesoría nutricional.
-              </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-4 gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-xl font-black italic tracking-tight text-white uppercase">
+                BASS<span className="text-[#FF5500]">FIT</span>
+              </span>
+              <span className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase">
+                PERÚ
+              </span>
+              <span className="text-slate-500 text-xs hidden sm:inline ml-2">· «...fitness sin límites de edad..»</span>
             </div>
-
-            <div className="space-y-2">
-              <h4 className="font-bold text-white uppercase tracking-wider text-[11px]">
-                Navegación
-              </h4>
-              <ul className="space-y-1 text-slate-400 text-xs">
-                <li><button onClick={() => { setActiveTab("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Inicio</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Tienda (33 productos)</button></li>
-                <li><button onClick={() => { setActiveTab("asesorias"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Asesorías & Planes</button></li>
-                <li><button onClick={() => { setActiveTab("vlogs"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Noticias & Vlogs</button></li>
-                <li><button onClick={() => { setActiveTab("contact"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Contacto Oficial</button></li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="font-bold text-white uppercase tracking-wider text-[11px]">
-                Categorías Principales
-              </h4>
-              <ul className="space-y-1 text-slate-400 text-xs">
-                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("fuerza"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Barras y Mancuernas</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("pesas-rusas"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Pesas Rusas (Kettlebells)</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("cardio"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Cardio y Cuerdas</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("funcional"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Bandas y Funcional</button></li>
-                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("proteccion"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition">Pisos y Protección</button></li>
-              </ul>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="font-bold text-white uppercase tracking-wider text-[11px]">
-                Contacto Oficial
-              </h4>
-              <div className="space-y-1 text-slate-400 text-xs">
-                <p>WhatsApp: +51 967 581 481</p>
-                <p>Envíos: Todo el territorio peruano</p>
-                <p>Horario: Lunes a Sábado 8:00am - 9:00pm</p>
-              </div>
+            <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-3">
+              <a href="https://wa.me/51967581481" target="_blank" rel="noopener noreferrer" className="hover:text-white transition flex items-center space-x-1">
+                <span>💬</span>
+                <span>+51 967 581 481</span>
+              </a>
+              <span className="text-slate-600">•</span>
+              <span>🚚 Envíos a todo el Perú</span>
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <span className="hidden sm:inline">🕒 Lun-Sáb 8am-9pm</span>
             </div>
           </div>
 
-          <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-500 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-1 text-[11px]">
+            <div>
+              <h4 className="font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400">
+                Navegación
+              </h4>
+              <ul className="space-y-1 text-slate-400">
+                <li><button onClick={() => { setActiveTab("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Inicio</button></li>
+                <li><button onClick={() => { setActiveTab("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Tienda (33 productos)</button></li>
+                <li><button onClick={() => { setActiveTab("asesorias"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Asesorías & Programas</button></li>
+                <li><button onClick={() => { setActiveTab("vlogs"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Noticias & Eventos</button></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400">
+                Categorías Top
+              </h4>
+              <ul className="space-y-1 text-slate-400">
+                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("calistenia"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Barras 8en1 & Calistenia</button></li>
+                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("entrenamiento-fuerza"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Fuerza, Mancuernas & Pesas</button></li>
+                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("fajas-reductoras"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Fajas Reductoras & Lipo</button></li>
+                <li><button onClick={() => { setActiveTab("shop"); setSelectedCategory("yoga-pilates"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-white transition text-left cursor-pointer">Yoga, Pilates & Mats</button></li>
+              </ul>
+            </div>
+
+            <div className="hidden sm:block">
+              <h4 className="font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400">
+                Atención & Despachos
+              </h4>
+              <ul className="space-y-1 text-slate-400 text-[11px]">
+                <li>Despachos express Lima 24h</li>
+                <li>Envíos Shalom / Olva a provincias</li>
+                <li>Garantía oficial Bassfit Perú</li>
+                <li>Atención: Lun-Sáb 8am a 9pm</li>
+              </ul>
+            </div>
+
+            <div className="hidden sm:block">
+              <h4 className="font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400">
+                Medios de Pago
+              </h4>
+              <ul className="space-y-1 text-slate-400 text-[11px]">
+                <li>Yape & Plin directo</li>
+                <li>Transferencias BCP, BBVA, Interbank</li>
+                <li>Pago contra entrega Lima</li>
+                <li>Coordinación por WhatsApp</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-800/80 pt-3 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-500 gap-1.5">
             <span>© 2026 BASSFIT PERÚ · Todos los derechos reservados.</span>
-            <span>Desarrollado por <a href="#" className="text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer" id="daf-developer-credit" href="https://www.dafsoluciones.site/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer" title="Daf soluciones tecnológicas">Daf soluciones tecnológicas</a></span>
+            <span>Desarrollado por <a id="daf-developer-credit" href="https://www.dafsoluciones.site/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer" title="Daf soluciones tecnológicas">Daf soluciones tecnológicas</a></span>
           </div>
         </div>
       </footer>

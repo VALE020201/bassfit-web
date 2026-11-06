@@ -1716,6 +1716,59 @@ function buildGoogleCalendarUrl(event) {
   return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + title + "&dates=" + dates + "&details=" + details + "&location=" + location;
 }
 
+const FajaIcon = /*#__PURE__*/React.createElement("svg", {
+  className: "w-6 h-6 sm:w-7 sm:h-7 inline-block",
+  viewBox: "0 0 32 32",
+  fill: "none",
+  xmlns: "http://www.w3.org/2000/svg"
+}, /*#__PURE__*/React.createElement("path", {
+  d: "M8 5C11.5 14 9.5 18 8 27H24C22.5 18 20.5 14 24 5H8Z",
+  fill: "url(#fajaGradIcon)",
+  stroke: "#C2410C",
+  strokeWidth: "1.2",
+  strokeLinejoin: "round"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M8.5 11C11.5 12 20.5 12 23.5 11",
+  stroke: "#FFFFFF",
+  strokeWidth: "1.3",
+  strokeLinecap: "round",
+  opacity: "0.9"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M8.2 16C12 17.2 20 17.2 23.8 16",
+  stroke: "#FFFFFF",
+  strokeWidth: "1.8",
+  strokeLinecap: "round"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M8.5 21C11.5 22 20.5 22 23.5 21",
+  stroke: "#FFFFFF",
+  strokeWidth: "1.3",
+  strokeLinecap: "round",
+  opacity: "0.9"
+}), /*#__PURE__*/React.createElement("line", {
+  x1: "16",
+  y1: "5.5",
+  x2: "16",
+  y2: "26.5",
+  stroke: "#FFFFFF",
+  strokeWidth: "1.2",
+  strokeDasharray: "1.5 2"
+}), /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("linearGradient", {
+  id: "fajaGradIcon",
+  x1: "8",
+  y1: "5",
+  x2: "24",
+  y2: "27",
+  gradientUnits: "userSpaceOnUse"
+}, /*#__PURE__*/React.createElement("stop", {
+  stopColor: "#FF6B00"
+}), /*#__PURE__*/React.createElement("stop", {
+  offset: "0.5",
+  stopColor: "#FF4500"
+}), /*#__PURE__*/React.createElement("stop", {
+  offset: "1",
+  stopColor: "#CC2900"
+}))));
+
 function App() {
   const [activeTab, setActiveTab] = useState(() => { try { const p = new URLSearchParams(window.location.search).get("tab") || window.location.hash.replace("#", ""); if (["home", "shop", "asesorias", "vlogs", "contacto"].includes(p)) return p; } catch(e) {} return "home"; });
   const [selectedCategory, setSelectedCategory] = useState(() => { try { const p = new URLSearchParams(window.location.search).get("cat"); if (p) return p; } catch(e) {} return "todos"; });
@@ -1730,7 +1783,14 @@ function App() {
   const [cardActiveIndices, setCardActiveIndices] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [heroSlide, setHeroSlide] = useState(0);
+  const [heroSlide, setHeroSlide] = useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const s = parseInt(params.get("slide"), 10);
+      if (!isNaN(s) && s >= 0 && s < 4) return s;
+    }
+    return 0;
+  });
   const [touchStartX, setTouchStartX] = useState(null);
   const [touchEndX, setTouchEndX] = useState(null);
 
@@ -1905,15 +1965,15 @@ function App() {
     return getCategoryRecommendations(selectedCategory);
   }, [selectedCategory]);
 
-  // Auto-advance hero carousel every 10 seconds (2 slides)
+  // Auto-advance hero carousel every 8 seconds (4 slides)
   useEffect(() => {
     const timer = setInterval(() => {
-      setHeroSlide(prev => (prev + 1) % 2);
-    }, 10000);
+      setHeroSlide(prev => (prev + 1) % 4);
+    }, 8000);
     return () => clearInterval(timer);
   }, [heroSlide]);
-  const nextHeroSlide = () => setHeroSlide(prev => (prev + 1) % 2);
-  const prevHeroSlide = () => setHeroSlide(prev => (prev - 1 + 2) % 2);
+  const nextHeroSlide = () => setHeroSlide(prev => (prev + 1) % 4);
+  const prevHeroSlide = () => setHeroSlide(prev => (prev - 1 + 4) % 4);
   const handleHeroTouchStart = e => {
     setTouchStartX(e.targetTouches[0].clientX);
     setTouchEndX(null);
@@ -2199,8 +2259,10 @@ function App() {
     className: "flex-1 w-full pb-16 sm:pb-8"
   }, activeTab === "home" && /*#__PURE__*/React.createElement("div", {
   className: "space-y-12 sm:space-y-16 pb-16"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "w-full bg-[#0F172A]"
 }, /*#__PURE__*/React.createElement("section", {
-  className: "relative w-full bg-[#0F172A] border-b border-slate-200 overflow-hidden select-none",
+  className: "relative w-full bg-[#0F172A] overflow-hidden select-none",
   onTouchStart: handleHeroTouchStart,
   onTouchMove: handleHeroTouchMove,
   onTouchEnd: handleHeroTouchEnd
@@ -2293,24 +2355,30 @@ function App() {
   fetchPriority: "high",
   loading: "eager",
   decoding: "async",
-  alt: "Bassfit Programas de Entrenamiento y Asesoría Móvil",
-  className: "absolute inset-0 w-full h-full object-cover object-center opacity-85 select-none pointer-events-none"
+  alt: "Coaching Deportivo Bassfit",
+  className: "absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40",
+  onError: e => {
+    const target = e.currentTarget;
+    target.src = "images/hero_runner_hd.png";
+  }
 }), /*#__PURE__*/React.createElement("div", {
-  className: "absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-900/30 pointer-events-none"
+  className: "absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pointer-events-none"
 }), /*#__PURE__*/React.createElement("div", {
-  className: "relative z-10 space-y-2 text-left pb-4"
+  className: "relative z-10 space-y-2.5 text-left pb-4"
 }, /*#__PURE__*/React.createElement("div", {
-  className: "inline-flex items-center space-x-1.5 bg-orange-500/20 border border-orange-500/40 text-orange-400 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs"
+  className: "inline-flex items-center space-x-1.5 bg-orange-500/20 border border-orange-500/40 px-2.5 py-1 rounded-full backdrop-blur-xs"
 }, /*#__PURE__*/React.createElement("span", {
-  className: "w-1.5 h-1.5 rounded-full bg-[#FF5500] animate-pulse"
-}), /*#__PURE__*/React.createElement("span", null, "Asesoría & Coaching 1 a 1")), /*#__PURE__*/React.createElement("h1", {
-  className: "font-athletic text-3xl font-black text-white uppercase leading-[0.92] tracking-tight"
+  className: "w-2 h-2 rounded-full bg-[#FF5500] animate-pulse"
+}), /*#__PURE__*/React.createElement("span", {
+  className: "text-[10px] font-black uppercase tracking-wider text-orange-400"
+}, "★ COACHING PERSONALIZADO 1 A 1")), /*#__PURE__*/React.createElement("h1", {
+  className: "font-athletic text-2xl font-black text-white uppercase leading-[0.92] tracking-tight"
 }, "TRANSFORMA TU VIDA", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
   className: "text-[#FF5500]"
 }, "ENTRENAMIENTO REAL")), /*#__PURE__*/React.createElement("p", {
-  className: "text-xs text-slate-300 font-normal leading-relaxed line-clamp-2 max-w-[280px]"
+  className: "text-xs text-slate-300 font-normal leading-relaxed line-clamp-2"
 }, "Planes personalizados de fuerza, calistenia y longevidad activa con coach 1 a 1 por WhatsApp."), /*#__PURE__*/React.createElement("div", {
-  className: "grid grid-cols-2 gap-2 pt-2 w-full"
+  className: "grid grid-cols-2 gap-2 pt-1 w-full"
 }, /*#__PURE__*/React.createElement("button", {
   onClick: () => {
     const el = document.getElementById("programas-entrenamiento");
@@ -2323,6 +2391,103 @@ function App() {
   onClick: () => setActiveTab("vlogs"),
   className: "bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition"
 }, /*#__PURE__*/React.createElement("span", null, "Ver Clases")))))), /*#__PURE__*/React.createElement("div", {
+  className: "w-full flex-shrink-0 relative overflow-hidden bg-[#0F172A]"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "hidden sm:block relative w-full overflow-hidden",
+  style: {
+    aspectRatio: "1024 / 341",
+    minHeight: "280px",
+    maxHeight: "560px"
+  }
+}, /*#__PURE__*/React.createElement("img", {
+  src: "images/hero_runner_hd.png",
+  loading: "eager",
+  decoding: "async",
+  alt: "Bassfit Catálogo Oficial de Implementos y Barras 8en1",
+  className: "absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40",
+  onError: e => {
+    const target = e.currentTarget;
+    target.src = "images/hero_banner_bf.png";
+  }
+}), /*#__PURE__*/React.createElement("div", {
+  className: "absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/80 to-transparent pointer-events-none"
+}), /*#__PURE__*/React.createElement("div", {
+  className: "relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "inline-flex items-center space-x-2 bg-orange-500/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-orange-500/40 shadow-2xs"
+}, /*#__PURE__*/React.createElement("span", {
+  className: "w-2 h-2 rounded-full bg-[#FF5500] animate-pulse"
+}), /*#__PURE__*/React.createElement("span", {
+  className: "text-[9px] md:text-[11px] font-black uppercase tracking-wider text-orange-400"
+}, "⚡ TIENDA OFICIAL BASSFIT PERÚ · ENVÍOS A TODO EL PAÍS")), /*#__PURE__*/React.createElement("h2", {
+  className: "font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white uppercase leading-[0.92] tracking-tight"
+}, "BARRAS 8 EN 1 & PESAS", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+  className: "text-[#FF5500]"
+}, "EQUIPAMIENTO DE ÉLITE")), /*#__PURE__*/React.createElement("p", {
+  className: "text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-300 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md"
+}, "Barras multifunción de calistenia, mancuernas, bancas y accesorios de alto impacto diseñados para tu entrenamiento en casa o gimnasio."), /*#__PURE__*/React.createElement("div", {
+  className: "flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2"
+}, /*#__PURE__*/React.createElement("button", {
+  onClick: () => {
+    setActiveTab("shop");
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  },
+  className: "bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-orange-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+}, /*#__PURE__*/React.createElement("span", null, "EXPLORAR CATÁLOGO (33 PRODS)"), /*#__PURE__*/React.createElement("span", null, "→")), /*#__PURE__*/React.createElement("a", {
+  href: "https://wa.me/51967581481?text=Hola%20Bassfit!%20Deseo%20informaci%C3%B3n%20sobre%20el%20cat%C3%A1logo%20de%20implementos%20y%20barras%208en1.",
+  target: "_blank",
+  rel: "noopener noreferrer",
+  className: "bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-white/25 backdrop-blur-xs transition flex items-center space-x-1.5 cursor-pointer"
+}, "Pedir por WhatsApp"))))), /*#__PURE__*/React.createElement("div", {
+  className: "sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-end p-5 select-none overflow-hidden"
+}, /*#__PURE__*/React.createElement("img", {
+  src: "images/products/barras-8en1-multifuncional-1.jpg",
+  loading: "eager",
+  decoding: "async",
+  alt: "Barras 8 en 1 Bassfit",
+  className: "absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40",
+  onError: e => {
+    const target = e.currentTarget;
+    target.src = "images/hero_runner_hd.png";
+  }
+}), /*#__PURE__*/React.createElement("div", {
+  className: "absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pointer-events-none"
+}), /*#__PURE__*/React.createElement("div", {
+  className: "relative z-10 space-y-2.5 text-left pb-4"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "inline-flex items-center space-x-1.5 bg-orange-500/20 border border-orange-500/40 px-2.5 py-1 rounded-full backdrop-blur-xs"
+}, /*#__PURE__*/React.createElement("span", {
+  className: "w-2 h-2 rounded-full bg-[#FF5500] animate-pulse"
+}), /*#__PURE__*/React.createElement("span", {
+  className: "text-[10px] font-black uppercase tracking-wider text-orange-400"
+}, "⚡ IMPLEMENTOS PRO BASSFIT")), /*#__PURE__*/React.createElement("h2", {
+  className: "font-athletic text-2xl font-black text-white uppercase leading-[0.92] tracking-tight"
+}, "BARRAS 8 EN 1 & PESAS", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+  className: "text-[#FF5500]"
+}, "EQUIPAMIENTO DE ÉLITE")), /*#__PURE__*/React.createElement("p", {
+  className: "text-xs text-slate-300 font-normal leading-relaxed line-clamp-2"
+}, "Calistenia, fuerza y accesorios de máxima durabilidad con despacho directo a todo el Perú."), /*#__PURE__*/React.createElement("div", {
+  className: "grid grid-cols-2 gap-2 pt-1 w-full"
+}, /*#__PURE__*/React.createElement("button", {
+  onClick: () => {
+    setActiveTab("shop");
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  },
+  className: "bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] uppercase tracking-wider py-3 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
+}, /*#__PURE__*/React.createElement("span", null, "Ver Catálogo"), /*#__PURE__*/React.createElement("span", null, "→")), /*#__PURE__*/React.createElement("a", {
+  href: "https://wa.me/51967581481?text=Hola%20Bassfit!%20Deseo%20consultar%20por%20las%20barras%208en1.",
+  target: "_blank",
+  rel: "noopener noreferrer",
+  className: "bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition text-center"
+}, "WhatsApp"))))), /*#__PURE__*/React.createElement("div", {
   className: "w-full flex-shrink-0 relative overflow-hidden bg-[#EAEDF1]"
 }, /*#__PURE__*/React.createElement("div", {
   className: "hidden sm:block relative w-full overflow-hidden",
@@ -2370,7 +2535,7 @@ function App() {
 }, /*#__PURE__*/React.createElement("span", {
   className: "w-4 h-4 rounded-full bg-[#00C4D4] text-white flex items-center justify-center text-[8px] font-black"
 }, "▶"), /*#__PURE__*/React.createElement("span", null, "Ver Video Rutina")))))), /*#__PURE__*/React.createElement("div", {
-    className: "sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-between overflow-hidden select-none"
+  className: "sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-between overflow-hidden select-none"
 }, /*#__PURE__*/React.createElement("div", {
   className: "relative w-full h-[230px] bg-[#EAEDF1] overflow-hidden"
 }, /*#__PURE__*/React.createElement("img", {
@@ -2410,9 +2575,108 @@ function App() {
   className: "bg-white/15 hover:bg-white/25 text-white font-bold text-xs uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition"
 }, /*#__PURE__*/React.createElement("span", {
   className: "text-[#00D1FF] text-[8px]"
-}, "▶"), /*#__PURE__*/React.createElement("span", null, "Ver Video"))))))), /*#__PURE__*/React.createElement("div", {
+}, "▶"), /*#__PURE__*/React.createElement("span", null, "Ver Video")))))), /*#__PURE__*/React.createElement("div", {
+  className: "w-full flex-shrink-0 relative overflow-hidden bg-[#0F172A]"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "hidden sm:block relative w-full overflow-hidden",
+  style: {
+    aspectRatio: "1024 / 341",
+    minHeight: "280px",
+    maxHeight: "560px"
+  }
+}, /*#__PURE__*/React.createElement("img", {
+  src: "images/hero_banner_bf.png",
+  loading: "eager",
+  decoding: "async",
+  alt: "Línea Exclusiva de Fajas Reductoras Bassfit",
+  className: "absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40",
+  onError: e => {
+    const target = e.currentTarget;
+    target.src = "images/hero_runner_hd.png";
+  }
+}), /*#__PURE__*/React.createElement("div", {
+  className: "absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/80 to-transparent pointer-events-none"
+}), /*#__PURE__*/React.createElement("div", {
+  className: "relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "inline-flex items-center space-x-2 bg-orange-500/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-orange-500/40 shadow-2xs"
+}, /*#__PURE__*/React.createElement("span", {
+  className: "w-2 h-2 rounded-full bg-[#FF5500] animate-pulse"
+}), /*#__PURE__*/React.createElement("span", {
+  className: "text-[9px] md:text-[11px] font-black uppercase tracking-wider text-orange-400"
+}, "🔥 LÍNEA EXCLUSIVA DE FAJAS & RECUPERACIÓN")), /*#__PURE__*/React.createElement("h2", {
+  className: "font-athletic text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white uppercase leading-[0.92] tracking-tight"
+}, "MOLDEA TU FIGURA", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+  className: "text-[#FF5500]"
+}, "MÁXIMO RENDIMIENTO")), /*#__PURE__*/React.createElement("p", {
+  className: "text-[11px] sm:text-xs md:text-sm lg:text-base text-slate-300 font-medium leading-relaxed line-clamp-2 md:line-clamp-3 max-w-md"
+}, "Fajas cinturilla avispa, chalecos térmicos de neopreno y geles lipo reductores para soporte postural y definición de cintura."), /*#__PURE__*/React.createElement("div", {
+  className: "flex items-center space-x-2 md:space-x-3 pt-1 md:pt-2"
+}, /*#__PURE__*/React.createElement("button", {
+  onClick: () => {
+    setActiveTab("shop");
+    setSelectedCategory("fajas-reductoras");
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  },
+  className: "bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-5 md:px-7 py-2.5 md:py-3.5 rounded-full shadow-lg shadow-orange-500/25 active:scale-95 transition flex items-center space-x-1.5 cursor-pointer"
+}, /*#__PURE__*/React.createElement("span", null, "VER LÍNEA DE FAJAS"), /*#__PURE__*/React.createElement("span", null, "→")), /*#__PURE__*/React.createElement("a", {
+  href: "https://wa.me/51967581481?text=Hola%20Bassfit!%20Deseo%20asesor%C3%ADa%20sobre%20las%20tallas%20de%20fajas%20cinturilla%20avispa%20y%20chalecos.",
+  target: "_blank",
+  rel: "noopener noreferrer",
+  className: "bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] md:text-xs lg:text-sm uppercase tracking-wider px-4 md:px-5 py-2.5 md:py-3.5 rounded-full border border-white/25 backdrop-blur-xs transition flex items-center space-x-1.5 cursor-pointer"
+}, "Guía de Tallas WhatsApp"))))), /*#__PURE__*/React.createElement("div", {
+  className: "sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-end p-5 select-none overflow-hidden"
+}, /*#__PURE__*/React.createElement("img", {
+  src: "images/products/faja-chaleco-1.jpg",
+  loading: "eager",
+  decoding: "async",
+  alt: "Faja Chaleco Neopreno Bassfit",
+  className: "absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40",
+  onError: e => {
+    const target = e.currentTarget;
+    target.src = "images/hero_runner_hd.png";
+  }
+}), /*#__PURE__*/React.createElement("div", {
+  className: "absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pointer-events-none"
+}), /*#__PURE__*/React.createElement("div", {
+  className: "relative z-10 space-y-2.5 text-left pb-4"
+}, /*#__PURE__*/React.createElement("div", {
+  className: "inline-flex items-center space-x-1.5 bg-orange-500/20 border border-orange-500/40 px-2.5 py-1 rounded-full backdrop-blur-xs"
+}, /*#__PURE__*/React.createElement("span", {
+  className: "w-2 h-2 rounded-full bg-[#FF5500] animate-pulse"
+}), /*#__PURE__*/React.createElement("span", {
+  className: "text-[10px] font-black uppercase tracking-wider text-orange-400"
+}, "🔥 FAJAS & MOLDEADO CORPORAL")), /*#__PURE__*/React.createElement("h2", {
+  className: "font-athletic text-2xl font-black text-white uppercase leading-[0.92] tracking-tight"
+}, "MOLDEA TU FIGURA", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", {
+  className: "text-[#FF5500]"
+}, "MÁXIMO RENDIMIENTO")), /*#__PURE__*/React.createElement("p", {
+  className: "text-xs text-slate-300 font-normal leading-relaxed line-clamp-2"
+}, "Fajas avispa de neopreno y chalecos térmicos para soporte lumbar y quema calórica."), /*#__PURE__*/React.createElement("div", {
+  className: "grid grid-cols-2 gap-2 pt-1 w-full"
+}, /*#__PURE__*/React.createElement("button", {
+  onClick: () => {
+    setActiveTab("shop");
+    setSelectedCategory("fajas-reductoras");
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  },
+  className: "bg-[#FF5500] hover:bg-[#e04a00] text-white font-black text-[11px] uppercase tracking-wider py-3 rounded-full shadow-lg shadow-orange-500/30 active:scale-95 transition text-center flex items-center justify-center space-x-1"
+}, /*#__PURE__*/React.createElement("span", null, "Ver Fajas"), /*#__PURE__*/React.createElement("span", null, "→")), /*#__PURE__*/React.createElement("a", {
+  href: "https://wa.me/51967581481?text=Hola%20Bassfit!%20Deseo%20consultar%20tallas%20de%20fajas.",
+  target: "_blank",
+  rel: "noopener noreferrer",
+  className: "bg-white/15 hover:bg-white/25 text-white font-bold text-[11px] uppercase tracking-wider py-3 rounded-full border border-white/25 backdrop-blur-xs flex items-center justify-center space-x-1 active:scale-95 transition text-center"
+}, "Guía Tallas")))))), /*#__PURE__*/React.createElement("div", {
   className: "absolute bottom-2.5 sm:bottom-4 inset-x-0 flex justify-center items-center space-x-2 z-30 pointer-events-auto"
-}, [0, 1].map(idx => /*#__PURE__*/React.createElement("button", {
+}, [0, 1, 2, 3].map(idx => /*#__PURE__*/React.createElement("button", {
   key: idx,
   onClick: () => setHeroSlide(idx),
   "aria-label": `Ir a diapositiva ${idx + 1}`,
@@ -2453,7 +2717,7 @@ function App() {
   className: "text-xs font-black uppercase tracking-wider text-white"
 }, "Comunidad Activa"), /*#__PURE__*/React.createElement("p", {
   className: "text-[11px] text-slate-400 mt-0.5 leading-snug"
-}, "Masterclasses y entrenamientos grupales"))))), /*#__PURE__*/React.createElement("section", {
+}, "Masterclasses y entrenamientos grupales")))))), /*#__PURE__*/React.createElement("section", {
   id: "programas-entrenamiento",
   className: "max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12"
 }, /*#__PURE__*/React.createElement("div", {
@@ -2758,7 +3022,7 @@ function App() {
     { slug: "entrenamiento-fuerza", label: "Fuerza", icon: "🏋️‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "entrenamiento-fuerza").length },
     { slug: "calistenia", label: "Calistenia", icon: "🤸‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "calistenia").length },
     { slug: "yoga-pilates", label: "Yoga & Pilates", icon: "🧘‍♀️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "yoga-pilates").length },
-    { slug: "fajas-reductoras", label: "Fajas", icon: "⏳", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "fajas-reductoras").length },
+    { slug: "fajas-reductoras", label: "Fajas", icon: FajaIcon, count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "fajas-reductoras").length },
     { slug: "natacion-acuaticos", label: "Natación", icon: "🏊‍♂️", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "natacion-acuaticos").length },
     { slug: "boxeo-artes-marciales", label: "Boxeo", icon: "🥊", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "boxeo-artes-marciales").length },
     { slug: "electronicos", label: "Electrónicos", icon: "⚡", count: BASSFIT_PRODUCTS.filter(p => p.categorySlug === "electronicos").length },
@@ -3306,7 +3570,7 @@ function App() {
   }, "💳"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", {
     className: "text-slate-900 block"
   }, "Medios de Pago:"), /*#__PURE__*/React.createElement("span", null, "Yape, Plin, Transferencias BCP, BBVA, Interbank y pago contra entrega en puntos seleccionados.")))))))), selectedProduct && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center items-end sm:items-center p-0 sm:p-6",
+    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex justify-center items-end sm:items-center p-0 sm:p-6 overflow-hidden",
     onClick: () => setSelectedProduct(null)
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white rounded-t-3xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto",
@@ -3731,36 +3995,26 @@ function App() {
   })), /*#__PURE__*/React.createElement("span", null, "Pedir por WhatsApp (S/ ", cartSubtotal.toFixed(2), ")")), /*#__PURE__*/React.createElement("div", {
     className: "text-center text-[10px] text-slate-400"
   }, "Coordinarás la dirección de entrega y forma de pago directamente por WhatsApp")))), selectedEvent && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm overflow-y-auto flex justify-center items-end sm:items-center p-0 sm:p-6",
+    className: "fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex justify-center items-end sm:items-center p-0 sm:p-6 overflow-hidden",
     onClick: () => setSelectedEvent(null)
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-t-3xl sm:rounded-3xl max-w-xl w-full p-4 sm:p-8 shadow-2xl relative space-y-4 max-h-[92vh] overflow-y-auto",
+    className: "bg-white rounded-t-3xl sm:rounded-3xl max-w-xl w-full p-4 sm:p-8 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto overflow-x-hidden no-scrollbar",
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-between items-center border-b border-slate-100 pb-3 sticky -top-4 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-20"
+    className: "flex justify-between items-center border-b border-slate-100 pb-3 sticky -top-4 sm:-top-8 bg-white/95 backdrop-blur-md pt-2 z-20 gap-2"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center space-x-2 min-w-0 pr-2"
+    className: "flex items-center space-x-1.5 min-w-0 truncate"
   }, /*#__PURE__*/React.createElement("span", {
-    className: `text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${selectedEvent.modality === "Online" ? "bg-blue-600 text-white" : "bg-[#FF5500] text-white"}`
+    className: `text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${selectedEvent.modality === "Online" ? "bg-blue-600 text-white" : "bg-[#FF5500] text-white"}`
   }, selectedEvent.modality === "Online" ? "💻 Online" : "📍 Presencial"), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-bold text-slate-600 uppercase"
+    className: "text-xs font-bold text-slate-600 uppercase truncate"
   }, selectedEvent.category), selectedEvent.featured && /*#__PURE__*/React.createElement("span", {
-    className: "bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full"
-  }, "⭐ Destacado")), /*#__PURE__*/React.createElement("button", {
+    className: "bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+  }, "⭐")), /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: () => setSelectedEvent(null),
-    className: "flex items-center space-x-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shrink-0"
-  }, /*#__PURE__*/React.createElement("span", null, "Cerrar"), /*#__PURE__*/React.createElement("svg", {
-    className: "w-4 h-4",
-    fill: "none",
-    stroke: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2.5",
-    d: "M6 18L18 6M6 6l12 12"
-  })))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center space-x-1 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 px-3 py-1.5 rounded-full font-bold text-xs transition cursor-pointer shrink-0"
+  }, /*#__PURE__*/React.createElement("span", null, "✕"), /*#__PURE__*/React.createElement("span", null, "Cerrar"))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative h-48 rounded-2xl overflow-hidden bg-slate-900"
@@ -3950,87 +4204,116 @@ function App() {
   }, "✕ Cerrar tutorial")))), /*#__PURE__*/React.createElement("footer", {
     className: "bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 pb-20 sm:pb-8"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-8"
+    className: "max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 md:grid-cols-4 gap-8"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "space-y-3"
+    className: "flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-4 gap-2"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center space-x-2"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-2xl font-black italic tracking-tight text-white uppercase"
+    className: "text-xl font-black italic tracking-tight text-white uppercase"
   }, "BASS", /*#__PURE__*/React.createElement("span", {
     className: "text-[#FF5500]"
   }, "FIT")), /*#__PURE__*/React.createElement("span", {
-    className: "bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase"
-  }, "PERÚ")), /*#__PURE__*/React.createElement("p", {
-    className: "text-slate-400 text-xs leading-relaxed"
-  }, "«...fitness sin límites de edad..» — Pasión por el rendimiento físico, equipamiento de gimnasio profesional y asesoría nutricional.")), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-2"
-  }, /*#__PURE__*/React.createElement("h4", {
-    className: "font-bold text-white uppercase tracking-wider text-[11px]"
+    className: "bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase"
+  }, "PERÚ"), /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-500 text-xs hidden sm:inline ml-2"
+  }, "· «...fitness sin límites de edad..»")), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-slate-400 flex flex-wrap items-center gap-3"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "https://wa.me/51967581481",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "hover:text-white transition flex items-center space-x-1"
+  }, /*#__PURE__*/React.createElement("span", null, "💬"), /*#__PURE__*/React.createElement("span", null, "+51 967 581 481")), /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-600"
+  }, "•"), /*#__PURE__*/React.createElement("span", null, "🚚 Envíos a todo el Perú"), /*#__PURE__*/React.createElement("span", {
+    className: "text-slate-600 hidden sm:inline"
+  }, "•"), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline"
+  }, "🕒 Lun-Sáb 8am-9pm"))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-1 text-[11px]"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
+    className: "font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400"
   }, "Navegación"), /*#__PURE__*/React.createElement("ul", {
-    className: "space-y-1 text-slate-400 text-xs"
+    className: "space-y-1 text-slate-400"
   }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setActiveTab("home");
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
-    className: "hover:text-white transition"
+    className: "hover:text-white transition text-left cursor-pointer"
   }, "Inicio")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setActiveTab("shop");
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
-    className: "hover:text-white transition"
+    className: "hover:text-white transition text-left cursor-pointer"
   }, "Tienda (33 productos)")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      setActiveTab("shop");
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    },
-    className: "hover:text-white transition"
-  }, "Explorar Categorías")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
       setActiveTab("asesorias");
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
-    className: "hover:text-white transition"
+    className: "hover:text-white transition text-left cursor-pointer"
   }, "Asesorías & Programas")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setActiveTab("vlogs");
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
-    className: "hover:text-white transition"
-  }, "Noticias & Eventos")))), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-2"
+    className: "hover:text-white transition text-left cursor-pointer"
+  }, "Noticias & Eventos")))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h4", {
+    className: "font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400"
+  }, "Categorías Top"), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-1 text-slate-400"
+  }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("shop");
+      setSelectedCategory("calistenia");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    className: "hover:text-white transition text-left cursor-pointer"
+  }, "Barras 8en1 & Calistenia")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("shop");
+      setSelectedCategory("entrenamiento-fuerza");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    className: "hover:text-white transition text-left cursor-pointer"
+  }, "Fuerza, Mancuernas & Pesas")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("shop");
+      setSelectedCategory("fajas-reductoras");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    className: "hover:text-white transition text-left cursor-pointer"
+  }, "Fajas Reductoras & Lipo")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setActiveTab("shop");
+      setSelectedCategory("yoga-pilates");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    className: "hover:text-white transition text-left cursor-pointer"
+  }, "Yoga, Pilates & Mats")))), /*#__PURE__*/React.createElement("div", {
+    className: "hidden sm:block"
   }, /*#__PURE__*/React.createElement("h4", {
-    className: "font-bold text-white uppercase tracking-wider text-[11px]"
-  }, "Categorías Populares"), /*#__PURE__*/React.createElement("ul", {
-    className: "space-y-1 text-slate-400 text-xs"
-  }, /*#__PURE__*/React.createElement("li", null, "Calistenia & Barras Multifunción"), /*#__PURE__*/React.createElement("li", null, "Fuerza, Mancuernas & Pesas"), /*#__PURE__*/React.createElement("li", null, "Fajas Reductoras & Gel Lipo Cream"), /*#__PURE__*/React.createElement("li", null, "Yoga, Pilates & Colchonetas"), /*#__PURE__*/React.createElement("li", null, "Natación & Deportes Acuáticos"))), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-2"
+    className: "font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400"
+  }, "Atención & Despachos"), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-1 text-slate-400 text-[11px]"
+  }, /*#__PURE__*/React.createElement("li", null, "Despachos express Lima 24h"), /*#__PURE__*/React.createElement("li", null, "Envíos Shalom / Olva a provincias"), /*#__PURE__*/React.createElement("li", null, "Garantía oficial Bassfit Perú"), /*#__PURE__*/React.createElement("li", null, "Atención: Lun-Sáb 8am a 9pm"))), /*#__PURE__*/React.createElement("div", {
+    className: "hidden sm:block"
   }, /*#__PURE__*/React.createElement("h4", {
-    className: "font-bold text-white uppercase tracking-wider text-[11px]"
-  }, "Contacto Oficial"), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-1 text-slate-400 text-xs"
-  }, /*#__PURE__*/React.createElement("p", null, "WhatsApp: +51 967 581 481"), /*#__PURE__*/React.createElement("p", null, "Envíos: Todo el territorio peruano"), /*#__PURE__*/React.createElement("p", null, "Horario: Lunes a Sábado 8:00am - 9:00pm")))), /*#__PURE__*/React.createElement("div", {
-    className: "border-t border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-500 gap-2"
-  }, /*#__PURE__*/React.createElement("span", null, "© 2026 BASSFIT PERÚ · Todos los derechos reservados."), /*#__PURE__*/React.createElement("span", null, "Desarrollado por ", /*#__PURE__*/React.createElement("a", { id: "daf-developer-credit", href: "https://www.dafsoluciones.site/", target: "_blank", rel: "noopener noreferrer", className: "text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer", title: "Daf soluciones tecnológicas" }, "Daf soluciones tecnológicas"))))), /*#__PURE__*/React.createElement("nav", {
+    className: "font-bold text-white uppercase tracking-wider text-[10px] mb-1.5 text-orange-400"
+  }, "Medios de Pago"), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-1 text-slate-400 text-[11px]"
+  }, /*#__PURE__*/React.createElement("li", null, "Yape & Plin directo"), /*#__PURE__*/React.createElement("li", null, "Transferencias BCP, BBVA, Interbank"), /*#__PURE__*/React.createElement("li", null, "Pago contra entrega Lima"), /*#__PURE__*/React.createElement("li", null, "Coordinación por WhatsApp")))), /*#__PURE__*/React.createElement("div", {
+    className: "border-t border-slate-800/80 pt-3 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-500 gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", null, "© 2026 BASSFIT PERÚ · Todos los derechos reservados."), /*#__PURE__*/React.createElement("span", null, "Desarrollado por ", /*#__PURE__*/React.createElement("a", {
+    id: "daf-developer-credit",
+    href: "https://www.dafsoluciones.site/",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "text-slate-400 hover:text-[#FF5500] font-semibold underline underline-offset-2 transition-colors cursor-pointer",
+    title: "Daf soluciones tecnológicas"
+  }, "Daf soluciones tecnológicas"))))), /*#__PURE__*/React.createElement("nav", {
     "aria-label": "Navegación Móvil Rápida",
     className: "sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 py-1 flex items-center justify-around select-none"
   }, /*#__PURE__*/React.createElement("button", {
