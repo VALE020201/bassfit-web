@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limiter";
 import path from "path";
 
 export interface ReclamacionPayload {
@@ -44,6 +45,18 @@ function escapeHtml(text: string = ""): string {
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Protección contra spam masivo y bots (Máximo 5 envíos por IP cada 10 minutos)
+    const clientIp = getClientIp(req);
+    const rateCheck = checkRateLimit(clientIp, "reclamaciones", 5, 10 * 60 * 1000);
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          error: "Has excedido el límite temporal de solicitudes. Por favor espera unos minutos antes de registrar una nueva reclamación.",
+        },
+        { status: 429 }
+      );
+    }
+
     const data = (await req.json()) as ReclamacionPayload;
 
     // 1. Validación de campos obligatorios según INDECOPI

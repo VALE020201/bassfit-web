@@ -15,6 +15,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BASSFIT_PRODUCTS, buildWhatsAppAdvisorUrl } from "@/lib/bassfit-data";
 import { resolveStrictSaleMode } from "@/lib/woocommerce";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limiter";
 
 export interface CheckoutItemPayload {
   productId: string;
@@ -37,6 +38,18 @@ export interface CheckoutRequestPayload {
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Protección contra ataques de denegación en checkout (Máximo 10 solicitudes cada 5 minutos)
+    const clientIp = getClientIp(req);
+    const rateCheck = checkRateLimit(clientIp, "checkout", 10, 5 * 60 * 1000);
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          error: "Demasiadas solicitudes de compra en corto tiempo. Por favor espera unos minutos.",
+        },
+        { status: 429 }
+      );
+    }
+
     const body = (await req.json()) as CheckoutRequestPayload;
 
     if (!body.items || !Array.isArray(body.items) || body.items.length === 0) {
