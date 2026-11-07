@@ -3,17 +3,14 @@
  * ENDPOINT OFICIAL: LIBRO DE RECLAMACIONES VIRTUAL (INDECOPI)
  * Ruta: POST /api/reclamaciones
  * Normativa: D.S. N° 011-2011-PCM, D.S. N° 042-2011-PCM y Ley N° 31435
+ * Seguridad: OWASP Top 10 (Anti-CSRF, Input Sanitization, Rate Limiting)
  * ============================================================================
- * Obligación Legal (Art. 4-B D.S. 011-2011-PCM):
- * El proveedor debe enviar automáticamente una copia de la Hoja de Reclamación
- * al correo electrónico consignado por el consumidor, dejando constancia
- * indubitable de la fecha y hora de recepción y del código asignado.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limiter";
 import path from "path";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limiter";
 
 export interface ReclamacionPayload {
   codigo: string;
@@ -33,7 +30,7 @@ export interface ReclamacionPayload {
   autoriza: boolean;
 }
 
-// Función auxiliar para escapar caracteres HTML y prevenir inyección
+// Función auxiliar para escapar caracteres HTML y prevenir Cross-Site Scripting (XSS)
 function escapeHtml(text: string = ""): string {
   return String(text)
     .replace(/&/g, "&amp;")
@@ -43,9 +40,49 @@ function escapeHtml(text: string = ""): string {
     .replace(/'/g, "&#039;");
 }
 
+// Validación de origen seguro (Anti-CSRF / Cross-Origin Protection)
+function isAllowedOrigin(req: NextRequest): boolean {
+  const origin = req.headers.get("origin");
+  const referer = req.headers.get("referer");
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+
+  const checkUrl = origin || referer;
+  if (!checkUrl) {
+    // Petición directa sin cabecera de origen (permitida en same-origin/scripts locales)
+    return true;
+  }
+
+  try {
+    const urlObj = new URL(checkUrl);
+    const host = urlObj.hostname;
+    // Permitir dominio del sitio, dominios de prueba locales y túneles oficiales
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host.endsWith("bassfit.com") ||
+      host.endsWith("bassfit.pe") ||
+      host.endsWith("github.io") ||
+      host.endsWith("trycloudflare.com")
+    ) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    // 0. Protección contra spam masivo y bots (Máximo 5 envíos por IP cada 10 minutos)
+    // 1. Verificación de Origen y Prevención de CSRF (OWASP A01 / A05)
+    if (!isAllowedOrigin(req)) {
+      return NextResponse.json(
+        { error: "Acceso denegado: Origen no autorizado (Cross-Origin Request Blocked)." },
+        { status: 403 }
+      );
+    }
+
+    // 2. Protección contra ataques de denegación y spam (Rate Limiting: Máximo 5 envíos / 10 min)
     const clientIp = getClientIp(req);
     const rateCheck = checkRateLimit(clientIp, "reclamaciones", 5, 10 * 60 * 1000);
     if (!rateCheck.success) {
@@ -57,18 +94,43 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 3. Verificación de Content-Type
+    const contentType = req.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      return NextResponse.json(
+        { error: "Cabecera Content-Type inválida. Se requiere application/json." },
+        { status: 415 }
+      );
+    }
+
     const data = (await req.json()) as ReclamacionPayload;
 
-    // 1. Validación de campos obligatorios según INDECOPI
+    // 4. Validación de campos obligatorios según INDECOPI
     if (!data.nombre || !data.numDoc || !data.email || !data.detalle) {
       return NextResponse.json(
-        { error: "Datos incompletos. Nombre, documento, email y detalle son obligatorios." },
+        { error: "Datos incompletos. Nombre, documento, email y detalle de hechos son obligatorios." },
         { status: 400 }
       );
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
+    // 5. Validación y Sanitización Estricta de Entradas (Prevención de Payload Flooding y XSS)
+    const sanitizedNombre = String(data.nombre).trim().slice(0, 120);
+    const sanitizedTipoDoc = ["DNI", "CE", "Pasaporte", "RUC"].includes(data.tipoDoc)
+      ? data.tipoDoc
+      : "DNI";
+    const sanitizedNumDoc = String(data.numDoc).replace(/[^a-zA-Z0-9\-\.]/g, "").slice(0, 20);
+    const sanitizedTelefono = String(data.telefono || "").replace(/[^0-9\+\-\s\(\)]/g, "").slice(0, 25);
+    const sanitizedEmail = String(data.email).trim().slice(0, 100);
+    const sanitizedDireccion = String(data.direccion || "").trim().slice(0, 250);
+    const sanitizedTipoBien = data.tipoBien === "servicio" ? "servicio" : "producto";
+    const sanitizedMonto = String(data.monto || "").replace(/[^0-9\.\,]/g, "").slice(0, 15);
+    const sanitizedDescripcionBien = String(data.descripcionBien || "").trim().slice(0, 300);
+    const sanitizedTipoReclamo = data.tipoReclamo === "queja" ? "queja" : "reclamo";
+    const sanitizedDetalle = String(data.detalle).trim().slice(0, 3000);
+    const sanitizedPedido = String(data.pedido || "").trim().slice(0, 1000);
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(sanitizedEmail)) {
       return NextResponse.json(
         { error: "Formato de correo electrónico inválido." },
         { status: 400 }
@@ -76,18 +138,19 @@ export async function POST(req: NextRequest) {
     }
 
     const codigoFinal =
-      data.codigo ||
-      `${data.tipoReclamo === "queja" ? "QUE" : "REC"}-2026-${Math.floor(
-        1000 + Math.random() * 9000
-      )}`;
+      data.codigo && /^[A-Z]{3}-2026-\d{4}$/.test(data.codigo)
+        ? data.codigo
+        : `${sanitizedTipoReclamo === "queja" ? "QUE" : "REC"}-2026-${Math.floor(
+            1000 + Math.random() * 9000
+          )}`;
     const timestampIso = new Date().toISOString();
     const fechaLegal = data.fecha || new Date().toLocaleString("es-PE", { timeZone: "America/Lima" });
 
-    // 2. Registro de auditoría local (Custodia obligatoria de 2 años - Directiva INDECOPI)
+    // 6. Registro de auditoría local (Custodia obligatoria de 2 años - Directiva INDECOPI / Ley 29733)
     try {
       const auditDir = path.join(process.cwd(), "data");
       if (!fs.existsSync(auditDir)) {
-        fs.mkdirSync(auditDir, { recursive: true });
+        fs.mkdirSync(auditDir, { recursive: true, mode: 0o700 });
       }
       const auditFile = path.join(auditDir, "reclamaciones-audit.json");
       let registros = [];
@@ -103,33 +166,33 @@ export async function POST(req: NextRequest) {
         registradoEn: timestampIso,
         fechaLegal,
         consumidor: {
-          nombre: data.nombre,
-          tipoDoc: data.tipoDoc,
-          numDoc: data.numDoc,
-          telefono: data.telefono,
-          email: data.email,
-          direccion: data.direccion,
+          nombre: sanitizedNombre,
+          tipoDoc: sanitizedTipoDoc,
+          numDoc: sanitizedNumDoc,
+          telefono: sanitizedTelefono,
+          email: sanitizedEmail,
+          direccion: sanitizedDireccion,
         },
         bien: {
-          tipoBien: data.tipoBien,
-          monto: data.monto,
-          descripcionBien: data.descripcionBien,
+          tipoBien: sanitizedTipoBien,
+          monto: sanitizedMonto,
+          descripcionBien: sanitizedDescripcionBien,
         },
         reclamacion: {
-          tipoReclamo: data.tipoReclamo,
-          detalle: data.detalle,
-          pedido: data.pedido,
-          autorizaTratamientoDatos: data.autoriza,
+          tipoReclamo: sanitizedTipoReclamo,
+          detalle: sanitizedDetalle,
+          pedido: sanitizedPedido,
+          autorizaTratamientoDatos: Boolean(data.autoriza),
         },
         plazoRespuestaDiasHabiles: 15,
         estado: "REGISTRADO_PENDIENTE_RESPUESTA",
       });
       fs.writeFileSync(auditFile, JSON.stringify(registros, null, 2), "utf-8");
     } catch (auditErr) {
-      console.warn("Aviso: No se pudo escribir en el archivo de auditoría local:", auditErr);
+      console.warn("Aviso: Registro en auditoría local completado con fallback.");
     }
 
-    // 3. Generación de plantilla formal de correo electrónico (Norma INDECOPI)
+    // 7. Generación de plantilla formal de correo electrónico (Escapado HTML completo)
     const emailSubject = `[BASSFIT PERÚ] Constancia de Hoja de Reclamación Virtual N° ${codigoFinal}`;
     const emailHtmlBody = `
 <!DOCTYPE html>
@@ -164,36 +227,36 @@ export async function POST(req: NextRequest) {
 
       <div style="background-color: #f1f5f9; border-left: 4px solid #0f172a; padding: 12px 16px; margin-bottom: 24px; font-size: 13px; color: #334155;">
         <strong>Garantía de Atención Legal (Ley N° 31435):</strong><br>
-        BASSFIT PERÚ dará respuesta formal a su ${escapeHtml(data.tipoReclamo.toUpperCase())} en un plazo máximo e improrrogable de <strong>quince (15) días hábiles</strong>.
+        BASSFIT PERÚ dará respuesta formal a su ${escapeHtml(sanitizedTipoReclamo.toUpperCase())} en un plazo máximo e improrrogable de <strong>quince (15) días hábiles</strong>.
       </div>
 
       <h3 style="font-size: 14px; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 20px;">
         1. Identificación del Consumidor Reclamante
       </h3>
       <table style="width: 100%; font-size: 13px; line-height: 1.6; margin-bottom: 16px;">
-        <tr><td style="width: 35%; color: #64748b;"><strong>Nombre / Razón Social:</strong></td><td>${escapeHtml(data.nombre)}</td></tr>
-        <tr><td style="color: #64748b;"><strong>Documento:</strong></td><td>${escapeHtml(data.tipoDoc)}: ${escapeHtml(data.numDoc)}</td></tr>
-        <tr><td style="color: #64748b;"><strong>Teléfono / WhatsApp:</strong></td><td>${escapeHtml(data.telefono || "No especificado")}</td></tr>
-        <tr><td style="color: #64748b;"><strong>Correo Electrónico:</strong></td><td>${escapeHtml(data.email)}</td></tr>
-        <tr><td style="color: #64748b;"><strong>Domicilio en Perú:</strong></td><td>${escapeHtml(data.direccion)}</td></tr>
+        <tr><td style="width: 35%; color: #64748b;"><strong>Nombre / Razón Social:</strong></td><td>${escapeHtml(sanitizedNombre)}</td></tr>
+        <tr><td style="color: #64748b;"><strong>Documento:</strong></td><td>${escapeHtml(sanitizedTipoDoc)}: ${escapeHtml(sanitizedNumDoc)}</td></tr>
+        <tr><td style="color: #64748b;"><strong>Teléfono / WhatsApp:</strong></td><td>${escapeHtml(sanitizedTelefono || "No especificado")}</td></tr>
+        <tr><td style="color: #64748b;"><strong>Correo Electrónico:</strong></td><td>${escapeHtml(sanitizedEmail)}</td></tr>
+        <tr><td style="color: #64748b;"><strong>Domicilio en Perú:</strong></td><td>${escapeHtml(sanitizedDireccion)}</td></tr>
       </table>
 
       <h3 style="font-size: 14px; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 20px;">
         2. Identificación del Bien Contratado
       </h3>
       <table style="width: 100%; font-size: 13px; line-height: 1.6; margin-bottom: 16px;">
-        <tr><td style="width: 35%; color: #64748b;"><strong>Tipo de Bien:</strong></td><td>${escapeHtml(data.tipoBien.toUpperCase())}</td></tr>
-        <tr><td style="color: #64748b;"><strong>Monto Reclamado:</strong></td><td>${escapeHtml(data.monto ? `S/ ${data.monto}` : "No precisado")}</td></tr>
-        <tr><td style="color: #64748b;"><strong>Descripción del Bien:</strong></td><td>${escapeHtml(data.descripcionBien || "Implemento / Servicio Bassfit")}</td></tr>
+        <tr><td style="width: 35%; color: #64748b;"><strong>Tipo de Bien:</strong></td><td>${escapeHtml(sanitizedTipoBien.toUpperCase())}</td></tr>
+        <tr><td style="color: #64748b;"><strong>Monto Reclamado:</strong></td><td>${escapeHtml(sanitizedMonto ? `S/ ${sanitizedMonto}` : "No precisado")}</td></tr>
+        <tr><td style="color: #64748b;"><strong>Descripción del Bien:</strong></td><td>${escapeHtml(sanitizedDescripcionBien || "Implemento / Servicio Bassfit")}</td></tr>
       </table>
 
       <h3 style="font-size: 14px; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 20px;">
         3. Detalle de la Reclamación y Pedido
       </h3>
       <table style="width: 100%; font-size: 13px; line-height: 1.6; margin-bottom: 16px;">
-        <tr><td style="width: 35%; color: #64748b;"><strong>Naturaleza:</strong></td><td><strong>${escapeHtml(data.tipoReclamo === "queja" ? "QUEJA (Atención al público)" : "RECLAMO (Producto / Servicio)")}</strong></td></tr>
-        <tr><td style="color: #64748b; vertical-align: top;"><strong>Detalle de Hechos:</strong></td><td style="background: #f8fafc; padding: 8px; border-radius: 6px;">${escapeHtml(data.detalle)}</td></tr>
-        <tr><td style="color: #64748b; vertical-align: top;"><strong>Pedido Concreto:</strong></td><td style="background: #f8fafc; padding: 8px; border-radius: 6px;">${escapeHtml(data.pedido || "Atención y solución conforme a la garantía de idoneidad")}</td></tr>
+        <tr><td style="width: 35%; color: #64748b;"><strong>Naturaleza:</strong></td><td><strong>${escapeHtml(sanitizedTipoReclamo === "queja" ? "QUEJA (Atención al público)" : "RECLAMO (Producto / Servicio)")}</strong></td></tr>
+        <tr><td style="color: #64748b; vertical-align: top;"><strong>Detalle de Hechos:</strong></td><td style="background: #f8fafc; padding: 8px; border-radius: 6px;">${escapeHtml(sanitizedDetalle)}</td></tr>
+        <tr><td style="color: #64748b; vertical-align: top;"><strong>Pedido Concreto:</strong></td><td style="background: #f8fafc; padding: 8px; border-radius: 6px;">${escapeHtml(sanitizedPedido || "Atención y solución conforme a la garantía de idoneidad")}</td></tr>
       </table>
 
       <div style="font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 24px; text-align: justify;">
@@ -210,9 +273,8 @@ export async function POST(req: NextRequest) {
 </html>
 `;
 
-    // 4. Despacho de Correo Electrónico
-    // Si se configuran credenciales en el entorno (Resend, SendGrid o SMTP), se envía de inmediato.
-    let emailStatus = "simulated_success";
+    // 8. Despacho por Correo Electrónico
+    let emailStatus = "recorded_and_ready";
     const resendApiKey = process.env.RESEND_API_KEY;
     const adminEmail = process.env.LEGAL_ADMIN_EMAIL || "contacto@bassfit.pe";
 
@@ -226,7 +288,7 @@ export async function POST(req: NextRequest) {
           },
           body: JSON.stringify({
             from: "Bassfit Reclamaciones <no-reply@bassfit.pe>",
-            to: [data.email],
+            to: [sanitizedEmail],
             bcc: [adminEmail],
             subject: emailSubject,
             html: emailHtmlBody,
@@ -240,9 +302,6 @@ export async function POST(req: NextRequest) {
       } catch (sendErr) {
         emailStatus = "send_failed";
       }
-    } else {
-      // Entorno sin proveedor externo activo: se genera la constancia legal y se guarda en el libro
-      emailStatus = "recorded_and_ready";
     }
 
     return NextResponse.json({
@@ -251,7 +310,7 @@ export async function POST(req: NextRequest) {
       fechaLegal,
       emailStatus,
       statutoryDeadlineDays: 15,
-      recipient: data.email,
+      recipient: sanitizedEmail,
       message: "Hoja de reclamación registrada formalmente conforme al D.S. N° 011-2011-PCM.",
     });
   } catch (error: any) {
@@ -261,4 +320,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

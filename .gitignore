@@ -1,43 +1,55 @@
-# Dependencies
+# ============================================================================
+# BASSFIT HEADLESS - REGLAS DE SEGURIDAD GIT (.gitignore)
+# ============================================================================
+
+# 1. Dependencias y Paquetes
 node_modules/
 .pnp
 .pnp.js
 
-# Testing
+# 2. Pruebas y Cobertura
 coverage/
 
-# Next.js build output
+# 3. Compilados y Builds
 .next/
 out/
-
-# Production
 build/
 dist/
 
-# Misc
+# 4. Archivos del Sistema Operativo
 .DS_Store
+Thumbs.db
 *.pem
+*.key
+*.cert
 
-# Debug
+# 5. Logs y Depuración
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.log
 
-# Local env files
-.env*.local
+# 6. Variables de Entorno y Secretos (OWASP A02: Prevención de Exposición)
+.env
+.env.*
+!.env.example
 
-# Vercel
+# 7. Datos Personales Sensibles y Auditorías Legales (Ley N° 29733)
+data/
+*.audit.json
+reclamaciones-audit.json
+
+# 8. Plataformas de Despliegue
 .vercel
 
-# TypeScript
+# 9. TypeScript Cache
 *.tsbuildinfo
 next-env.d.ts
 
-# Backups & Scratch
+# 10. Copias de Seguridad, Scripts de Prueba y Archivos Temporales
 *.bak
 *.bak_*
 *.backup_old
 *.py
 test_*.html
 temp_*.html
-

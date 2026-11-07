@@ -2,14 +2,8 @@
  * ============================================================================
  * ENDPOINT TRANSACCIONAL DE CHECKOUT + VALIDACIÓN ESTRICTA DE BACKEND
  * Ruta: POST /api/checkout
+ * Seguridad: OWASP Top 10 (Anti-CSRF, Input Sanitization, Rate Limiting)
  * ============================================================================
- * Regla Crítica de Negocio Bassfit:
- * - Los implementos y accesorios siguen el flujo de compra directa y generan una
- *   orden en estado `pending` en WooCommerce + sesión de pago en **Easy Pay**.
- * - Los SUPLEMENTOS tienen PROHIBIDA la compra directa por carrito. Si un cliente
- *   o script intenta inyectar un suplemento en el payload del checkout, este
- *   endpoint rechaza la transacción con HTTP 403 Forbidden y devuelve el enlace
- *   de evaluación consultiva por WhatsApp.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -25,20 +19,54 @@ export interface CheckoutItemPayload {
 }
 
 export interface CheckoutRequestPayload {
-  customer: {
-    fullName: string;
-    email: string;
-    phone: string;
-    dniOrRuc: string;
-    address: string;
-    city: string;
+  customer?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    dniOrRuc?: string;
+    address?: string;
+    city?: string;
   };
   items: CheckoutItemPayload[];
 }
 
+// Verificación de origen seguro (Anti-CSRF)
+function isAllowedOrigin(req: NextRequest): boolean {
+  const origin = req.headers.get("origin");
+  const referer = req.headers.get("referer");
+  const checkUrl = origin || referer;
+  if (!checkUrl) return true;
+
+  try {
+    const urlObj = new URL(checkUrl);
+    const host = urlObj.hostname;
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host.endsWith("bassfit.com") ||
+      host.endsWith("bassfit.pe") ||
+      host.endsWith("github.io") ||
+      host.endsWith("trycloudflare.com")
+    ) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    // 0. Protección contra ataques de denegación en checkout (Máximo 10 solicitudes cada 5 minutos)
+    // 1. Verificación de Origen y Prevención de CSRF
+    if (!isAllowedOrigin(req)) {
+      return NextResponse.json(
+        { error: "Acceso denegado: Origen no autorizado (Cross-Origin Request Blocked)." },
+        { status: 403 }
+      );
+    }
+
+    // 2. Protección contra ataques de denegación en checkout (Máximo 10 solicitudes cada 5 minutos)
     const clientIp = getClientIp(req);
     const rateCheck = checkRateLimit(clientIp, "checkout", 10, 5 * 60 * 1000);
     if (!rateCheck.success) {
@@ -47,6 +75,15 @@ export async function POST(req: NextRequest) {
           error: "Demasiadas solicitudes de compra en corto tiempo. Por favor espera unos minutos.",
         },
         { status: 429 }
+      );
+    }
+
+    // 3. Verificación de Content-Type
+    const contentType = req.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      return NextResponse.json(
+        { error: "Cabecera Content-Type inválida. Se requiere application/json." },
+        { status: 415 }
       );
     }
 
@@ -59,7 +96,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. AUDITORÍA ESTRICTA DE BACKEND: Verificar que NINGÚN producto sea un Suplemento
+    // Límite de seguridad: máximo 50 líneas distintas por carrito
+    if (body.items.length > 50) {
+      return NextResponse.json(
+        { error: "Límite de artículos por orden excedido (máximo 50 ítems)." },
+        { status: 400 }
+      );
+    }
+
+    // 4. AUDITORÍA ESTRICTA DE BACKEND: Verificar que NINGÚN producto sea un Suplemento
     for (const item of body.items) {
       const catalogProduct = BASSFIT_PRODUCTS.find(
         (p) => p.id === item.productId || p.wcId === item.wcId || p.slug === item.slug
@@ -67,7 +112,7 @@ export async function POST(req: NextRequest) {
 
       if (!catalogProduct) {
         return NextResponse.json(
-          { error: `Producto no encontrado en el catálogo oficial de Bassfit (${item.slug}).` },
+          { error: `Producto no encontrado en el catálogo oficial de Bassfit (${String(item.slug || "").slice(0, 50)}).` },
           { status: 404 }
         );
       }
@@ -91,7 +136,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Cálculo verificado en servidor (nunca confiar en precios enviados por el cliente)
+    // 5. Cálculo verificado en servidor (nunca confiar en precios enviados por el cliente)
     let subtotal = 0;
     const verifiedLineItems = body.items.map((item) => {
       const product = BASSFIT_PRODUCTS.find(
@@ -114,7 +159,7 @@ export async function POST(req: NextRequest) {
     const totalAmount = subtotal + shippingCost;
     const orderReference = `BF-2026-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // 3. Generación de Sesión Transaccional con Pasarela Easy Pay + Orden WooCommerce
+    // 6. Generación de Sesión Transaccional con Pasarela Easy Pay + Orden WooCommerce
     return NextResponse.json({
       success: true,
       gateway: "Easy Pay Perú (HTTPS Encrypted)",
@@ -137,9 +182,8 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     return NextResponse.json(
-      { error: "Error interno procesando el checkout con Easy Pay.", details: error?.message },
+      { error: "Error interno procesando el checkout con pasarela.", details: error?.message },
       { status: 500 }
     );
   }
 }
-
