@@ -43,7 +43,8 @@ class Bassfit_Headless_Engine {
         add_filter( 'manage_bassfit_reclamo_posts_columns', array( $this, 'set_reclamo_columns' ) );
         add_action( 'manage_bassfit_reclamo_posts_custom_column', array( $this, 'render_reclamo_column' ), 10, 2 );
         add_action( 'add_meta_boxes', array( $this, 'register_reclamo_metabox' ), 99 );
-        add_action( 'save_post', array( $this, 'save_video_metabox' ), 20 );
+        add_action( 'save_post', array( $this, 'save_video_metabox' ), 999 );
+        add_action( 'wp_ajax_bassfit_quick_save_product', array( $this, 'handle_ajax_quick_save_product' ) );
         add_action( 'admin_menu', array( $this, 'register_videos_admin_menu' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_media_uploader' ) );
         add_action( 'admin_head', array( $this, 'clean_up_product_admin_screen' ) );
@@ -253,6 +254,7 @@ class Bassfit_Headless_Engine {
         $cur_price = $wc_prod ? $wc_prod->get_price() : get_post_meta( $post->ID, '_price', true );
         $cur_stock = $wc_prod ? $wc_prod->get_stock_quantity() : get_post_meta( $post->ID, '_stock', true );
         $video_url = get_post_meta( $post->ID, '_bassfit_intro_video_url', true );
+        $ajax_nonce = wp_create_nonce( 'bassfit_ajax_product_' . $post->ID );
         wp_nonce_field( 'bassfit_save_video_nonce', 'bassfit_video_nonce' );
         ?>
         <div style="background:#f8fafc;border:2px solid #ff5500;border-radius:12px;padding:18px;margin-top:6px;">
@@ -262,11 +264,11 @@ class Bassfit_Headless_Engine {
             <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-bottom:16px;">
                 <div>
                     <label style="display:block;font-weight:800;color:#0f172a;margin-bottom:6px;font-size:13px;">💰 Precio en Soles (S/):</label>
-                    <input type="number" step="0.01" name="bassfit_easy_price" value="<?php echo esc_attr( $cur_price ); ?>" style="width:100%;padding:10px;font-size:18px;font-weight:800;color:#ff5500;border:1px solid #94a3b8;border-radius:8px;" />
+                    <input type="number" step="0.01" id="bassfit_easy_price" name="bassfit_easy_price" value="<?php echo esc_attr( $cur_price ); ?>" style="width:100%;padding:10px;font-size:18px;font-weight:800;color:#ff5500;border:1px solid #94a3b8;border-radius:8px;" />
                 </div>
                 <div>
                     <label style="display:block;font-weight:800;color:#0f172a;margin-bottom:6px;font-size:13px;">📦 Stock Disponible (Unidades):</label>
-                    <input type="number" step="1" name="bassfit_easy_stock" value="<?php echo esc_attr( $cur_stock ); ?>" style="width:100%;padding:10px;font-size:18px;font-weight:800;color:#0f172a;border:1px solid #94a3b8;border-radius:8px;" />
+                    <input type="number" step="1" id="bassfit_easy_stock" name="bassfit_easy_stock" value="<?php echo esc_attr( $cur_stock ); ?>" style="width:100%;padding:10px;font-size:18px;font-weight:800;color:#0f172a;border:1px solid #94a3b8;border-radius:8px;" />
                 </div>
             </div>
             <div style="margin-bottom:16px;">
@@ -276,9 +278,12 @@ class Bassfit_Headless_Engine {
                     <button type="button" class="button" id="bassfit_prod_upload_video_btn" style="font-weight:700;border-radius:8px;">📂 Subir / Elegir Video</button>
                 </div>
             </div>
-            <button type="submit" name="save" class="button button-primary" style="background:#ff5500;border-color:#e04a00;color:#fff;font-weight:800;font-size:14px;padding:8px 22px;border-radius:8px;cursor:pointer;">
-                💾 GUARDAR CAMBIOS AHORA
-            </button>
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                <button type="button" id="bassfit_ajax_save_btn" class="button button-primary" style="background:#ff5500;border-color:#e04a00;color:#fff;font-weight:800;font-size:14px;padding:8px 22px;border-radius:8px;cursor:pointer;">
+                    💾 GUARDAR CAMBIOS AHORA
+                </button>
+                <span id="bassfit_ajax_save_status" style="display:none;background:#dcfce7;color:#166534;border:1px solid #86efac;padding:8px 14px;border-radius:8px;font-weight:800;font-size:13px;"></span>
+            </div>
         </div>
         <script>
         jQuery(document).ready(function($){
@@ -298,9 +303,96 @@ class Bassfit_Headless_Engine {
                 });
                 pFrame.open();
             });
+
+            // Sincronizar con las casillas internas de WooCommerce para evitar sobrescrituras y alertas
+            $('#bassfit_easy_price').on('input change', function(){
+                $('#_regular_price').val($(this).val());
+                $('#_sale_price').val('');
+                $(window).off('beforeunload');
+                window.onbeforeunload = null;
+            });
+            $('#bassfit_easy_stock').on('input change', function(){
+                $('#_stock').val($(this).val());
+                $(window).off('beforeunload');
+                window.onbeforeunload = null;
+            });
+
+            // Guardado instantáneo por AJAX sin recargar ni pedir "Salir de la página"
+            $('#bassfit_ajax_save_btn').on('click', function(e){
+                e.preventDefault();
+                $(window).off('beforeunload');
+                window.onbeforeunload = null;
+
+                var $btn = $(this);
+                var $status = $('#bassfit_ajax_save_status');
+                $btn.prop('disabled', true).text('⏳ Guardando...');
+                $status.hide();
+
+                $.post(ajaxurl, {
+                    action: 'bassfit_quick_save_product',
+                    post_id: <?php echo intval( $post->ID ); ?>,
+                    nonce: '<?php echo esc_js( $ajax_nonce ); ?>',
+                    price: $('#bassfit_easy_price').val(),
+                    stock: $('#bassfit_easy_stock').val(),
+                    video: $('#bassfit_prod_video_input').val()
+                }, function(resp){
+                    $btn.prop('disabled', false).text('💾 GUARDAR CAMBIOS AHORA');
+                    if (resp && resp.success) {
+                        $('#_regular_price').val(resp.data.price);
+                        $('#_sale_price').val('');
+                        $('#_stock').val(resp.data.stock);
+                        $(window).off('beforeunload');
+                        window.onbeforeunload = null;
+                        $status.html('✅ ¡GUARDADO CON ÉXITO! Precio: S/ ' + resp.data.price + ' | Stock: ' + resp.data.stock + ' unid.').fadeIn(200);
+                    } else {
+                        alert('Error al guardar: ' + (resp && resp.data ? resp.data : 'Intenta nuevamente'));
+                    }
+                });
+            });
         });
         </script>
         <?php
+    }
+
+    public function handle_ajax_quick_save_product() {
+        $post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
+        if ( ! $post_id || ! check_ajax_referer( 'bassfit_ajax_product_' . $post_id, 'nonce', false ) ) {
+            wp_send_json_error( 'Sesión expirada, recarga la página.' );
+        }
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            wp_send_json_error( 'Sin permisos.' );
+        }
+        $wc_prod = function_exists( 'wc_get_product' ) ? wc_get_product( $post_id ) : null;
+        if ( ! $wc_prod ) {
+            wp_send_json_error( 'Producto no encontrado.' );
+        }
+        $new_price = isset( $_POST['price'] ) && '' !== $_POST['price'] ? (string) floatval( $_POST['price'] ) : $wc_prod->get_price();
+        $new_stock = isset( $_POST['stock'] ) && '' !== $_POST['stock'] ? intval( $_POST['stock'] ) : (int) $wc_prod->get_stock_quantity();
+        $new_video = isset( $_POST['video'] ) ? esc_url_raw( trim( $_POST['video'] ) ) : '';
+
+        $wc_prod->set_regular_price( $new_price );
+        $wc_prod->set_sale_price( '' );
+        $wc_prod->set_price( $new_price );
+        $wc_prod->set_manage_stock( true );
+        $wc_prod->set_stock_quantity( $new_stock );
+        $wc_prod->set_stock_status( $new_stock > 0 ? 'instock' : 'outofstock' );
+        $wc_prod->save();
+
+        update_post_meta( $post_id, '_regular_price', $new_price );
+        update_post_meta( $post_id, '_sale_price', '' );
+        update_post_meta( $post_id, '_price', $new_price );
+        update_post_meta( $post_id, '_stock', $new_stock );
+        update_post_meta( $post_id, '_bassfit_intro_video_url', $new_video );
+
+        if ( function_exists( 'wc_delete_product_transients' ) ) {
+            wc_delete_product_transients( $post_id );
+        }
+
+        wp_send_json_success( array(
+            'price' => $new_price,
+            'stock' => $new_stock,
+            'video' => $new_video,
+        ) );
     }
 
     public function render_video_metabox( $post ) {
@@ -321,7 +413,7 @@ class Bassfit_Headless_Engine {
     }
 
     public function save_video_metabox( $post_id ) {
-        if ( ! isset( $_POST['bassfit_video_nonce'] ) || ! wp_verify_nonce( $_POST['bassfit_video_nonce'], 'bassfit_save_video_nonce' ) ) {
+        if ( ! isset( $_POST['bassfit_video_nonce'] ) || ! wp_verify_nonce( $_POST['bassfit_video_nonce'], 'bassfit_video_nonce' ) && ! wp_verify_nonce( $_POST['bassfit_video_nonce'], 'bassfit_save_video_nonce' ) ) {
             return;
         }
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -335,28 +427,20 @@ class Bassfit_Headless_Engine {
             }
         }
         if ( 'product' === get_post_type( $post_id ) && function_exists( 'wc_get_product' ) ) {
-            $changed = false;
-            $wc_prod = wc_get_product( $post_id );
-            if ( $wc_prod ) {
-                if ( isset( $_POST['bassfit_easy_price'] ) && '' !== $_POST['bassfit_easy_price'] ) {
-                    $new_p = (string) floatval( $_POST['bassfit_easy_price'] );
-                    $wc_prod->set_regular_price( $new_p );
-                    $wc_prod->set_sale_price( '' );
-                    $wc_prod->set_price( $new_p );
-                    $changed = true;
-                }
-                if ( isset( $_POST['bassfit_easy_stock'] ) && '' !== $_POST['bassfit_easy_stock'] ) {
-                    $new_s = intval( $_POST['bassfit_easy_stock'] );
-                    $wc_prod->set_manage_stock( true );
-                    $wc_prod->set_stock_quantity( $new_s );
-                    $wc_prod->set_stock_status( $new_s > 0 ? 'instock' : 'outofstock' );
-                    $changed = true;
-                }
-                if ( $changed ) {
-                    remove_action( 'save_post', array( $this, 'save_video_metabox' ), 20 );
-                    $wc_prod->save();
-                    add_action( 'save_post', array( $this, 'save_video_metabox' ), 20 );
-                }
+            if ( isset( $_POST['bassfit_easy_price'] ) && '' !== $_POST['bassfit_easy_price'] ) {
+                $new_p = (string) floatval( $_POST['bassfit_easy_price'] );
+                update_post_meta( $post_id, '_regular_price', $new_p );
+                update_post_meta( $post_id, '_sale_price', '' );
+                update_post_meta( $post_id, '_price', $new_p );
+            }
+            if ( isset( $_POST['bassfit_easy_stock'] ) && '' !== $_POST['bassfit_easy_stock'] ) {
+                $new_s = intval( $_POST['bassfit_easy_stock'] );
+                update_post_meta( $post_id, '_manage_stock', 'yes' );
+                update_post_meta( $post_id, '_stock', $new_s );
+                update_post_meta( $post_id, '_stock_status', $new_s > 0 ? 'instock' : 'outofstock' );
+            }
+            if ( function_exists( 'wc_delete_product_transients' ) ) {
+                wc_delete_product_transients( $post_id );
             }
         }
     }
