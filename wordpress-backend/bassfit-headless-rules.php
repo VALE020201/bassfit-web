@@ -48,10 +48,11 @@ class Bassfit_Headless_Engine {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_media_uploader' ) );
         add_action( 'admin_head', array( $this, 'clean_up_product_admin_screen' ) );
 
-        // 6. Formato Evergreen en Blog ("Noticias / Comunidad / Tribu"): Sin comentarios ni fechas expuestas
+        // 6. Formato Evergreen en Blog ("Noticias / Comunidad / Tribu") y Blindaje OWASP XML-RPC
         add_action( 'init', array( $this, 'disable_comments_globally' ) );
         add_filter( 'comments_open', '__return_false', 20, 2 );
         add_filter( 'pings_open', '__return_false', 20, 2 );
+        add_filter( 'xmlrpc_enabled', '__return_false' );
         add_filter( 'rest_prepare_post', array( $this, 'sanitize_evergreen_post_rest_response' ), 10, 3 );
     }
 
