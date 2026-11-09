@@ -39,11 +39,14 @@ class Bassfit_Headless_Engine {
         add_action( 'init', array( $this, 'register_reclamaciones_cpt' ) );
         add_action( 'init', array( $this, 'intercept_direct_api_paths' ), 20 );
 
-        // 5. Columnas y Metabox en el Panel de WordPress para Libro de Reclamaciones y Videos
+        // 5. Columnas, Simplificación de Productos y Panel de Videos en WordPress Admin
         add_filter( 'manage_bassfit_reclamo_posts_columns', array( $this, 'set_reclamo_columns' ) );
         add_action( 'manage_bassfit_reclamo_posts_custom_column', array( $this, 'render_reclamo_column' ), 10, 2 );
-        add_action( 'add_meta_boxes', array( $this, 'register_reclamo_metabox' ) );
-        add_action( 'save_post', array( $this, 'save_video_metabox' ) );
+        add_action( 'add_meta_boxes', array( $this, 'register_reclamo_metabox' ), 99 );
+        add_action( 'save_post', array( $this, 'save_video_metabox' ), 20 );
+        add_action( 'admin_menu', array( $this, 'register_videos_admin_menu' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_media_uploader' ) );
+        add_action( 'admin_head', array( $this, 'clean_up_product_admin_screen' ) );
 
         // 6. Formato Evergreen en Blog ("Noticias / Comunidad / Tribu"): Sin comentarios ni fechas expuestas
         add_action( 'init', array( $this, 'disable_comments_globally' ) );
@@ -116,6 +119,98 @@ class Bassfit_Headless_Engine {
         }
     }
 
+    public function enqueue_admin_media_uploader() {
+        if ( is_admin() ) {
+            wp_enqueue_media();
+        }
+    }
+
+    /**
+     * Oculta todas las casillas innecesarias de WooCommerce/WordPress que confunden al editar un producto.
+     */
+    public function clean_up_product_admin_screen() {
+        $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+        if ( ! $screen || 'product' !== $screen->post_type ) {
+            return;
+        }
+        ?>
+        <style>
+            /* Ocultar pestañas y casillas innecesarias de WooCommerce para dejar solo lo importante */
+            #postcustom, #commentsdiv, #commentstatusdiv, #slugdiv, #tagsdiv-product_tag,
+            #product_branddiv, .shipping_options, .linked_product_options, .attribute_options,
+            .advanced_options, ._tax_status_field, ._tax_class_field, ._sale_price_field,
+            label[for="_virtual"], label[for="_downloadable"] {
+                display: none !important;
+            }
+        </style>
+        <?php
+    }
+
+    public function register_videos_admin_menu() {
+        add_menu_page(
+            'Videos de la Web Bassfit',
+            '🎬 Videos de la Web',
+            'manage_options',
+            'bassfit-videos-web',
+            array( $this, 'render_videos_admin_page' ),
+            'dashicons-video-alt3',
+            27
+        );
+    }
+
+    public function render_videos_admin_page() {
+        if ( isset( $_POST['bassfit_save_global_videos'] ) && check_admin_referer( 'bassfit_global_videos_nonce' ) ) {
+            $main_v = esc_url_raw( trim( $_POST['bassfit_main_routine_video_url'] ?? '' ) );
+            update_option( 'bassfit_main_routine_video_url', $main_v );
+            echo '<div class="notice notice-success is-dismissible"><p><strong>¡Listo! Video guardado y actualizado automáticamente en la página web.</strong></p></div>';
+        }
+        $main_url = get_option( 'bassfit_main_routine_video_url', '' );
+        ?>
+        <div class="wrap" style="max-width:780px;margin-top:20px;">
+            <div style="background:#0f172a;color:#fff;padding:20px 24px;border-radius:14px;border-bottom:4px solid #ff5500;margin-bottom:20px;">
+                <h1 style="color:#fff;margin:0;font-size:22px;font-weight:800;">🎬 GESTOR FÁCIL DE VIDEOS — BASSFIT PERÚ</h1>
+                <p style="color:#cbd5e1;margin:6px 0 0 0;font-size:13px;">Sube aquí un video desde tu computadora/celular (o pega un link de YouTube) y se actualizará automáticamente en tu página web.</p>
+            </div>
+
+            <form method="post" style="background:#fff;padding:24px;border-radius:14px;border:1px solid #cbd5e1;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                <?php wp_nonce_field( 'bassfit_global_videos_nonce' ); ?>
+                <h2 style="margin-top:0;color:#0f172a;font-size:16px;">1. Video Principal de Rutina (Botón "▶ Ver Video Rutina" del Banner y sección Noticias)</h2>
+                <p style="color:#475569;font-size:13px;margin-bottom:12px;">
+                    Haz clic en el botón gris <strong>"📂 Subir video desde mi PC / Celular"</strong> para elegir tu archivo <code>.mp4</code>, o pega directamente un link de YouTube:
+                </p>
+                <div style="display:flex;gap:10px;margin-bottom:18px;">
+                    <input type="text" id="bassfit_main_routine_video_url" name="bassfit_main_routine_video_url" value="<?php echo esc_attr( $main_url ); ?>" placeholder="https://www.youtube.com/watch?v=... o archivo .mp4" style="flex:1;padding:10px 12px;font-size:14px;border:1px solid #94a3b8;border-radius:8px;" />
+                    <button type="button" class="button" id="bassfit_upload_main_video_btn" style="padding:6px 16px;font-weight:700;border-radius:8px;">📂 Subir video desde mi PC / Celular</button>
+                </div>
+
+                <button type="submit" name="bassfit_save_global_videos" value="1" class="button button-primary" style="background:#ff5500;border-color:#e04a00;color:#fff;font-weight:800;font-size:14px;padding:8px 24px;border-radius:8px;cursor:pointer;">
+                    💾 GUARDAR VIDEO EN LA WEB
+                </button>
+            </form>
+        </div>
+        <script>
+        jQuery(document).ready(function($){
+            var frame;
+            $('#bassfit_upload_main_video_btn').on('click', function(e){
+                e.preventDefault();
+                if (frame) { frame.open(); return; }
+                frame = wp.media({
+                    title: 'Selecciona o sube tu video (.mp4)',
+                    button: { text: 'Usar este video' },
+                    library: { type: 'video' },
+                    multiple: false
+                });
+                frame.on('select', function(){
+                    var attachment = frame.state().get('selection').first().toJSON();
+                    $('#bassfit_main_routine_video_url').val(attachment.url);
+                });
+                frame.open();
+            });
+        });
+        </script>
+        <?php
+    }
+
     public function register_reclamo_metabox() {
         add_meta_box(
             'bassfit_reclamo_details',
@@ -126,16 +221,85 @@ class Bassfit_Headless_Engine {
             'high'
         );
 
-        foreach ( array( 'product', 'post' ) as $pt ) {
-            add_meta_box(
-                'bassfit_video_metabox',
-                '🎬 Video de Demostración / Rutina Bassfit',
-                array( $this, 'render_video_metabox' ),
-                $pt,
-                'side',
-                'high'
-            );
-        }
+        // Remover metaboxes confusos en Productos
+        remove_meta_box( 'postcustom', 'product', 'normal' );
+        remove_meta_box( 'commentsdiv', 'product', 'normal' );
+        remove_meta_box( 'slugdiv', 'product', 'normal' );
+        remove_meta_box( 'tagsdiv-product_tag', 'product', 'side' );
+
+        // Panel súper simple arriba del todo en cada Producto
+        add_meta_box(
+            'bassfit_easy_product_box',
+            '⚡ EDICIÓN FÁCIL BASSFIT — Cambiar Precio, Stock o Video de este Producto',
+            array( $this, 'render_easy_product_metabox' ),
+            'product',
+            'normal',
+            'high'
+        );
+
+        add_meta_box(
+            'bassfit_video_metabox',
+            '🎬 Video de este Artículo / Noticia',
+            array( $this, 'render_video_metabox' ),
+            'post',
+            'side',
+            'high'
+        );
+    }
+
+    public function render_easy_product_metabox( $post ) {
+        $wc_prod   = function_exists( 'wc_get_product' ) ? wc_get_product( $post->ID ) : null;
+        $cur_price = $wc_prod ? $wc_prod->get_price() : get_post_meta( $post->ID, '_price', true );
+        $cur_stock = $wc_prod ? $wc_prod->get_stock_quantity() : get_post_meta( $post->ID, '_stock', true );
+        $video_url = get_post_meta( $post->ID, '_bassfit_intro_video_url', true );
+        wp_nonce_field( 'bassfit_save_video_nonce', 'bassfit_video_nonce' );
+        ?>
+        <div style="background:#f8fafc;border:2px solid #ff5500;border-radius:12px;padding:18px;margin-top:6px;">
+            <p style="margin:0 0 14px 0;font-size:13px;color:#334155;">
+                <strong>¡No necesitas tocar las demás casillas de abajo!</strong> Cambia aquí directamente el precio, el stock o el video de este producto y dale al botón naranja <strong>"💾 GUARDAR CAMBIOS AHORA"</strong>:
+            </p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-bottom:16px;">
+                <div>
+                    <label style="display:block;font-weight:800;color:#0f172a;margin-bottom:6px;font-size:13px;">💰 Precio en Soles (S/):</label>
+                    <input type="number" step="0.01" name="bassfit_easy_price" value="<?php echo esc_attr( $cur_price ); ?>" style="width:100%;padding:10px;font-size:18px;font-weight:800;color:#ff5500;border:1px solid #94a3b8;border-radius:8px;" />
+                </div>
+                <div>
+                    <label style="display:block;font-weight:800;color:#0f172a;margin-bottom:6px;font-size:13px;">📦 Stock Disponible (Unidades):</label>
+                    <input type="number" step="1" name="bassfit_easy_stock" value="<?php echo esc_attr( $cur_stock ); ?>" style="width:100%;padding:10px;font-size:18px;font-weight:800;color:#0f172a;border:1px solid #94a3b8;border-radius:8px;" />
+                </div>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block;font-weight:800;color:#0f172a;margin-bottom:6px;font-size:13px;">🎬 Video demostrativo de este producto (Opcional — YouTube o archivo .mp4):</label>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="bassfit_prod_video_input" name="bassfit_intro_video_url" value="<?php echo esc_attr( $video_url ); ?>" placeholder="Pega un link de YouTube o usa el botón de al lado para subir un .mp4" style="flex:1;padding:8px 12px;border:1px solid #94a3b8;border-radius:8px;" />
+                    <button type="button" class="button" id="bassfit_prod_upload_video_btn" style="font-weight:700;border-radius:8px;">📂 Subir / Elegir Video</button>
+                </div>
+            </div>
+            <button type="submit" name="save" class="button button-primary" style="background:#ff5500;border-color:#e04a00;color:#fff;font-weight:800;font-size:14px;padding:8px 22px;border-radius:8px;cursor:pointer;">
+                💾 GUARDAR CAMBIOS AHORA
+            </button>
+        </div>
+        <script>
+        jQuery(document).ready(function($){
+            var pFrame;
+            $('#bassfit_prod_upload_video_btn').on('click', function(e){
+                e.preventDefault();
+                if (pFrame) { pFrame.open(); return; }
+                pFrame = wp.media({
+                    title: 'Selecciona o sube el video de este producto (.mp4)',
+                    button: { text: 'Usar este video' },
+                    library: { type: 'video' },
+                    multiple: false
+                });
+                pFrame.on('select', function(){
+                    var att = pFrame.state().get('selection').first().toJSON();
+                    $('#bassfit_prod_video_input').val(att.url);
+                });
+                pFrame.open();
+            });
+        });
+        </script>
+        <?php
     }
 
     public function render_video_metabox( $post ) {
@@ -145,7 +309,7 @@ class Bassfit_Headless_Engine {
         wp_nonce_field( 'bassfit_save_video_nonce', 'bassfit_video_nonce' );
         ?>
         <p style="margin-bottom:6px;font-size:12px;color:#334155;">
-            Pega aquí un enlace de <strong>YouTube</strong> o el link de un archivo <strong>.mp4</strong> subido en <em>Medios</em>:
+            Pega aquí un enlace de <strong>YouTube</strong> o sube un archivo <strong>.mp4</strong>:
         </p>
         <input type="url" name="bassfit_intro_video_url" value="<?php echo esc_attr( $video_url ); ?>" placeholder="https://www.youtube.com/watch?v=..." style="width:100%;margin-bottom:8px;" />
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#0f172a;cursor:pointer;">
@@ -167,6 +331,31 @@ class Bassfit_Headless_Engine {
             update_post_meta( $post_id, '_bassfit_intro_video_url', $url );
             if ( ! empty( $_POST['bassfit_set_as_main_video'] ) && ! empty( $url ) ) {
                 update_option( 'bassfit_main_routine_video_url', $url );
+            }
+        }
+        if ( 'product' === get_post_type( $post_id ) && function_exists( 'wc_get_product' ) ) {
+            $changed = false;
+            $wc_prod = wc_get_product( $post_id );
+            if ( $wc_prod ) {
+                if ( isset( $_POST['bassfit_easy_price'] ) && '' !== $_POST['bassfit_easy_price'] ) {
+                    $new_p = (string) floatval( $_POST['bassfit_easy_price'] );
+                    $wc_prod->set_regular_price( $new_p );
+                    $wc_prod->set_sale_price( '' );
+                    $wc_prod->set_price( $new_p );
+                    $changed = true;
+                }
+                if ( isset( $_POST['bassfit_easy_stock'] ) && '' !== $_POST['bassfit_easy_stock'] ) {
+                    $new_s = intval( $_POST['bassfit_easy_stock'] );
+                    $wc_prod->set_manage_stock( true );
+                    $wc_prod->set_stock_quantity( $new_s );
+                    $wc_prod->set_stock_status( $new_s > 0 ? 'instock' : 'outofstock' );
+                    $changed = true;
+                }
+                if ( $changed ) {
+                    remove_action( 'save_post', array( $this, 'save_video_metabox' ), 20 );
+                    $wc_prod->save();
+                    add_action( 'save_post', array( $this, 'save_video_metabox' ), 20 );
+                }
             }
         }
     }
