@@ -39,10 +39,11 @@ class Bassfit_Headless_Engine {
         add_action( 'init', array( $this, 'register_reclamaciones_cpt' ) );
         add_action( 'init', array( $this, 'intercept_direct_api_paths' ), 20 );
 
-        // 5. Columnas y Metabox en el Panel de WordPress para Libro de Reclamaciones
+        // 5. Columnas y Metabox en el Panel de WordPress para Libro de Reclamaciones y Videos
         add_filter( 'manage_bassfit_reclamo_posts_columns', array( $this, 'set_reclamo_columns' ) );
         add_action( 'manage_bassfit_reclamo_posts_custom_column', array( $this, 'render_reclamo_column' ), 10, 2 );
         add_action( 'add_meta_boxes', array( $this, 'register_reclamo_metabox' ) );
+        add_action( 'save_post', array( $this, 'save_video_metabox' ) );
 
         // 6. Formato Evergreen en Blog ("Noticias / Comunidad / Tribu"): Sin comentarios ni fechas expuestas
         add_action( 'init', array( $this, 'disable_comments_globally' ) );
@@ -124,6 +125,50 @@ class Bassfit_Headless_Engine {
             'normal',
             'high'
         );
+
+        foreach ( array( 'product', 'post' ) as $pt ) {
+            add_meta_box(
+                'bassfit_video_metabox',
+                '🎬 Video de Demostración / Rutina Bassfit',
+                array( $this, 'render_video_metabox' ),
+                $pt,
+                'side',
+                'high'
+            );
+        }
+    }
+
+    public function render_video_metabox( $post ) {
+        $video_url = get_post_meta( $post->ID, '_bassfit_intro_video_url', true );
+        $main_url  = get_option( 'bassfit_main_routine_video_url', '' );
+        $is_main   = ( ! empty( $video_url ) && $video_url === $main_url );
+        wp_nonce_field( 'bassfit_save_video_nonce', 'bassfit_video_nonce' );
+        ?>
+        <p style="margin-bottom:6px;font-size:12px;color:#334155;">
+            Pega aquí un enlace de <strong>YouTube</strong> o el link de un archivo <strong>.mp4</strong> subido en <em>Medios</em>:
+        </p>
+        <input type="url" name="bassfit_intro_video_url" value="<?php echo esc_attr( $video_url ); ?>" placeholder="https://www.youtube.com/watch?v=..." style="width:100%;margin-bottom:8px;" />
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#0f172a;cursor:pointer;">
+            <input type="checkbox" name="bassfit_set_as_main_video" value="1" <?php checked( $is_main ); ?> />
+            <span>Usar también como <strong>Video Principal de Rutina</strong> de la web</span>
+        </label>
+        <?php
+    }
+
+    public function save_video_metabox( $post_id ) {
+        if ( ! isset( $_POST['bassfit_video_nonce'] ) || ! wp_verify_nonce( $_POST['bassfit_video_nonce'], 'bassfit_save_video_nonce' ) ) {
+            return;
+        }
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return;
+        }
+        if ( isset( $_POST['bassfit_intro_video_url'] ) ) {
+            $url = esc_url_raw( trim( $_POST['bassfit_intro_video_url'] ) );
+            update_post_meta( $post_id, '_bassfit_intro_video_url', $url );
+            if ( ! empty( $_POST['bassfit_set_as_main_video'] ) && ! empty( $url ) ) {
+                update_option( 'bassfit_main_routine_video_url', $url );
+            }
+        }
     }
 
     public function render_reclamo_metabox( $post ) {
@@ -313,6 +358,8 @@ class Bassfit_Headless_Engine {
         if ( '/api/catalog' === $uri && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
             $res = $this->get_public_catalog_data();
             status_header( 200 );
+            nocache_headers();
+            header( 'X-LiteSpeed-Cache-Control: no-cache' );
             header( 'Content-Type: application/json; charset=utf-8' );
             echo wp_json_encode( $res );
             exit;
@@ -537,12 +584,14 @@ class Bassfit_Headless_Engine {
                 'stock'       => $p->get_stock_quantity(),
                 'stockStatus' => $p->get_stock_status(),
                 'saleMode'    => $this->is_consultative_product( $pid ) ? 'consultative_whatsapp' : 'direct_cart',
+                'videoUrl'    => (string) get_post_meta( $pid, '_bassfit_intro_video_url', true ),
             );
         }
         return array(
-            'updatedAt' => current_time( 'mysql' ),
-            'count'     => count( $list ),
-            'products'  => $list,
+            'updatedAt'           => current_time( 'mysql' ),
+            'count'               => count( $list ),
+            'mainRoutineVideoUrl' => (string) get_option( 'bassfit_main_routine_video_url', '' ),
+            'products'            => $list,
         );
     }
 
