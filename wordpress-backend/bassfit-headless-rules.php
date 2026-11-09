@@ -39,13 +39,21 @@ class Bassfit_Headless_Engine {
         add_action( 'init', array( $this, 'register_reclamaciones_cpt' ) );
         add_action( 'init', array( $this, 'intercept_direct_api_paths' ), 20 );
 
-        // 5. Columnas, Simplificación de Productos y Panel de Videos en WordPress Admin
+        // 5. Columnas, Simplificación de Productos, Menú Limpio y Español 100% en WordPress Admin
+        add_filter( 'locale', array( $this, 'force_spanish_locale' ), 999 );
+        add_filter( 'determine_locale', array( $this, 'force_spanish_locale' ), 999 );
+        add_filter( 'gettext', array( $this, 'translate_admin_ui_to_spanish' ), 999, 3 );
+        add_filter( 'ngettext', array( $this, 'translate_admin_ui_to_spanish' ), 999, 3 );
+        add_action( 'admin_init', array( $this, 'ensure_spanish_language_packs' ) );
         add_filter( 'manage_bassfit_reclamo_posts_columns', array( $this, 'set_reclamo_columns' ) );
         add_action( 'manage_bassfit_reclamo_posts_custom_column', array( $this, 'render_reclamo_column' ), 10, 2 );
         add_action( 'add_meta_boxes', array( $this, 'register_reclamo_metabox' ), 99 );
         add_action( 'save_post', array( $this, 'save_video_metabox' ), 999 );
         add_action( 'wp_ajax_bassfit_quick_save_product', array( $this, 'handle_ajax_quick_save_product' ) );
         add_action( 'admin_menu', array( $this, 'register_videos_admin_menu' ) );
+        add_action( 'admin_menu', array( $this, 'simplify_wordpress_admin_menu' ), 9999 );
+        add_action( 'admin_bar_menu', array( $this, 'clean_up_admin_bar' ), 9999 );
+        add_action( 'wp_dashboard_setup', array( $this, 'setup_bassfit_dashboard' ), 9999 );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_media_uploader' ) );
         add_action( 'admin_head', array( $this, 'clean_up_product_admin_screen' ) );
 
@@ -128,9 +136,360 @@ class Bassfit_Headless_Engine {
     }
 
     /**
+     * Fuerza el idioma Español (es_ES) en todo el panel de administración de WordPress y WooCommerce.
+     */
+    public function force_spanish_locale( $locale ) {
+        return 'es_ES';
+    }
+
+    /**
+     * Descarga e instala automáticamente los paquetes de idioma oficial en español (es_ES)
+     * para WordPress y limpia preferencias de idioma en inglés del perfil de usuario.
+     */
+    public function ensure_spanish_language_packs() {
+        if ( get_option( 'WPLANG' ) !== 'es_ES' ) {
+            update_option( 'WPLANG', 'es_ES' );
+        }
+        $uid = get_current_user_id();
+        if ( $uid && get_user_meta( $uid, 'locale', true ) !== '' ) {
+            update_user_meta( $uid, 'locale', '' );
+        }
+        if ( ! get_option( 'bassfit_spanish_pack_installed_v2' ) ) {
+            update_option( 'bassfit_spanish_pack_installed_v2', '1' );
+            if ( ! function_exists( 'wp_download_language_pack' ) && file_exists( ABSPATH . 'wp-admin/includes/translation-install.php' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/translation-install.php';
+            }
+            if ( function_exists( 'wp_download_language_pack' ) ) {
+                @wp_download_language_pack( 'es_ES' );
+            }
+        }
+    }
+
+    /**
+     * Traduce al español cualquier texto o botón de WordPress/WooCommerce que aparezca en inglés.
+     */
+    public function translate_admin_ui_to_spanish( $translated, $text, $domain = 'default' ) {
+        if ( ! is_admin() ) {
+            return $translated;
+        }
+        static $dict = array(
+            'Dashboard'                     => 'Panel Bassfit',
+            'Home'                          => 'Inicio',
+            'Posts'                         => 'Artículos / Noticias',
+            'All Posts'                     => 'Todos los Artículos',
+            'Add New Post'                  => 'Escribir Nuevo Artículo',
+            'Edit Post'                     => 'Editar Artículo',
+            'New Post'                      => 'Nuevo Artículo',
+            'View Post'                     => 'Ver Artículo',
+            'Search Posts'                  => 'Buscar Artículos',
+            'No posts found.'               => 'No se encontraron artículos.',
+            'Add New'                       => '➕ Añadir Nuevo',
+            'Add new'                       => '➕ Añadir nuevo',
+            'Add New Product'               => '➕ Añadir Nuevo Producto',
+            'Add new product'               => '➕ Añadir nuevo producto',
+            'Edit Product'                  => 'Editar Producto',
+            'Edit product'                  => 'Editar producto',
+            'Products'                      => 'Productos (Tienda)',
+            'All Products'                  => 'Todos los Productos',
+            'Search Products'               => 'Buscar productos',
+            'Search products'               => 'Buscar productos',
+            'Product'                       => 'Producto',
+            'Product name'                  => 'Nombre del Producto',
+            'Product description'           => 'Descripción Completa del Producto',
+            'Product short description'     => 'Descripción Corta del Producto',
+            'Product image'                 => 'Foto Principal del Producto',
+            'Set product image'             => 'Subir / Elegir Foto del Producto',
+            'Remove product image'          => 'Quitar foto del producto',
+            'Product gallery'               => 'Galería de Fotos Adicionales',
+            'Add product gallery images'    => 'Añadir más fotos a la galería',
+            'Product categories'            => 'Categoría del Producto',
+            'All Product Categories'        => 'Todas las Categorías',
+            'Add new category'              => 'Añadir nueva categoría',
+            'Product data'                  => 'Datos internos de WooCommerce (Opcional)',
+            'Simple product'                => 'Producto simple',
+            'Regular price'                 => 'Precio normal',
+            'Sale price'                    => 'Precio de oferta',
+            'Inventory'                     => 'Inventario / Stock',
+            'Stock quantity'                => 'Cantidad en stock',
+            'Stock status'                  => 'Estado del stock',
+            'In stock'                      => 'En stock',
+            'Out of stock'                  => 'Agotado',
+            'On backorder'                  => 'Con reserva',
+            'Categories'                    => 'Categorías',
+            'Tags'                          => 'Etiquetas',
+            'Media'                         => 'Fotos y Archivos',
+            'Library'                       => 'Biblioteca Multimedia',
+            'Add New Media File'            => 'Subir Nuevo Archivo',
+            'Orders'                        => 'Pedidos de Clientes',
+            'Order'                         => 'Pedido',
+            'Publish'                       => 'Publicar / Guardar',
+            'Update'                        => 'Actualizar / Guardar',
+            'Save Draft'                    => 'Guardar Borrador',
+            'Preview'                       => 'Vista Previa',
+            'Move to Trash'                 => 'Mover a la Papelera',
+            'Trash'                         => 'Papelera',
+            'Published'                     => 'Publicado',
+            'Draft'                         => 'Borrador',
+            'All'                           => 'Todos',
+            'Edit'                          => 'Editar',
+            'Quick Edit'                    => 'Edición Rápida',
+            'View'                          => 'Ver',
+            'Title'                         => 'Título / Nombre',
+            'Author'                        => 'Autor',
+            'Date'                          => 'Fecha',
+            'Price'                         => 'Precio',
+            'Stock'                         => 'Stock',
+            'SKU'                           => 'Código SKU',
+            'Featured'                      => 'Destacado',
+            'Featured image'                => 'Imagen Principal',
+            'Set featured image'            => 'Subir / Elegir Imagen Principal',
+            'Remove featured image'         => 'Quitar imagen principal',
+            'Excerpt'                       => 'Resumen Corto del Artículo',
+            'Add title'                     => 'Escribe aquí el título...',
+            'Type / to choose a block'      => 'Escribe aquí el contenido completo de tu artículo...',
+            'Filter by category'            => 'Filtrar por categoría',
+            'Filter by product type'        => 'Filtrar por tipo',
+            'Filter by stock status'        => 'Filtrar por stock',
+            'Filter'                        => 'Filtrar',
+            'Bulk actions'                  => 'Acciones en lote',
+            'Apply'                         => 'Aplicar',
+            'Screen Options'                => 'Opciones de pantalla',
+            'Help'                          => 'Ayuda',
+            'Howdy, %s'                     => 'Hola, %s',
+            'Log Out'                       => 'Cerrar Sesión',
+            'Edit Profile'                  => 'Editar Perfil',
+            'Visit Site'                    => 'Ver Página Web Bassfit',
+            'Visit Store'                   => 'Ver Tienda Bassfit',
+        );
+        if ( isset( $dict[ $text ] ) ) {
+            return $dict[ $text ];
+        }
+        if ( isset( $dict[ $translated ] ) ) {
+            return $dict[ $translated ];
+        }
+        return $translated;
+    }
+
+    /**
+     * Limpia el menú lateral negro de WordPress para dejar SOLO las opciones esenciales de Bassfit en español.
+     */
+    public function simplify_wordpress_admin_menu() {
+        global $menu, $submenu;
+
+        // Si el desarrollador entra con ?modo_avanzado=1 puede ver todo el sistema completo
+        if ( isset( $_GET['modo_avanzado'] ) ) {
+            return;
+        }
+
+        // 1. Ocultar menús técnicos que confunden al dueño
+        $menus_to_hide = array(
+            'edit-comments.php',                 // Comentarios
+            'edit.php?post_type=page',           // Páginas
+            'themes.php',                        // Apariencia
+            'plugins.php',                       // Plugins
+            'users.php',                         // Usuarios
+            'tools.php',                         // Herramientas
+            'options-general.php',               // Ajustes
+            'woocommerce-marketing',             // Marketing
+            'wc-admin&path=/analytics/overview', // Análisis
+            'wc-admin&path=/payments',           // Pagos
+            'hostinger',                         // Hostinger
+            'litespeed',                         // LiteSpeed Cache
+            'wpforms-overview',                  // WPForms
+        );
+        foreach ( $menus_to_hide as $slug ) {
+            remove_menu_page( $slug );
+        }
+
+        // También ocultar cualquier menú extra de marketing/análisis/pagos por coincidencia parcial
+        if ( is_array( $menu ) ) {
+            foreach ( $menu as $k => $item ) {
+                $slug = isset( $item[2] ) ? (string) $item[2] : '';
+                if (
+                     false !== strpos( $slug, 'analytics' ) ||
+                    false !== strpos( $slug, 'marketing' ) ||
+                    false !== strpos( $slug, 'payments' ) ||
+                    false !== strpos( $slug, 'hostinger' ) ||
+                    false !== strpos( $slug, 'litespeed' ) ||
+                    false !== strpos( $slug, 'omnisend' ) ||
+                    false !== strpos( $slug, 'monsterinsights' )
+                ) {
+                    unset( $menu[ $k ] );
+                }
+            }
+        }
+
+        // 2. Limpiar submenús innecesarios de Productos, Artículos y WooCommerce
+        remove_submenu_page( 'edit.php?post_type=product', 'edit-tags.php?taxonomy=product_tag&amp;post_type=product' );
+        remove_submenu_page( 'edit.php?post_type=product', 'edit-tags.php?taxonomy=product_brand&amp;post_type=product' );
+        remove_submenu_page( 'edit.php?post_type=product', 'product_attributes' );
+        remove_submenu_page( 'edit.php?post_type=product', 'product-reviews' );
+        remove_submenu_page( 'edit.php', 'edit-tags.php?taxonomy=post_tag' );
+
+        if ( isset( $submenu['woocommerce'] ) && is_array( $submenu['woocommerce'] ) ) {
+            foreach ( $submenu['woocommerce'] as $sk => $sitem ) {
+                $sslug = isset( $sitem[2] ) ? (string) $sitem[2] : '';
+                if ( false === strpos( $sslug, 'wc-orders' ) && false === strpos( $sslug, 'shop_order' ) ) {
+                    unset( $submenu['woocommerce'][ $sk ] );
+                } else {
+                    $submenu['woocommerce'][ $sk ][0] = 'Ver Todos los Pedidos';
+                }
+            }
+        }
+
+        // 3. Renombrar todos los menús visibles al español claro y directo
+        if ( is_array( $menu ) ) {
+            foreach ( $menu as $k => $item ) {
+                $slug = isset( $item[2] ) ? (string) $item[2] : '';
+                if ( 'index.php' === $slug ) {
+                    $menu[ $k ][0] = '🏠 Inicio Bassfit';
+                } elseif ( 'edit.php?post_type=product' === $slug ) {
+                    $menu[ $k ][0] = '📦 Productos (Tienda)';
+                } elseif ( 'woocommerce' === $slug ) {
+                    $menu[ $k ][0] = '🛒 Pedidos Recibidos';
+                } elseif ( 'edit.php' === $slug ) {
+                    $menu[ $k ][0] = '📝 Artículos / Noticias';
+                } elseif ( 'edit.php?post_type=bassfit_reclamo' === $slug ) {
+                    $menu[ $k ][0] = '📖 Reclamaciones';
+                } elseif ( 'upload.php' === $slug ) {
+                    $menu[ $k ][0] = '🖼️ Fotos y Archivos';
+                }
+            }
+        }
+
+        // Renombrar submenús de Productos
+        if ( isset( $submenu['edit.php?post_type=product'] ) && is_array( $submenu['edit.php?post_type=product'] ) ) {
+            foreach ( $submenu['edit.php?post_type=product'] as $sk => $sitem ) {
+                $sslug = isset( $sitem[2] ) ? (string) $sitem[2] : '';
+                if ( 'edit.php?post_type=product' === $sslug ) {
+                    $submenu['edit.php?post_type=product'][ $sk ][0] = 'Todos los Productos';
+                } elseif ( 'post-new.php?post_type=product' === $sslug ) {
+                    $submenu['edit.php?post_type=product'][ $sk ][0] = '➕ Añadir Producto';
+                } elseif ( false !== strpos( $sslug, 'product_cat' ) ) {
+                    $submenu['edit.php?post_type=product'][ $sk ][0] = 'Categorías';
+                }
+            }
+        }
+
+        // Renombrar submenús de Artículos / Noticias
+        if ( isset( $submenu['edit.php'] ) && is_array( $submenu['edit.php'] ) ) {
+            foreach ( $submenu['edit.php'] as $sk => $sitem ) {
+                $sslug = isset( $sitem[2] ) ? (string) $sitem[2] : '';
+                if ( 'edit.php' === $sslug ) {
+                    $submenu['edit.php'][ $sk ][0] = 'Todos los Artículos';
+                } elseif ( 'post-new.php' === $sslug ) {
+                    $submenu['edit.php'][ $sk ][0] = '➕ Escribir Artículo';
+                } elseif ( false !== strpos( $sslug, 'category' ) ) {
+                    $submenu['edit.php'][ $sk ][0] = 'Categorías';
+                }
+            }
+        }
+
+        // Limpiar submenú de Inicio (quitar Updates)
+        remove_submenu_page( 'index.php', 'update-core.php' );
+    }
+
+    /**
+     * Limpia la barra superior (Admin Bar) para dejarla 100% en español y sin distractores.
+     */
+    public function clean_up_admin_bar( $wp_admin_bar ) {
+        $wp_admin_bar->remove_node( 'wp-logo' );
+        $wp_admin_bar->remove_node( 'comments' );
+        $wp_admin_bar->remove_node( 'updates' );
+        $wp_admin_bar->remove_node( 'new-page' );
+        $wp_admin_bar->remove_node( 'new-user' );
+        $wp_admin_bar->remove_node( 'archive' );
+
+        $site_node = $wp_admin_bar->get_node( 'site-name' );
+        if ( $site_node ) {
+            $site_node->title = '🌐 Ver Página Web Bassfit Perú';
+            $site_node->href  = home_url( '/' );
+            $wp_admin_bar->add_node( $site_node );
+        }
+    }
+
+    /**
+     * Reemplaza el escritorio confuso de WordPress por un Panel de Control Bassfit limpio y en español.
+     */
+    public function setup_bassfit_dashboard() {
+        global $wp_meta_boxes;
+        $wp_meta_boxes['dashboard'] = array();
+
+        wp_add_dashboard_widget(
+            'bassfit_welcome_panel',
+            '⚡ PANEL DE ADMINISTRACIÓN — BASSFIT PERÚ',
+            array( $this, 'render_bassfit_dashboard_widget' )
+        );
+    }
+
+    public function render_bassfit_dashboard_widget() {
+        ?>
+        <div style="padding:10px 6px;">
+            <div style="background:#0f172a;color:#fff;padding:20px 24px;border-radius:14px;border-bottom:4px solid #ff5500;margin-bottom:20px;">
+                <h2 style="color:#fff;margin:0;font-size:20px;font-weight:800;">👋 ¡Bienvenido al Panel Oficial de Bassfit Perú!</h2>
+                <p style="color:#cbd5e1;margin:6px 0 0 0;font-size:14px;">Selecciona qué deseas hacer hoy. Cualquier cambio que guardes aquí se actualiza automáticamente en <strong>bassfitperu.com</strong>:</p>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));gap:14px;">
+                <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=product' ) ); ?>" style="display:block;text-decoration:none;background:#fff7ed;border:2px solid #ff5500;border-radius:12px;padding:18px;">
+                    <div style="font-size:24px;margin-bottom:6px;">📦</div>
+                    <div style="font-weight:800;color:#0f172a;font-size:15px;">Ver / Editar Productos</div>
+                    <div style="color:#475569;font-size:12px;margin-top:4px;">Cambiar precios en S/, stock o videos de los 36 productos.</div>
+                </a>
+
+                <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=product' ) ); ?>" style="display:block;text-decoration:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:18px;">
+                    <div style="font-size:24px;margin-bottom:6px;">➕</div>
+                    <div style="font-weight:800;color:#0f172a;font-size:15px;">Crear Nuevo Producto</div>
+                    <div style="color:#475569;font-size:12px;margin-top:4px;">Agregar un implemento nuevo al catálogo de la tienda.</div>
+                </a>
+
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=bassfit-videos-web' ) ); ?>" style="display:block;text-decoration:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:18px;">
+                    <div style="font-size:24px;margin-bottom:6px;">🎬</div>
+                    <div style="font-weight:800;color:#0f172a;font-size:15px;">Subir Videos de la Web</div>
+                    <div style="color:#475569;font-size:12px;margin-top:4px;">Subir un archivo .mp4 desde tu PC/celular o pegar un link de YouTube.</div>
+                </a>
+
+                <a href="<?php echo esc_url( admin_url( 'post-new.php' ) ); ?>" style="display:block;text-decoration:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:18px;">
+                    <div style="font-size:24px;margin-bottom:6px;">📝</div>
+                    <div style="font-weight:800;color:#0f172a;font-size:15px;">Escribir Artículo / Noticia</div>
+                    <div style="color:#475569;font-size:12px;margin-top:4px;">Publicar un consejo de entrenamiento o nutrición en Noticias.</div>
+                </a>
+
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-orders' ) ); ?>" style="display:block;text-decoration:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:18px;">
+                    <div style="font-size:24px;margin-bottom:6px;">🛒</div>
+                    <div style="font-weight:800;color:#0f172a;font-size:15px;">Ver Pedidos Recibidos</div>
+                    <div style="color:#475569;font-size:12px;margin-top:4px;">Revisar las órdenes generadas por los clientes desde el carrito.</div>
+                </a>
+
+                <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=bassfit_reclamo' ) ); ?>" style="display:block;text-decoration:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:18px;">
+                    <div style="font-size:24px;margin-bottom:6px;">📖</div>
+                    <div style="font-weight:800;color:#0f172a;font-size:15px;">Libro de Reclamaciones</div>
+                    <div style="color:#475569;font-size:12px;margin-top:4px;">Consultar hojas de reclamación registradas (INDECOPI).</div>
+                </a>
+            </div>
+
+            <div style="margin-top:18px;text-align:right;">
+                <a href="https://bassfitperu.com/" target="_blank" class="button button-primary" style="background:#ff5500;border-color:#e04a00;color:#fff;font-weight:800;padding:6px 18px;border-radius:8px;">
+                    🌐 Abrir Página Web Bassfit Perú ↗
+                </a>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
      * Oculta todas las casillas innecesarias de WooCommerce/WordPress que confunden al editar un producto.
      */
     public function clean_up_product_admin_screen() {
+        ?>
+        <style>
+            /* Ocultar avisos promocionales molestos de WooCommerce / WordPress */
+            .woocommerce-layout__header, .woocommerce-store-alerts, #wp-admin-bar-comments,
+            #wp-admin-bar-updates, #contextual-help-link-wrap {
+                display: none !important;
+            }
+        </style>
+        <?php
         $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
         if ( ! $screen || 'product' !== $screen->post_type ) {
             return;
