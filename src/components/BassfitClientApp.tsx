@@ -2093,15 +2093,15 @@ export default function BassfitClientApp({ initialProducts = BASSFIT_PRODUCTS }:
                   <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#0F172A]">
                     <div className="hidden sm:block relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}>
                       <img
-                        src="images/hero_banner_pesas.jpg"
+                        src="images/hero_banner_pesas.jpg?v=3"
                         loading="eager"
                         decoding="async"
                         alt="Bassfit Catálogo Oficial de Implementos y Barras 8en1"
-                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-90"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
                         onError={(e) => { e.currentTarget.src = "images/hero_banner_bf.png"; }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/55 to-transparent pointer-events-none" />
-                      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
+                      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/25 to-transparent pointer-events-none" />
+                      <div className="relative z-10 w-full max-w-7xl mx-auto pl-14 pr-6 sm:pl-16 lg:pl-20 lg:pr-12 h-full flex items-center">
                         <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
                           <div className="inline-flex items-center space-x-2 bg-orange-500/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-orange-500/40 shadow-2xs">
                             <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
@@ -2185,14 +2185,14 @@ export default function BassfitClientApp({ initialProducts = BASSFIT_PRODUCTS }:
                   <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#EAEDF1]">
                     <div className="hidden sm:block relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}>
                       <img
-                        src="images/hero_banner_tecnica.jpg"
+                        src="images/hero_banner_tecnica.jpg?v=3"
                         loading="eager"
                         decoding="async"
                         alt="Bassfit Comunidad, Masterclasses y Eventos en Vivo"
                         className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#EAEDF1]/90 via-[#EAEDF1]/50 to-transparent pointer-events-none" />
-                      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#EAEDF1]/70 via-[#EAEDF1]/25 to-transparent pointer-events-none" />
+                      <div className="relative z-10 w-full max-w-7xl mx-auto pl-14 pr-6 sm:pl-16 lg:pl-20 lg:pr-12 h-full flex items-center">
                         <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
                           <div className="inline-flex items-center space-x-2 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-cyan-300 shadow-2xs">
                             <span className="w-2 h-2 rounded-full bg-[#00C4D4] animate-pulse" />
