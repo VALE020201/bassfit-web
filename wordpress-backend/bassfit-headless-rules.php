@@ -35,9 +35,10 @@ class Bassfit_Headless_Engine {
         add_action( 'rest_api_init', array( $this, 'register_headless_rest_fields' ) );
         add_action( 'rest_api_init', array( $this, 'register_bassfit_api_routes' ) );
 
-        // 4. Interceptor directo para rutas /api/reclamaciones, /api/checkout y /api/catalog
+        // 4. Interceptor directo para rutas /api/reclamaciones, /api/checkout, /api/catalog y Frontend Web
         add_action( 'init', array( $this, 'register_reclamaciones_cpt' ) );
         add_action( 'init', array( $this, 'intercept_direct_api_paths' ), 20 );
+        add_action( 'template_redirect', array( $this, 'serve_headless_frontend_app' ), 1 );
 
         // 5. Columnas, Simplificación de Productos, Menú Limpio y Español 100% en WordPress Admin
         add_filter( 'locale', array( $this, 'force_spanish_locale' ), 999 );
@@ -390,6 +391,29 @@ class Bassfit_Headless_Engine {
     }
 
     /**
+     * Sirve siempre la aplicación web oficial de Bassfit Perú (index.html) en el frontend,
+     * evitando que WordPress muestre el tema por defecto ("Hello world!") cuando el dueño
+     * hace clic en "Ver Página Web Bassfit Perú", "Ver Tienda" o "Ver Producto".
+     */
+    public function serve_headless_frontend_app() {
+        if ( is_admin() || wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+            return;
+        }
+        $html_file = ABSPATH . 'index.html';
+        if ( ! file_exists( $html_file ) ) {
+            $html_file = ABSPATH . 'bassfit.html';
+        }
+        if ( file_exists( $html_file ) ) {
+            status_header( 200 );
+            nocache_headers();
+            header( 'Content-Type: text/html; charset=UTF-8' );
+            header( 'X-LiteSpeed-Cache-Control: no-cache' );
+            readfile( $html_file );
+            exit;
+        }
+    }
+
+    /**
      * Limpia la barra superior (Admin Bar) para dejarla 100% en español y sin distractores.
      */
     public function clean_up_admin_bar( $wp_admin_bar ) {
@@ -399,11 +423,14 @@ class Bassfit_Headless_Engine {
         $wp_admin_bar->remove_node( 'new-page' );
         $wp_admin_bar->remove_node( 'new-user' );
         $wp_admin_bar->remove_node( 'archive' );
+        $wp_admin_bar->remove_node( 'view-store' );
+        $wp_admin_bar->remove_node( 'view-site' );
 
         $site_node = $wp_admin_bar->get_node( 'site-name' );
         if ( $site_node ) {
             $site_node->title = '🌐 Ver Página Web Bassfit Perú';
             $site_node->href  = home_url( '/' );
+            $site_node->meta  = array( 'target' => '_blank' );
             $wp_admin_bar->add_node( $site_node );
         }
     }
