@@ -587,10 +587,35 @@ class Bassfit_Headless_Engine {
                 'videoUrl'    => (string) get_post_meta( $pid, '_bassfit_intro_video_url', true ),
             );
         }
+        $main_video = (string) get_option( 'bassfit_main_routine_video_url', '' );
+        $media_videos = get_posts( array(
+            'post_type'      => 'attachment',
+            'post_mime_type' => 'video',
+            'posts_per_page' => 10,
+            'post_status'    => 'inherit',
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ) );
+        $uploaded_videos = array();
+        foreach ( $media_videos as $mv ) {
+            $v_url = wp_get_attachment_url( $mv->ID );
+            if ( $v_url ) {
+                $uploaded_videos[] = array(
+                    'id'    => $mv->ID,
+                    'title' => $mv->post_title,
+                    'url'   => $v_url,
+                );
+            }
+        }
+        if ( empty( $main_video ) && ! empty( $uploaded_videos ) ) {
+            $main_video = $uploaded_videos[0]['url'];
+        }
+
         return array(
             'updatedAt'           => current_time( 'mysql' ),
             'count'               => count( $list ),
-            'mainRoutineVideoUrl' => (string) get_option( 'bassfit_main_routine_video_url', '' ),
+            'mainRoutineVideoUrl' => $main_video,
+            'uploadedVideos'      => $uploaded_videos,
             'products'            => $list,
         );
     }

@@ -2833,21 +2833,62 @@ function App() {
   }, [cartSubtotal, cartTax]);
 
   const [wcCatalogTick, setWcCatalogTick] = useState(0);
+  const [mainVideoUrl, setMainVideoUrl] = useState("");
+  const renderVideoBox = (url, fallbackNode) => {
+    if (!url) return fallbackNode;
+    const ytMatch = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+    if (ytMatch && ytMatch[1]) {
+      return /*#__PURE__*/React.createElement("iframe", {
+        src: "https://www.youtube.com/embed/" + ytMatch[1] + "?autoplay=1&rel=0",
+        title: "Video Bassfit",
+        className: "w-full h-64 sm:h-72 bg-black border-0",
+        allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
+        allowFullScreen: true
+      });
+    }
+    return /*#__PURE__*/React.createElement("video", {
+      src: url,
+      controls: true,
+      autoPlay: true,
+      playsInline: true,
+      className: "w-full h-64 sm:h-72 object-contain bg-black"
+    });
+  };
   useEffect(() => {
-    fetch("/api/catalog")
+    fetch("/api/catalog?_t=" + Date.now(), { cache: "no-store" })
       .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (data && Array.isArray(data.products) && data.products.length > 0) {
-          let changed = false;
+        if (!data) return;
+        let changed = false;
+        if (data.mainRoutineVideoUrl) {
+          setMainVideoUrl(data.mainRoutineVideoUrl);
+        }
+        if (Array.isArray(data.uploadedVideos) && data.uploadedVideos.length > 0) {
+          data.uploadedVideos.forEach((uv, idx) => {
+            if (TUTORIALS_DATA[idx] && uv.url) {
+              TUTORIALS_DATA[idx].videoUrl = uv.url;
+              if (uv.title && !uv.title.includes("_") && !uv.title.includes("-")) {
+                TUTORIALS_DATA[idx].title = uv.title;
+              }
+              changed = true;
+            }
+          });
+        }
+        if (Array.isArray(data.products) && data.products.length > 0) {
           data.products.forEach(wcProd => {
             const local = BASSFIT_PRODUCTS.find(p => p.sku === wcProd.sku || p.id === wcProd.frontendId || p.slug === wcProd.slug);
             if (local) {
-              if (typeof wcProd.price === "number" && wcProd.price > 0 && local.price !== wcProd.price) {
-                local.price = wcProd.price;
+              const effectivePrice = (typeof wcProd.price === "number" && wcProd.price > 0) ? wcProd.price : wcProd.regularPrice;
+              if (typeof effectivePrice === "number" && effectivePrice > 0 && local.price !== effectivePrice) {
+                local.price = effectivePrice;
                 changed = true;
               }
               if (typeof wcProd.stock === "number" && local.stock !== wcProd.stock) {
                 local.stock = wcProd.stock;
+                changed = true;
+              }
+              if (wcProd.videoUrl) {
+                local.videoUrl = wcProd.videoUrl;
                 changed = true;
               }
               if (wcProd.wcId) {
@@ -2855,8 +2896,8 @@ function App() {
               }
             }
           });
-          if (changed) setWcCatalogTick(t => t + 1);
         }
+        if (changed) setWcCatalogTick(t => t + 1);
       })
       .catch(function(){});
   }, []);
@@ -4442,7 +4483,9 @@ function App() {
     src: resolveImg(imgSrc),
     alt: `Miniatura ${idx + 1}`,
     className: "w-full h-full object-contain"
-  }))))), /*#__PURE__*/React.createElement("div", {
+  })))), selectedProduct.videoUrl && /*#__PURE__*/React.createElement("div", {
+    className: "rounded-2xl overflow-hidden bg-black shadow-md mt-2"
+  }, renderVideoBox(selectedProduct.videoUrl, null))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("h2", {
     className: "text-2xl font-black text-slate-900 leading-tight"
@@ -4600,7 +4643,7 @@ function App() {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative rounded-2xl overflow-hidden bg-black shadow-lg"
-  }, /*#__PURE__*/React.createElement("img", {
+  }, renderVideoBox(mainVideoUrl, /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("img", {
     src: "images/mockup_vlog_hd.jpg",
   fetchPriority: "high",
   loading: "eager",
@@ -4623,7 +4666,7 @@ function App() {
     className: "text-white text-xs font-bold block mt-2"
   }, "Haz clic para iniciar la sesión guiada")), /*#__PURE__*/React.createElement("div", {
     className: "text-white/90 text-[11px] font-medium flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, "Fuerza, Biomecánica & Resistencia"), /*#__PURE__*/React.createElement("span", null, "1080p Full HD")))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "Fuerza, Biomecánica & Resistencia"), /*#__PURE__*/React.createElement("span", null, "1080p Full HD")))))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-black text-slate-900 uppercase"
@@ -4935,7 +4978,7 @@ function App() {
     className: "space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative rounded-2xl overflow-hidden bg-black shadow-lg"
-  }, /*#__PURE__*/React.createElement("img", {
+  }, renderVideoBox(selectedTutorial.videoUrl || mainVideoUrl, /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("img", {
   loading: "lazy",
   decoding: "async",
     src: resolveImg(selectedTutorial.image),
@@ -4957,7 +5000,7 @@ function App() {
     className: "text-white text-xs font-bold block mt-2"
   }, "Haz clic para iniciar la sesión guiada")), /*#__PURE__*/React.createElement("div", {
     className: "text-white/90 text-[11px] font-medium flex justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, selectedTutorial.category), /*#__PURE__*/React.createElement("span", null, "1080p Full HD")))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, selectedTutorial.category), /*#__PURE__*/React.createElement("span", null, "1080p Full HD")))))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2"
   }, /*#__PURE__*/React.createElement("h3", {
     className: "text-xl font-black text-slate-900 uppercase"
