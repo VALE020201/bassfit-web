@@ -800,11 +800,42 @@ class Bassfit_Headless_Engine {
             $main_video = $uploaded_videos[0]['url'];
         }
 
+        $wp_posts = get_posts( array(
+            'post_type'      => 'post',
+            'post_status'    => 'publish',
+            'posts_per_page' => 25,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ) );
+        $posts_list = array();
+        foreach ( $wp_posts as $wp_p ) {
+            $cats = get_the_category( $wp_p->ID );
+            $cat_name = ( ! empty( $cats ) && isset( $cats[0]->name ) && 'Uncategorized' !== $cats[0]->name && 'Sin categoría' !== $cats[0]->name )
+                ? $cats[0]->name
+                : 'Entrenamiento & Técnica';
+            $plain_body = trim( wp_strip_all_tags( $wp_p->post_content ) );
+            $excerpt    = ! empty( $wp_p->post_excerpt )
+                ? wp_strip_all_tags( $wp_p->post_excerpt )
+                : wp_trim_words( $plain_body, 28, '...' );
+            $r_time     = (int) get_post_meta( $wp_p->ID, '_bassfit_reading_time', true ) ?: 4;
+            $posts_list[] = array(
+                'id'             => 'wp-post-' . $wp_p->ID,
+                'slug'           => $wp_p->post_name,
+                'title'          => $wp_p->post_title,
+                'pillarCategory' => $cat_name,
+                'readingTime'    => $r_time . ' min de lectura',
+                'seoExcerpt'     => $excerpt,
+                'bodyText'       => $plain_body,
+                'videoUrl'       => (string) get_post_meta( $wp_p->ID, '_bassfit_intro_video_url', true ),
+            );
+        }
+
         return array(
             'updatedAt'           => current_time( 'mysql' ),
             'count'               => count( $list ),
             'mainRoutineVideoUrl' => $main_video,
             'uploadedVideos'      => $uploaded_videos,
+            'posts'               => $posts_list,
             'products'            => $list,
         );
     }
