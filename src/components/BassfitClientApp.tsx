@@ -2093,14 +2093,14 @@ export default function BassfitClientApp({ initialProducts = BASSFIT_PRODUCTS }:
                   <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#0F172A]">
                     <div className="hidden sm:block relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}>
                       <img
-                        src="images/hero_runner_hd.png"
+                        src="images/hero_banner_pesas.jpg"
                         loading="eager"
                         decoding="async"
                         alt="Bassfit Catálogo Oficial de Implementos y Barras 8en1"
-                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-90"
                         onError={(e) => { e.currentTarget.src = "images/hero_banner_bf.png"; }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/80 to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/55 to-transparent pointer-events-none" />
                       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
                         <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
                           <div className="inline-flex items-center space-x-2 bg-orange-500/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-orange-500/40 shadow-2xs">
@@ -2140,11 +2140,11 @@ export default function BassfitClientApp({ initialProducts = BASSFIT_PRODUCTS }:
                     {/* Mobile Slide 1 */}
                     <div className="sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-end p-5 select-none overflow-hidden">
                       <img
-                        src="images/products/barras-8en1-multifuncional-1.jpg"
+                        src="images/hero_banner_pesas.jpg"
                         loading="eager"
                         decoding="async"
                         alt="Barras 8 en 1 Bassfit"
-                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-40"
+                        className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none opacity-65"
                         onError={(e) => { e.currentTarget.src = "images/hero_runner_hd.png"; }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent pointer-events-none" />
@@ -2185,12 +2185,13 @@ export default function BassfitClientApp({ initialProducts = BASSFIT_PRODUCTS }:
                   <div className="w-full flex-shrink-0 relative overflow-hidden bg-[#EAEDF1]">
                     <div className="hidden sm:block relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 341", minHeight: "280px", maxHeight: "560px" }}>
                       <img
-                        src="images/hero_banner_asesorias.png"
+                        src="images/hero_banner_tecnica.jpg"
                         loading="eager"
                         decoding="async"
                         alt="Bassfit Comunidad, Masterclasses y Eventos en Vivo"
                         className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
                       />
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#EAEDF1]/90 via-[#EAEDF1]/50 to-transparent pointer-events-none" />
                       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center">
                         <div className="w-[56%] md:w-[50%] lg:w-[46%] space-y-2 md:space-y-3 lg:space-y-4">
                           <div className="inline-flex items-center space-x-2 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-cyan-300 shadow-2xs">
@@ -2230,7 +2231,7 @@ export default function BassfitClientApp({ initialProducts = BASSFIT_PRODUCTS }:
                     <div className="sm:hidden relative w-full h-[450px] bg-slate-950 flex flex-col justify-between overflow-hidden select-none">
                       <div className="relative w-full h-[230px] bg-[#EAEDF1] overflow-hidden">
                         <img
-                          src="images/hero_banner_asesorias.png"
+                          src="images/hero_banner_tecnica.jpg"
                           loading="eager"
                           decoding="async"
                           alt="Bassfit Comunidad y Clases en Vivo"
@@ -4671,93 +4672,132 @@ export default function BassfitClientApp({ initialProducts = BASSFIT_PRODUCTS }:
       )}
 
       {legalModalTab && renderLegalModal(legalModalTab, setLegalModalTab, setIsLibroOpen)}
-      {isLibroOpen && renderLibroModal(setIsLibroOpen, libroSubmitted, setLibroSubmitted, libroForm, setLibroForm)}
-      <footer className="bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 py-6 pb-20 sm:pb-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center space-y-3">
-          <div className="flex items-center space-x-2">
-            <span className="text-xl font-black italic tracking-tight text-white uppercase">
-              BASS<span className="text-[#FF5500]">FIT</span>
-            </span>
-            <span className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase">
-              PERÚ
-            </span>
-            <span className="text-slate-500 text-xs hidden sm:inline ml-1">
-              · «...fitness sin límites de edad..»
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-400">
-            <button
-              onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className="hover:text-white transition cursor-pointer"
-            >
-              Inicio
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => { setActiveTab('shop'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className="hover:text-white transition cursor-pointer"
-            >
-              Tienda
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => { setActiveTab('asesorias'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className="hover:text-white transition cursor-pointer"
-            >
-              Asesorías
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => { setActiveTab('vlogs'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className="hover:text-white transition cursor-pointer"
-            >
-              Noticias & Eventos
-            </button>
-            <span>•</span>
-            <a
-              href="https://wa.me/51967581481"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition inline-flex items-center space-x-1"
-            >
-              <span>💬 +51 967 581 481</span>
-            </a>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] text-slate-400 pt-1">
-            <button type="button" onClick={() => setLegalModalTab("terminos")} className="hover:text-[#FF5500] transition cursor-pointer">Términos y Condiciones</button>
-            <span className="text-slate-600">•</span>
-            <button type="button" onClick={() => setLegalModalTab("privacidad")} className="hover:text-[#FF5500] transition cursor-pointer">Política de Privacidad</button>
-            <span className="text-slate-600">•</span>
-            <button type="button" onClick={() => setLegalModalTab("datos")} className="hover:text-[#FF5500] transition cursor-pointer">Protección de Datos (Ley 29733)</button>
-            <span className="text-slate-600">•</span>
-            <button type="button" onClick={() => setLegalModalTab("cambios")} className="hover:text-[#FF5500] transition cursor-pointer">Cambios & Devoluciones</button>
-            <span className="text-slate-600">•</span>
-            <button type="button" onClick={() => setLegalModalTab("envios")} className="hover:text-[#FF5500] transition cursor-pointer">Envíos & Entregas</button>
-            <span className="text-slate-600">•</span>
-            <button type="button" onClick={() => setLegalModalTab("garantias")} className="hover:text-[#FF5500] transition cursor-pointer">Garantías & Consumidor</button>
-            <span className="text-slate-600">•</span>
-            <button type="button" onClick={() => setLegalModalTab("cookies")} className="hover:text-[#FF5500] transition cursor-pointer">Cookies</button>
-            <span className="text-slate-600">•</span>
-            <button type="button" onClick={() => setLegalModalTab("atencion")} className="hover:text-[#FF5500] transition cursor-pointer">Canales de Atención</button>
-          </div>
-          <div className="pt-1 flex flex-col sm:flex-row items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsLibroOpen(true)}
-              className="inline-flex items-center space-x-2 bg-slate-800/90 hover:bg-slate-800 text-white border border-slate-700/80 hover:border-orange-500/60 px-3.5 py-1.5 rounded-xl text-[10px] font-bold transition shadow-xs cursor-pointer group"
-            >
-              <span className="text-base">📖</span>
-              <div className="text-left">
-                <span className="block font-black uppercase text-white group-hover:text-[#FF5500] tracking-wider">Libro de Reclamaciones Virtual</span>
-                <span className="block text-[8px] text-slate-400 font-normal">Conforme al D.S. N° 011-2011-PCM · Ley N° 31435 INDECOPI</span>
+      {isLibroOpen && renderLibroModal(isLibroOpen, setIsLibroOpen, libroForm, setLibroForm, libroSubmitted, setLibroSubmitted)}
+      <footer className="bg-[#0F172A] text-slate-400 text-xs border-t border-slate-800 py-8 pb-24 sm:pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center pb-6 border-b border-slate-800/80">
+            {/* Columna 1: Marca, Slogan y Navegación */}
+            <div className="lg:col-span-4 flex flex-col items-center lg:items-start text-center lg:text-left space-y-2.5">
+              <div className="flex items-center space-x-2">
+                <span className="text-xl font-black italic tracking-tight text-white uppercase">
+                  BASS<span className="text-[#FF5500]">FIT</span>
+                </span>
+                <span className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded tracking-widest uppercase">
+                  PERÚ
+                </span>
+                <span className="text-slate-500 text-xs hidden sm:inline ml-1">
+                  · «...fitness sin límites de edad..»
+                </span>
               </div>
-            </button>
+
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-3.5 gap-y-1 text-[11px] text-slate-300 font-medium">
+                <button
+                  onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#FF5500] transition cursor-pointer"
+                >
+                  Inicio
+                </button>
+                <span className="text-slate-600">•</span>
+                <button
+                  onClick={() => { setActiveTab('shop'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#FF5500] transition cursor-pointer"
+                >
+                  Tienda
+                </button>
+                <span className="text-slate-600">•</span>
+                <button
+                  onClick={() => { setActiveTab('asesorias'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#FF5500] transition cursor-pointer"
+                >
+                  Asesorías
+                </button>
+                <span className="text-slate-600">•</span>
+                <button
+                  onClick={() => { setActiveTab('vlogs'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="hover:text-[#FF5500] transition cursor-pointer"
+                >
+                  Noticias & Eventos
+                </button>
+              </div>
+
+              <div>
+                <a
+                  href="https://wa.me/51967581481"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-1.5 text-[11px] text-slate-300 hover:text-white bg-slate-800/70 hover:bg-slate-800 px-3 py-1 rounded-full border border-slate-700/70 transition"
+                >
+                  <span>💬 +51 967 581 481</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Columna 2: Enlaces Legales Ordenados en Cuadrícula */}
+            <div className="lg:col-span-5 w-full">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-x-4 gap-y-2 text-[11px] text-slate-400 text-left bg-slate-900/60 p-4 rounded-2xl border border-slate-800/90">
+                <button type="button" onClick={() => setLegalModalTab("terminos")} className="hover:text-[#FF5500] transition cursor-pointer text-left flex items-center space-x-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0" />
+                  <span className="truncate">Términos y Condiciones</span>
+                </button>
+                <button type="button" onClick={() => setLegalModalTab("privacidad")} className="hover:text-[#FF5500] transition cursor-pointer text-left flex items-center space-x-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0" />
+                  <span className="truncate">Política de Privacidad</span>
+                </button>
+                <button type="button" onClick={() => setLegalModalTab("datos")} className="hover:text-[#FF5500] transition cursor-pointer text-left flex items-center space-x-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0" />
+                  <span className="truncate">Protección de Datos (Ley 29733)</span>
+                </button>
+                <button type="button" onClick={() => setLegalModalTab("devoluciones")} className="hover:text-[#FF5500] transition cursor-pointer text-left flex items-center space-x-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0" />
+                  <span className="truncate">Cambios & Devoluciones</span>
+                </button>
+                <button type="button" onClick={() => setLegalModalTab("envios")} className="hover:text-[#FF5500] transition cursor-pointer text-left flex items-center space-x-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0" />
+                  <span className="truncate">Envíos & Entregas</span>
+                </button>
+                <button type="button" onClick={() => setLegalModalTab("garantias")} className="hover:text-[#FF5500] transition cursor-pointer text-left flex items-center space-x-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0" />
+                  <span className="truncate">Garantías & Consumidor</span>
+                </button>
+                <button type="button" onClick={() => setLegalModalTab("cookies")} className="hover:text-[#FF5500] transition cursor-pointer text-left flex items-center space-x-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0" />
+                  <span className="truncate">Cookies</span>
+                </button>
+                <button type="button" onClick={() => setLegalModalTab("atencion")} className="hover:text-[#FF5500] transition cursor-pointer text-left flex items-center space-x-1.5">
+                  <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0" />
+                  <span className="truncate">Canales de Atención</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Columna 3: Libro de Reclamaciones Virtual */}
+            <div className="lg:col-span-3 flex justify-center lg:justify-end w-full">
+              <button
+                type="button"
+                onClick={() => setIsLibroOpen(true)}
+                className="w-full sm:w-auto lg:w-full flex items-center space-x-3 bg-slate-900 hover:bg-slate-800 text-white border border-slate-700/90 hover:border-[#FF5500] px-4 py-3.5 rounded-2xl transition shadow-md cursor-pointer group text-left"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[#FF5500]/15 border border-[#FF5500]/30 flex items-center justify-center text-lg shrink-0">
+                  📖
+                </div>
+                <div className="text-left">
+                  <span className="block font-black uppercase text-white group-hover:text-[#FF5500] text-[11px] tracking-wider leading-tight">
+                    Libro de Reclamaciones Virtual
+                  </span>
+                  <span className="block text-[9px] text-slate-400 font-normal mt-1 leading-snug">
+                    Conforme al D.S. N° 011-2011-PCM · Ley N° 31435 INDECOPI
+                  </span>
+                </div>
+              </button>
+            </div>
           </div>
-          <div className="pt-2 border-t border-slate-800/80 w-full max-w-xl text-[10px] text-slate-500 flex flex-col items-center justify-center gap-1">
-            <div className="text-slate-400 font-medium">BASSFIT PERÚ · RUC: [Por confirmar] · Lima, Perú · Venta electrónica de implementos y equipamiento deportivo</div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3">
+
+          {/* Barra Inferior: Datos Legales y Créditos */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-[10px] text-slate-500 text-center md:text-left">
+            <div className="text-slate-400 font-medium">
+              BASSFIT PERÚ · Operación comercial en regularización registral · Lima, Perú · Venta electrónica de implementos y equipamiento deportivo
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 shrink-0">
               <span>© 2026 BASSFIT PERÚ. Todos los derechos reservados.</span>
               <span>
                 Desarrollado por{' '}
