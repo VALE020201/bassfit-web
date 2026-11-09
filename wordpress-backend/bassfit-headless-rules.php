@@ -847,18 +847,37 @@ class Bassfit_Headless_Engine {
         $list = array();
         foreach ( $wc_products as $p ) {
             $pid = $p->get_id();
+            $img_id = $p->get_image_id();
+            $img_url = $img_id ? (string) wp_get_attachment_url( $img_id ) : 'images/brand/logo-bassfit-oficial.jpg';
+            $terms = get_the_terms( $pid, 'product_cat' );
+            $cat_slug = 'entrenamiento-fuerza';
+            $cat_label = 'Implementos Bassfit';
+            if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+                foreach ( $terms as $term ) {
+                    if ( 'uncategorized' !== $term->slug && 'sin-categorizar' !== $term->slug ) {
+                        $cat_slug  = $term->slug;
+                        $cat_label = $term->name;
+                        break;
+                    }
+                }
+            }
+            $short_desc = wp_strip_all_tags( $p->get_short_description() ? $p->get_short_description() : $p->get_description() );
             $list[] = array(
-                'wcId'        => $pid,
-                'frontendId'  => (string) get_post_meta( $pid, '_bassfit_frontend_id', true ),
-                'sku'         => $p->get_sku(),
-                'name'        => $p->get_name(),
-                'slug'        => $p->get_slug(),
-                'price'       => (float) $p->get_price(),
-                'regularPrice'=> (float) $p->get_regular_price(),
-                'stock'       => $p->get_stock_quantity(),
-                'stockStatus' => $p->get_stock_status(),
-                'saleMode'    => $this->is_consultative_product( $pid ) ? 'consultative_whatsapp' : 'direct_cart',
-                'videoUrl'    => (string) get_post_meta( $pid, '_bassfit_intro_video_url', true ),
+                'wcId'             => $pid,
+                'frontendId'       => (string) get_post_meta( $pid, '_bassfit_frontend_id', true ),
+                'sku'              => $p->get_sku(),
+                'name'             => $p->get_name(),
+                'slug'             => $p->get_slug(),
+                'price'            => (float) $p->get_price(),
+                'regularPrice'     => (float) $p->get_regular_price(),
+                'stock'            => $p->get_stock_quantity(),
+                'stockStatus'      => $p->get_stock_status(),
+                'saleMode'         => $this->is_consultative_product( $pid ) ? 'consultative_whatsapp' : 'direct_cart',
+                'videoUrl'         => (string) get_post_meta( $pid, '_bassfit_intro_video_url', true ),
+                'imageUrl'         => $img_url ? $img_url : 'images/brand/logo-bassfit-oficial.jpg',
+                'shortDescription' => $short_desc ? $short_desc : 'Implemento oficial del catálogo Bassfit Perú.',
+                'categorySlug'     => $cat_slug,
+                'categoryLabel'    => $cat_label,
             );
         }
         $main_video = (string) get_option( 'bassfit_main_routine_video_url', '' );

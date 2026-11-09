@@ -2906,9 +2906,9 @@ function App() {
         }
         if (Array.isArray(data.products) && data.products.length > 0) {
           data.products.forEach(wcProd => {
-            const local = BASSFIT_PRODUCTS.find(p => p.sku === wcProd.sku || p.id === wcProd.frontendId || p.slug === wcProd.slug);
+            const local = BASSFIT_PRODUCTS.find(p => (wcProd.sku && p.sku === wcProd.sku) || (wcProd.frontendId && p.id === wcProd.frontendId) || (wcProd.slug && p.slug === wcProd.slug));
+            const effectivePrice = (typeof wcProd.price === "number" && wcProd.price > 0) ? wcProd.price : wcProd.regularPrice;
             if (local) {
-              const effectivePrice = (typeof wcProd.price === "number" && wcProd.price > 0) ? wcProd.price : wcProd.regularPrice;
               if (typeof effectivePrice === "number" && effectivePrice > 0 && local.price !== effectivePrice) {
                 local.price = effectivePrice;
                 changed = true;
@@ -2924,6 +2924,33 @@ function App() {
               if (wcProd.wcId) {
                 local.wcId = wcProd.wcId;
               }
+            } else if (wcProd.name) {
+              BASSFIT_PRODUCTS.unshift({
+                id: wcProd.frontendId || ("wp-prod-" + wcProd.wcId),
+                wcId: wcProd.wcId,
+                name: wcProd.name,
+                slug: wcProd.slug || ("producto-" + wcProd.wcId),
+                categorySlug: wcProd.categorySlug || "entrenamiento-fuerza",
+                categoryLabel: wcProd.categoryLabel || "Implementos Bassfit",
+                price: (typeof effectivePrice === "number" && effectivePrice > 0) ? effectivePrice : 0,
+                compareAtPrice: (typeof effectivePrice === "number" && effectivePrice > 0) ? Math.round(effectivePrice * 1.2) : 0,
+                stock: (typeof wcProd.stock === "number") ? wcProd.stock : 20,
+                sku: wcProd.sku || ("BF-WP-" + wcProd.wcId),
+                saleMode: wcProd.saleMode || "direct_cart",
+                shortDescription: wcProd.shortDescription || "Implemento oficial del catálogo Bassfit Perú.",
+                technicalSpecs: [
+                  "Calidad garantizada por Bassfit Perú",
+                  "Disponible con envíos a todo el país"
+                ],
+                images: [
+                  wcProd.imageUrl || "images/brand/logo-bassfit-oficial.jpg"
+                ],
+                featured: true,
+                relatedArticleSlugs: [],
+                coachTip: "Consulta con nuestro equipo por WhatsApp si deseas recomendaciones de uso para este implemento.",
+                videoUrl: wcProd.videoUrl || ""
+              });
+              changed = true;
             }
           });
         }
