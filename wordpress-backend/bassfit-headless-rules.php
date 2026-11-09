@@ -460,8 +460,17 @@ class Bassfit_Headless_Engine {
 
         $order = wc_create_order();
         foreach ( $items as $item ) {
-            $wc_id = isset( $item['wcId'] ) ? intval( $item['wcId'] ) : 0;
-            $qty   = isset( $item['quantity'] ) ? max( 1, intval( $item['quantity'] ) ) : 1;
+            $wc_id = 0;
+            if ( ! empty( $item['sku'] ) ) {
+                $wc_id = wc_get_product_id_by_sku( sanitize_text_field( $item['sku'] ) );
+            }
+            if ( ! $wc_id && ! empty( $item['wcId'] ) ) {
+                $candidate = intval( $item['wcId'] );
+                if ( wc_get_product( $candidate ) ) {
+                    $wc_id = $candidate;
+                }
+            }
+            $qty = isset( $item['quantity'] ) ? max( 1, intval( $item['quantity'] ) ) : 1;
             if ( $wc_id > 0 ) {
                 if ( $this->is_consultative_product( $wc_id ) ) {
                     $order->delete( true );

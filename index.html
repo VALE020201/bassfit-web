@@ -2832,9 +2832,53 @@ function App() {
     return cartSubtotal + cartTax;
   }, [cartSubtotal, cartTax]);
 
+  const [wcCatalogTick, setWcCatalogTick] = useState(0);
+  useEffect(() => {
+    fetch("/api/catalog")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && Array.isArray(data.products) && data.products.length > 0) {
+          let changed = false;
+          data.products.forEach(wcProd => {
+            const local = BASSFIT_PRODUCTS.find(p => p.sku === wcProd.sku || p.id === wcProd.frontendId || p.slug === wcProd.slug);
+            if (local) {
+              if (typeof wcProd.price === "number" && wcProd.price > 0 && local.price !== wcProd.price) {
+                local.price = wcProd.price;
+                changed = true;
+              }
+              if (typeof wcProd.stock === "number" && local.stock !== wcProd.stock) {
+                local.stock = wcProd.stock;
+                changed = true;
+              }
+              if (wcProd.wcId) {
+                local.wcId = wcProd.wcId;
+              }
+            }
+          });
+          if (changed) setWcCatalogTick(t => t + 1);
+        }
+      })
+      .catch(function(){});
+  }, []);
+
   // WhatsApp cart checkout message
   const handleWhatsAppCartOrder = () => {
     if (cart.length === 0) return;
+    try {
+      fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart.map(item => ({
+            productId: item.product.id,
+            wcId: item.product.wcId,
+            sku: item.product.sku,
+            slug: item.product.slug,
+            quantity: item.quantity
+          }))
+        })
+      }).catch(function(){});
+    } catch (e) {}
     let message = "Hola Bassfit 👋, deseo realizar un pedido con los siguientes productos del catálogo oficial:\n\n";
     cart.forEach((item, idx) => {
       const varTxt = item.variant ? ` [Variedad: ${item.variant.name}]` : "";
@@ -2855,7 +2899,7 @@ function App() {
       const matchesSearch = searchQuery === "" || prod.name.toLowerCase().includes(searchQuery.toLowerCase()) || prod.shortDescription.toLowerCase().includes(searchQuery.toLowerCase()) || prod.categoryLabel.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCat && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, wcCatalogTick]);
 
   // 3 Featured products matching the client mockup (Barras 8en1, Crema Corporal, Faja Reductora)
   const featuredProducts = useMemo(() => {
