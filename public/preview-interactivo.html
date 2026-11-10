@@ -2909,12 +2909,24 @@ function App() {
             const local = BASSFIT_PRODUCTS.find(p => (wcProd.sku && p.sku === wcProd.sku) || (wcProd.frontendId && p.id === wcProd.frontendId) || (wcProd.slug && p.slug === wcProd.slug));
             const effectivePrice = (typeof wcProd.price === "number" && wcProd.price > 0) ? wcProd.price : wcProd.regularPrice;
             if (local) {
+              if (wcProd.name && local.name !== wcProd.name) {
+                local.name = wcProd.name;
+                changed = true;
+              }
               if (typeof effectivePrice === "number" && effectivePrice > 0 && local.price !== effectivePrice) {
                 local.price = effectivePrice;
                 changed = true;
               }
               if (typeof wcProd.stock === "number" && local.stock !== wcProd.stock) {
                 local.stock = wcProd.stock;
+                changed = true;
+              }
+              if (wcProd.shortDescription && local.shortDescription !== wcProd.shortDescription) {
+                local.shortDescription = wcProd.shortDescription;
+                changed = true;
+              }
+              if (wcProd.imageUrl && !wcProd.imageUrl.includes("/bassfit-catalog/") && !wcProd.imageUrl.includes("logo-bassfit-oficial.jpg")) {
+                local.images = [wcProd.imageUrl];
                 changed = true;
               }
               if (wcProd.videoUrl) {
