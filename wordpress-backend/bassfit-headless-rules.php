@@ -391,6 +391,35 @@ class Bassfit_Headless_Engine {
     }
 
     /**
+     * Limpia inmediatamente el caché de Hostinger CDN (hcdn) y LiteSpeed Web Server
+     * para que https://bassfitperu.com/ nunca muestre versiones antiguas en caché.
+     */
+    public function purge_hostinger_and_litespeed_cache() {
+        if ( ! headers_sent() ) {
+            header( 'X-LiteSpeed-Purge: *' );
+        }
+        if ( has_action( 'litespeed_purge_all' ) ) {
+            do_action( 'litespeed_purge_all' );
+        }
+        delete_transient( 'hostinger_cdn_purge_throttle' );
+        if ( has_action( 'litespeed_purged_all' ) ) {
+            do_action( 'litespeed_purged_all' );
+        }
+        if ( class_exists( '\Hostinger\Cdn\CachePurger' ) && class_exists( '\Hostinger\Cdn\CacheClient' ) && class_exists( '\Hostinger\Cdn\SoftwareIdResolver' ) && class_exists( '\Hostinger\WpHelper\Utils' ) ) {
+            try {
+                $utils    = new \Hostinger\WpHelper\Utils();
+                $client   = new \Hostinger\Cdn\CacheClient( $utils );
+                $resolver = new \Hostinger\Cdn\SoftwareIdResolver( $utils );
+                $purger   = new \Hostinger\Cdn\CachePurger( $client, $resolver, $utils );
+                $purger->purge_all();
+                $purger->purge_cdn();
+            } catch ( \Throwable $e ) {
+                // Ignore if CDN API unavailable
+            }
+        }
+    }
+
+    /**
      * Sirve siempre la aplicación web oficial de Bassfit Perú (index.html) en el frontend,
      * evitando que WordPress muestre el tema por defecto ("Hello world!") cuando el dueño
      * hace clic en "Ver Página Web Bassfit Perú", "Ver Tienda" o "Ver Producto".
@@ -408,6 +437,7 @@ class Bassfit_Headless_Engine {
             nocache_headers();
             header( 'Content-Type: text/html; charset=UTF-8' );
             header( 'X-LiteSpeed-Cache-Control: no-cache' );
+            header( 'X-LiteSpeed-Purge: *' );
             readfile( $html_file );
             exit;
         }
@@ -429,7 +459,7 @@ class Bassfit_Headless_Engine {
         $site_node = $wp_admin_bar->get_node( 'site-name' );
         if ( $site_node ) {
             $site_node->title = '🌐 Ver Página Web Bassfit Perú';
-            $site_node->href  = home_url( '/' );
+            $site_node->href  = home_url( '/index.php' );
             $site_node->meta  = array( 'target' => '_blank' );
             $wp_admin_bar->add_node( $site_node );
         }
@@ -1219,6 +1249,10 @@ class Bassfit_Headless_Engine {
     }
 
     public function handle_catalog_request() {
+        if ( isset( $_GET['purge'] ) || ! get_option( 'bassfit_hcdn_purged_v1' ) ) {
+            update_option( 'bassfit_hcdn_purged_v1', '1' );
+            $this->purge_hostinger_and_litespeed_cache();
+        }
         return new WP_REST_Response( $this->get_public_catalog_data(), 200 );
     }
 
