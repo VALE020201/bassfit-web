@@ -14,10 +14,11 @@ if ( ! class_exists( 'Bassfit_Inventory' ) ) :
 
 class Bassfit_Inventory {
 
-    const DB_VERSION        = '1.0';
+    const DB_VERSION        = '1.1';
     const MAX_QTY_PER_LINE  = 50;   // Tope de unidades de un mismo producto por pedido web.
     const RATE_LIMIT_IP     = 8;    // Pedidos web por IP cada 10 minutos.
     const RATE_LIMIT_GLOBAL = 40;   // Pedidos web totales cada 10 minutos (protección contra vaciado de stock).
+    const DEFAULT_HOLD_MINS = 20;   // Ventana de espera por defecto (20 minutos) para verificar el pago en pasarela.
 
     /** @var array|null Contexto del movimiento en curso (motivo, pedido, nota). */
     private static $context = null;
@@ -41,6 +42,13 @@ class Bassfit_Inventory {
 
         // Devolución de unidades al marcar un pedido como Reembolsado (Cancelado y Fallido ya los gestiona WooCommerce).
         add_action( 'woocommerce_order_status_refunded', array( __CLASS__, 'restore_on_refunded' ), 5 );
+
+        // Configuración y ejecución de la cancelación automática a los 20 minutos (liberación de stock por falta de pago).
+        add_filter( 'woocommerce_cancel_unpaid_order', array( __CLASS__, 'filter_cancel_unpaid_order' ), 10, 2 );
+        add_action( 'bassfit_cancel_expired_unpaid_orders_event', array( __CLASS__, 'run_expired_orders_cleanup' ) );
+        add_action( 'init', array( __CLASS__, 'maybe_schedule_cleanup_cron' ), 35 );
+        add_action( 'template_redirect', array( __CLASS__, 'maybe_opportunistic_cleanup' ), 5 );
+        add_action( 'admin_init', array( __CLASS__, 'maybe_opportunistic_cleanup' ), 5 );
 
         // Panel administrativo.
         add_action( 'admin_menu', array( __CLASS__, 'register_menu' ), 20 );
@@ -91,6 +99,11 @@ class Bassfit_Inventory {
         if ( false === get_option( 'bassfit_inventory_restock_on_refund' ) ) {
             add_option( 'bassfit_inventory_restock_on_refund', 'yes' );
         }
+        if ( false === get_option( 'bassfit_inventory_hold_minutes' ) ) {
+            add_option( 'bassfit_inventory_hold_minutes', self::DEFAULT_HOLD_MINS );
+        }
+        // Ajustar también la opción oficial de WooCommerce para pedidos pendientes
+        update_option( 'woocommerce_hold_stock_minutes', (int) get_option( 'bassfit_inventory_hold_minutes', self::DEFAULT_HOLD_MINS ) );
 
         // Línea base: guarda la cantidad actual de cada producto (sin inventar cantidades, sin registrar movimiento).
         $ids = wc_get_products( array( 'limit' => -1, 'status' => array( 'publish', 'draft', 'pending', 'private' ), 'return' => 'ids' ) );
@@ -346,9 +359,13 @@ class Bassfit_Inventory {
             self::$context = null;
 
             $order = wc_get_order( $order_id );
+            $hold_minutes = max( 1, (int) get_option( 'bassfit_inventory_hold_minutes', self::DEFAULT_HOLD_MINS ) );
+            $order->update_meta_data( '_bassfit_hold_expires_at', time() + ( $hold_minutes * MINUTE_IN_SECONDS ) );
+            $order->save();
+
             $order->update_status(
                 'on-hold',
-                'Pedido generado desde bassfitperu.com y enviado por WhatsApp. Las unidades ya fueron descontadas del inventario (reservadas). Si el pago no se concreta, cambia el estado a "Cancelado" para devolverlas automáticamente.'
+                sprintf( 'Pedido web #%d generado. Se reservaron las unidades del inventario durante una ventana de %d minutos. Si el pago no es verificado antes de vencer el plazo, el pedido se cancelará automáticamente y las unidades regresarán al stock disponible.', $order_id, $hold_minutes )
             );
 
             $lines = array();
@@ -499,6 +516,90 @@ class Bassfit_Inventory {
     }
 
     /* ======================================================================
+     * CANCELACIÓN AUTOMÁTICA POR VENCIMIENTO DE TIEMPO (20 MINUTOS)
+     * ==================================================================== */
+
+    public static function hold_minutes() {
+        return max( 1, (int) get_option( 'bassfit_inventory_hold_minutes', self::DEFAULT_HOLD_MINS ) );
+    }
+
+    public static function filter_cancel_unpaid_order( $should_cancel, $order ) {
+        if ( ! $order instanceof WC_Order ) {
+            return $should_cancel;
+        }
+        if ( 'bassfit-web' === $order->get_created_via() ) {
+            return true;
+        }
+        return $should_cancel;
+    }
+
+    public static function maybe_schedule_cleanup_cron() {
+        if ( ! wp_next_scheduled( 'bassfit_cancel_expired_unpaid_orders_event' ) ) {
+            wp_schedule_event( time(), 'every_minute_or_hourly', 'bassfit_cancel_expired_unpaid_orders_event' );
+        }
+    }
+
+    /**
+     * Limpieza oportunista: corre cada 2 minutos máximo ante peticiones normales
+     * para asegurar que la cancelación ocurra a los 20 minutos exactos incluso
+     * si WP-Cron tiene retrasos por tráfico.
+     */
+    public static function maybe_opportunistic_cleanup() {
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return;
+        }
+        $last = (int) get_transient( 'bassfit_last_orders_cleanup' );
+        if ( time() - $last < 90 ) {
+            return; // Throttle: evaluar máximo cada 90 segundos
+        }
+        set_transient( 'bassfit_last_orders_cleanup', time(), 120 );
+        self::run_expired_orders_cleanup();
+    }
+
+    public static function run_expired_orders_cleanup() {
+        if ( ! function_exists( 'wc_get_orders' ) ) {
+            return;
+        }
+        $hold_mins = self::hold_minutes();
+        $cutoff    = time() - ( $hold_mins * MINUTE_IN_SECONDS );
+
+        // 1. Buscar pedidos generados desde la web que sigan 'on-hold' o 'pending'
+        $orders = wc_get_orders( array(
+            'limit'        => 30,
+            'status'       => array( 'on-hold', 'pending' ),
+            'created_via'  => 'bassfit-web',
+            'date_created' => '<' . ( $cutoff + 30 ), // con margen pequeño
+            'return'       => 'objects',
+        ) );
+
+        if ( empty( $orders ) ) {
+            return;
+        }
+
+        foreach ( $orders as $order ) {
+            if ( ! $order instanceof WC_Order ) {
+                continue;
+            }
+
+            $expires_at = (int) $order->get_meta( '_bassfit_hold_expires_at', true );
+            if ( ! $expires_at ) {
+                // Si no tiene meta específico, basarse en la fecha de creación
+                $date_created = $order->get_date_created();
+                $expires_at   = $date_created ? $date_created->getTimestamp() + ( $hold_mins * MINUTE_IN_SECONDS ) : 0;
+            }
+
+            if ( time() >= $expires_at ) {
+                $order_id = $order->get_id();
+                // Cancelar pedido: dispara woocommerce_order_status_cancelled -> wc_maybe_increase_stock_levels() -> devuelve stock automáticamente
+                $order->update_status(
+                    'cancelled',
+                    sprintf( 'Pedido cancelado automáticamente por el sistema: se cumplió el tiempo límite de espera (%d minutos) sin verificación de pago en la pasarela. Las unidades reservadas regresaron automáticamente al inventario disponible.', $hold_mins )
+                );
+            }
+        }
+    }
+
+    /* ======================================================================
      * PANEL ADMINISTRATIVO: "Gestión de inventario"
      * ==================================================================== */
 
@@ -599,7 +700,10 @@ class Bassfit_Inventory {
         }
         check_admin_referer( 'bassfit_inventory_settings' );
         $threshold = isset( $_POST['low_threshold'] ) ? max( 0, absint( $_POST['low_threshold'] ) ) : 2;
+        $hold_mins = isset( $_POST['hold_minutes'] ) ? max( 1, absint( $_POST['hold_minutes'] ) ) : self::DEFAULT_HOLD_MINS;
         update_option( 'woocommerce_notify_low_stock_amount', $threshold );
+        update_option( 'bassfit_inventory_hold_minutes', $hold_mins );
+        update_option( 'woocommerce_hold_stock_minutes', $hold_mins );
         update_option( 'bassfit_inventory_restock_on_refund', ! empty( $_POST['restock_on_refund'] ) ? 'yes' : 'no' );
         wp_safe_redirect( add_query_arg( 'bf_msg', 'ajustes_ok', admin_url( 'admin.php?page=bassfit-inventario' ) ) );
         exit;
@@ -784,11 +888,14 @@ class Bassfit_Inventory {
             <label>Mostrar "Últimas unidades" cuando queden
                 <input type="number" name="low_threshold" min="0" step="1" value="<?php echo (int) get_option( 'woocommerce_notify_low_stock_amount', 2 ); ?>" style="width:70px;" /> o menos
             </label>
+            <label>⏱️ Tiempo de espera para pago en pasarela:
+                <input type="number" name="hold_minutes" min="1" max="180" step="1" value="<?php echo (int) get_option( 'bassfit_inventory_hold_minutes', self::DEFAULT_HOLD_MINS ); ?>" style="width:70px;" /> minutos
+            </label>
             <label><input type="checkbox" name="restock_on_refund" value="1" <?php checked( 'yes', get_option( 'bassfit_inventory_restock_on_refund', 'yes' ) ); ?> /> Devolver unidades al inventario cuando un pedido se marque como <em>Reembolsado</em></label>
             <button class="button">Guardar ajustes</button>
         </form>
         <p style="color:#64748b;font-size:12px;margin-top:10px;">
-            ℹ️ Pedidos web: al enviarse por WhatsApp quedan <strong>"En espera"</strong> y sus unidades se descuentan (reservan) al instante. Si el pago no se concreta, cambia el pedido a <strong>"Cancelado"</strong> y las unidades vuelven automáticamente. Los estados <em>Fallido</em> y <em>Reembolsado</em> también devuelven las unidades; en reembolsos parciales usa la casilla "Reponer artículos" de WooCommerce.
+            ℹ️ <strong>Tiempo límite para pago (20 min):</strong> Cuando el cliente inicia la compra o checkout, las unidades quedan reservadas y descontadas del catálogo. Si en <strong><?php echo (int) get_option( 'bassfit_inventory_hold_minutes', self::DEFAULT_HOLD_MINS ); ?> minutos</strong> la pasarela no confirma el pago exitoso, el pedido pasa automáticamente a <strong>Cancelado</strong> y las unidades regresan al stock disponible de la tienda sin necesidad de intervención manual.
         </p>
         <?php
     }
