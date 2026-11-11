@@ -349,6 +349,30 @@ class Bassfit_Inventory {
                 $order->set_billing_country( 'PE' );
             }
 
+            // Asociar automáticamente el pedido al cliente autenticado si tiene sesión activa
+            $auth_customer = null;
+            if ( class_exists( 'Bassfit_Customer_Auth' ) ) {
+                if ( ! empty( $data['customerToken'] ) ) {
+                    $auth_customer = Bassfit_Customer_Auth::validate_token( $data['customerToken'] );
+                }
+                if ( ! $auth_customer ) {
+                    $auth_customer = Bassfit_Customer_Auth::get_current_customer();
+                }
+            }
+            if ( $auth_customer && $auth_customer instanceof WP_User ) {
+                $order->set_customer_id( $auth_customer->ID );
+                if ( empty( $order->get_billing_email() ) ) {
+                    $order->set_billing_email( $auth_customer->user_email );
+                }
+                if ( empty( $order->get_billing_first_name() ) ) {
+                    $order->set_billing_first_name( get_user_meta( $auth_customer->ID, 'first_name', true ) ?: $auth_customer->display_name );
+                    $order->set_billing_last_name( get_user_meta( $auth_customer->ID, 'last_name', true ) ?: '' );
+                }
+                if ( empty( $order->get_billing_phone() ) ) {
+                    $order->set_billing_phone( get_user_meta( $auth_customer->ID, 'billing_phone', true ) ?: '' );
+                }
+            }
+
             $order->calculate_totals();
             $order->save();
             $order_id = $order->get_id();
