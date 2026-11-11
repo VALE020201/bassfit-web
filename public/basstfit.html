@@ -2782,12 +2782,25 @@ function App() {
     setSelectedProduct(product);
   };
 
-  // Cart operations with variant support
+  // Cart operations with variant support and stock validation
   const handleAddToCart = (product, variant = null) => {
+    if (!product) return;
+    const isOutOfStock = product.availability === "agotado" || (typeof product.stock === "number" && product.stock <= 0);
+    if (isOutOfStock) {
+      setToastMessage(`⚠️ Producto agotado temporalmente`);
+      return;
+    }
     const chosenVariant = variant || (product.variants ? product.variants[0] : null);
     const cartItemId = chosenVariant ? `${product.id}-${chosenVariant.id}` : product.id;
+    let limitReached = false;
     setCart(prev => {
       const existing = prev.find(item => item.cartItemId === cartItemId);
+      const currentQty = existing ? existing.quantity : 0;
+      const maxAvailable = typeof product.stock === "number" ? product.stock : 999;
+      if (currentQty + 1 > maxAvailable) {
+        limitReached = true;
+        return prev;
+      }
       if (existing) {
         return prev.map(item => item.cartItemId === cartItemId ? {
           ...item,
@@ -2802,12 +2815,21 @@ function App() {
       }];
     });
     const label = chosenVariant ? `${product.name} (${chosenVariant.name})` : product.name;
-    setToastMessage(`✓ ${label} agregado al carrito`);
+    if (limitReached) {
+      setToastMessage(`⚠️ Solo quedan ${product.stock} unidades disponibles de este producto`);
+    } else {
+      setToastMessage(`✓ ${label} agregado al carrito`);
+    }
   };
   const handleUpdateQuantity = (cartItemId, delta) => {
     setCart(prev => prev.map(item => {
       if (item.cartItemId === cartItemId || item.product.id === cartItemId) {
         const newQty = item.quantity + delta;
+        const maxAvailable = typeof item.product?.stock === "number" ? item.product.stock : 999;
+        if (delta > 0 && newQty > maxAvailable) {
+          setToastMessage(`⚠️ No puedes agregar más. Stock disponible: ${maxAvailable} unid.`);
+          return item;
+        }
         return newQty > 0 ? {
           ...item,
           quantity: newQty
@@ -2921,6 +2943,18 @@ function App() {
                 local.stock = wcProd.stock;
                 changed = true;
               }
+              if (wcProd.availability && local.availability !== wcProd.availability) {
+                local.availability = wcProd.availability;
+                changed = true;
+              }
+              if (wcProd.availabilityLabel && local.availabilityLabel !== wcProd.availabilityLabel) {
+                local.availabilityLabel = wcProd.availabilityLabel;
+                changed = true;
+              }
+              if (typeof wcProd.purchasable === "boolean" && local.purchasable !== wcProd.purchasable) {
+                local.purchasable = wcProd.purchasable;
+                changed = true;
+              }
               if (wcProd.shortDescription && local.shortDescription !== wcProd.shortDescription) {
                 local.shortDescription = wcProd.shortDescription;
                 changed = true;
@@ -2947,6 +2981,9 @@ function App() {
                 price: (typeof effectivePrice === "number" && effectivePrice > 0) ? effectivePrice : 0,
                 compareAtPrice: (typeof effectivePrice === "number" && effectivePrice > 0) ? Math.round(effectivePrice * 1.2) : 0,
                 stock: (typeof wcProd.stock === "number") ? wcProd.stock : 20,
+                availability: wcProd.availability || "disponible",
+                availabilityLabel: wcProd.availabilityLabel || "Disponible",
+                purchasable: typeof wcProd.purchasable === "boolean" ? wcProd.purchasable : true,
                 sku: wcProd.sku || ("BF-WP-" + wcProd.wcId),
                 saleMode: wcProd.saleMode || "direct_cart",
                 shortDescription: wcProd.shortDescription || "Implemento oficial del catálogo Bassfit Perú.",
@@ -2971,35 +3008,70 @@ function App() {
       .catch(function(){});
   }, []);
 
-  // WhatsApp cart checkout message
+  // WhatsApp cart checkout message with stock pre-validation
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const handleWhatsAppCartOrder = () => {
-    if (cart.length === 0) return;
-    try {
-      fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: cart.map(item => ({
-            productId: item.product.id,
-            wcId: item.product.wcId,
-            sku: item.product.sku,
-            slug: item.product.slug,
-            quantity: item.quantity
-          }))
-        })
-      }).catch(function(){});
-    } catch (e) {}
-    let message = "Hola Bassfit 👋, deseo realizar un pedido con los siguientes productos del catálogo oficial:\n\n";
-    cart.forEach((item, idx) => {
-      const varTxt = item.variant ? ` [Variedad: ${item.variant.name}]` : "";
-      message += `${idx + 1}. *${item.product.name}*${varTxt} (x${item.quantity}) - S/ ${(item.product.price * item.quantity).toFixed(2)}\n`;
-    });
-    message += `\nSubtotal productos: S/ ${cartSubtotal.toFixed(2)}\n`;
-    message += `+ IGV / IVA (18% Perú): S/ ${cartTax.toFixed(2)}\n`;
-    message += `*TOTAL DEL PEDIDO: S/ ${cartTotal.toFixed(2)}*\n\n`;
-    message += "¿Tienen disponibilidad inmediata para envío a mi dirección?";
-    const url = `https://wa.me/51967581481?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
+    if (cart.length === 0 || isCheckingOut) return;
+    setIsCheckingOut(true);
+    setToastMessage("⏳ Verificando disponibilidad de inventario...");
+
+    fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: cart.map(item => ({
+          productId: item.product.id,
+          wcId: item.product.wcId,
+          sku: item.product.sku,
+          slug: item.product.slug,
+          quantity: item.quantity,
+          variant: item.variant ? item.variant.name : null
+        }))
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        setIsCheckingOut(false);
+        if (!data || !data.success) {
+          if (data && data.code === "insufficient_stock" && Array.isArray(data.items)) {
+            const names = data.items.map(it => `${it.name} (quedan ${it.available})`).join(", ");
+            alert(`⚠️ No hay stock suficiente para: ${names}. Por favor ajusta tu carrito.`);
+            setToastMessage(`⚠️ Stock insuficiente. Ajusta las cantidades.`);
+          } else {
+            alert(`⚠️ ${(data && data.error) ? data.error : "Hubo un inconveniente al validar el stock. Por favor intenta de nuevo."}`);
+          }
+          return;
+        }
+
+        const orderNum = data.orderId ? ` #PED-${data.orderId}` : "";
+        let message = `Hola Bassfit 👋, deseo confirmar mi pedido oficial${orderNum} con disponibilidad reservada:\n\n`;
+        cart.forEach((item, idx) => {
+          const varTxt = item.variant ? ` [Variedad: ${item.variant.name}]` : "";
+          message += `${idx + 1}. *${item.product.name}*${varTxt} (x${item.quantity}) - S/ ${(item.product.price * item.quantity).toFixed(2)}\n`;
+        });
+        message += `\nSubtotal productos: S/ ${cartSubtotal.toFixed(2)}\n`;
+        message += `+ IGV / IVA (18% Perú): S/ ${cartTax.toFixed(2)}\n`;
+        message += `*TOTAL DEL PEDIDO: S/ ${cartTotal.toFixed(2)}*\n\n`;
+        message += "Coordino mi dirección de entrega y comprobante de pago por aquí.";
+        const url = `https://wa.me/51967581481?text=${encodeURIComponent(message)}`;
+        window.open(url, "_blank");
+        setToastMessage("✓ ¡Pedido registrado y enviado a WhatsApp!");
+      })
+      .catch(err => {
+        setIsCheckingOut(false);
+        // Fallback en caso de desconexión de red momentánea
+        let message = "Hola Bassfit 👋, deseo realizar un pedido con los siguientes productos del catálogo oficial:\n\n";
+        cart.forEach((item, idx) => {
+          const varTxt = item.variant ? ` [Variedad: ${item.variant.name}]` : "";
+          message += `${idx + 1}. *${item.product.name}*${varTxt} (x${item.quantity}) - S/ ${(item.product.price * item.quantity).toFixed(2)}\n`;
+        });
+        message += `\nSubtotal productos: S/ ${cartSubtotal.toFixed(2)}\n`;
+        message += `+ IGV / IVA (18% Perú): S/ ${cartTax.toFixed(2)}\n`;
+        message += `*TOTAL DEL PEDIDO: S/ ${cartTotal.toFixed(2)}*\n\n`;
+        message += "¿Tienen disponibilidad inmediata para envío a mi dirección?";
+        const url = `https://wa.me/51967581481?text=${encodeURIComponent(message)}`;
+        window.open(url, "_blank");
+      });
   };
 
   // Filter products
@@ -3847,7 +3919,10 @@ function App() {
     openProductModal(product);
   },
   className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-[11px] font-bold py-2 rounded-lg transition active:scale-95"
-}, "Ficha"), /*#__PURE__*/React.createElement("button", {
+}, "Ficha"), (product.availability === "agotado" || (typeof product.stock === "number" && product.stock <= 0)) ? /*#__PURE__*/React.createElement("button", {
+  disabled: true,
+  className: "w-full bg-slate-200 text-slate-400 text-[11px] font-bold py-2 rounded-lg cursor-not-allowed"
+}, "Agotado") : /*#__PURE__*/React.createElement("button", {
   type: "button",
   onClick: e => {
     e.stopPropagation();
@@ -3993,9 +4068,11 @@ function App() {
     const safeIdx = cardIdx % (product.images.length || 1);
     const activeImgSrc = product.images[safeIdx];
     const activeCardVar = product.variants ? product.variants.find(v => v.imageIndex === safeIdx) || product.variants[0] : null;
+    const isOutOfStock = product.availability === "agotado" || (typeof product.stock === "number" && product.stock <= 0);
+    const isLowStock = !isOutOfStock && (product.availability === "ultimas" || (typeof product.stock === "number" && product.stock <= 3));
     return /*#__PURE__*/React.createElement("div", {
       key: product.id,
-      className: "bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between group"
+      className: `bg-white rounded-2xl border ${isOutOfStock ? 'border-slate-300 opacity-90' : 'border-slate-200'} overflow-hidden hover:shadow-xl transition-all flex flex-col justify-between group`
     }, /*#__PURE__*/React.createElement("div", {
       onClick: () => openProductModal(product),
       className: "cursor-pointer p-1.5 sm:p-2 bg-white flex items-center justify-center aspect-square w-full relative overflow-hidden"
@@ -4004,8 +4081,12 @@ function App() {
   decoding: "async",
       src: resolveImg(activeImgSrc),
       alt: product.name,
-      className: "w-full h-full object-contain scale-105 group-hover:scale-115 transition duration-300"
-    }), /*#__PURE__*/React.createElement("span", {
+      className: `w-full h-full object-contain scale-105 group-hover:scale-115 transition duration-300 ${isOutOfStock ? 'grayscale-50' : ''}`
+    }), isOutOfStock ? /*#__PURE__*/React.createElement("span", {
+      className: "absolute top-3 left-3 bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full z-10 shadow-sm uppercase tracking-wider"
+    }, "🔴 Agotado") : isLowStock ? /*#__PURE__*/React.createElement("span", {
+      className: "absolute top-3 left-3 bg-amber-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full z-10 shadow-sm uppercase tracking-wider animate-pulse"
+    }, `⚡ Últimas ${product.stock} unid.`) : /*#__PURE__*/React.createElement("span", {
       className: "absolute top-3 left-3 bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10"
     }, product.categoryLabel), hasMulti && /*#__PURE__*/React.createElement("span", {
       className: "absolute top-3 right-3 bg-slate-900/85 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-full z-10 shadow-xs"
@@ -4092,7 +4173,11 @@ function App() {
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => openProductModal(product),
       className: "w-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center"
-    }, "Ver Ficha"), /*#__PURE__*/React.createElement("button", {
+    }, "Ver Ficha"), isOutOfStock ? /*#__PURE__*/React.createElement("button", {
+      disabled: true,
+      className: "w-full bg-slate-200 text-slate-400 text-xs font-bold py-2 rounded-xl cursor-not-allowed text-center",
+      title: "Producto agotado temporalmente"
+    }, "Agotado") : /*#__PURE__*/React.createElement("button", {
       onClick: () => handleAddToCart(product, activeCardVar),
       className: "w-full bg-[#FF5500] hover:bg-[#e04a00] text-white text-xs font-bold py-2 rounded-xl transition cursor-pointer text-center flex items-center justify-center space-x-1"
     }, /*#__PURE__*/React.createElement("svg", {
@@ -4559,6 +4644,14 @@ function App() {
   }, /*#__PURE__*/React.createElement("h2", {
     className: "text-2xl font-black text-slate-900 leading-tight"
   }, selectedProduct.name), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, (selectedProduct.availability === "agotado" || (typeof selectedProduct.stock === "number" && selectedProduct.stock <= 0)) ? /*#__PURE__*/React.createElement("span", {
+    className: "bg-red-100 text-red-700 border border-red-200 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider"
+  }, "🔴 Agotado") : (selectedProduct.availability === "ultimas" || (typeof selectedProduct.stock === "number" && selectedProduct.stock <= 3)) ? /*#__PURE__*/React.createElement("span", {
+    className: "bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider animate-pulse"
+  }, `⚡ Últimas ${selectedProduct.stock} unidades disponibles`) : /*#__PURE__*/React.createElement("span", {
+    className: "bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider"
+  }, "🟢 Disponible en stock")), /*#__PURE__*/React.createElement("div", {
     className: "flex items-baseline space-x-3"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-3xl font-black text-[#FF5500]"
@@ -4616,7 +4709,10 @@ function App() {
     className: "text-xs text-slate-700 mt-0.5 leading-relaxed"
   }, selectedProduct.coachTip))), /*#__PURE__*/React.createElement("div", {
     className: "pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3"
-  }, /*#__PURE__*/React.createElement("button", {
+  }, (selectedProduct.availability === "agotado" || (typeof selectedProduct.stock === "number" && selectedProduct.stock <= 0)) ? /*#__PURE__*/React.createElement("button", {
+    disabled: true,
+    className: "w-full bg-slate-200 text-slate-400 font-black py-3.5 rounded-xl text-xs cursor-not-allowed flex items-center justify-center space-x-2"
+  }, "🔴 Agotado temporalmente") : /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       handleAddToCart(selectedProduct, selectedVariant);
       setSelectedProduct(null);
@@ -4673,7 +4769,9 @@ function App() {
     className: "pt-2 mt-2 border-t border-slate-200/60 flex items-center justify-between"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-xs font-black text-[#0F172A]"
-  }, "S/ ", rec.price.toFixed(2)), /*#__PURE__*/React.createElement("button", {
+  }, "S/ ", rec.price.toFixed(2)), (rec.availability === "agotado" || (typeof rec.stock === "number" && rec.stock <= 0)) ? /*#__PURE__*/React.createElement("span", {
+    className: "text-[10px] font-bold text-slate-400"
+  }, "Agotado") : /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: e => {
       e.stopPropagation();

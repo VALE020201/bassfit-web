@@ -298,6 +298,7 @@ class Bassfit_Headless_Engine {
             'litespeed',                         // LiteSpeed Cache
             'wpforms-overview',                  // WPForms
         );
+        // Permitir que el menú de inventario esté siempre visible
         foreach ( $menus_to_hide as $slug ) {
             remove_menu_page( $slug );
         }
@@ -492,6 +493,12 @@ class Bassfit_Headless_Engine {
                     <div style="font-size:24px;margin-bottom:6px;">📦</div>
                     <div style="font-weight:800;color:#0f172a;font-size:15px;">Ver / Editar Productos</div>
                     <div style="color:#475569;font-size:12px;margin-top:4px;">Cambiar precios en S/, stock o videos de los 36 productos.</div>
+                </a>
+
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=bassfit-inventario' ) ); ?>" style="display:block;text-decoration:none;background:#ecfdf5;border:2px solid #10b981;border-radius:12px;padding:18px;">
+                    <div style="font-size:24px;margin-bottom:6px;">📊</div>
+                    <div style="font-weight:800;color:#065f46;font-size:15px;">Gestión de Inventario</div>
+                    <div style="color:#047857;font-size:12px;margin-top:4px;">Control de stock, alertas de agotados y registro de movimientos.</div>
                 </a>
 
                 <a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=product' ) ); ?>" style="display:block;text-decoration:none;background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:18px;">
@@ -1180,6 +1187,11 @@ class Bassfit_Headless_Engine {
     }
 
     public function process_checkout_data( array $data ) {
+        // Inventario centralizado: validación de stock con bloqueo anti-sobreventa (mu-plugin bassfit-inventory.php).
+        if ( class_exists( 'Bassfit_Inventory' ) ) {
+            return Bassfit_Inventory::process_checkout( $data, array( $this, 'is_consultative_product' ) );
+        }
+
         if ( ! function_exists( 'wc_create_order' ) ) {
             return array(
                 'status' => 503,
@@ -1282,6 +1294,7 @@ class Bassfit_Headless_Engine {
                 }
             }
             $short_desc = wp_strip_all_tags( $p->get_short_description() ? $p->get_short_description() : $p->get_description() );
+            $avail = class_exists( 'Bassfit_Inventory' ) ? Bassfit_Inventory::availability( $p ) : null;
             $list[] = array(
                 'wcId'             => $pid,
                 'frontendId'       => (string) get_post_meta( $pid, '_bassfit_frontend_id', true ),
@@ -1290,8 +1303,13 @@ class Bassfit_Headless_Engine {
                 'slug'             => $p->get_slug(),
                 'price'            => (float) $p->get_price(),
                 'regularPrice'     => (float) $p->get_regular_price(),
-                'stock'            => $p->get_stock_quantity(),
+                'stock'            => $p->managing_stock() && null !== $p->get_stock_quantity() ? (int) $p->get_stock_quantity() : null,
                 'stockStatus'      => $p->get_stock_status(),
+                'manageStock'      => (bool) $p->managing_stock(),
+                'availability'     => $avail ? $avail['key'] : null,
+                'availabilityLabel'=> $avail ? $avail['label'] : null,
+                'purchasable'      => $avail ? (bool) $avail['purchasable'] : null,
+                'lowStockThreshold'=> $avail ? (int) $avail['threshold'] : null,
                 'saleMode'         => $this->is_consultative_product( $pid ) ? 'consultative_whatsapp' : 'direct_cart',
                 'videoUrl'         => (string) get_post_meta( $pid, '_bassfit_intro_video_url', true ),
                 'imageUrl'         => $img_url ? $img_url : 'images/brand/logo-bassfit-oficial.jpg',
