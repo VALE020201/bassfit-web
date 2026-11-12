@@ -350,7 +350,12 @@ class Bassfit_Customer_Auth {
         $data = is_array( $json_data ) ? $json_data : array();
 
         // 1. Rutas públicas de autenticación
-        if ( '/api/auth/register' === $uri && 'POST' === $method ) {
+        if ( '/api/auth/config' === $uri && 'GET' === $method ) {
+            self::success( array(
+                'googleClientId'  => get_option( 'bassfit_google_client_id', '' ),
+                'phoneOtpEnabled' => get_option( 'bassfit_phone_otp_provider', 'none' ) !== 'none',
+            ) );
+        } elseif ( '/api/auth/register' === $uri && 'POST' === $method ) {
             self::handle_register( $data );
         } elseif ( '/api/auth/login' === $uri && 'POST' === $method ) {
             self::handle_login( $data );
@@ -397,6 +402,17 @@ class Bassfit_Customer_Auth {
     }
 
     public static function register_rest_routes() {
+        register_rest_route( 'bassfit/v1', '/auth/config', array(
+            'methods'  => 'GET',
+            'callback' => function() {
+                return new WP_REST_Response( array(
+                    'success'         => true,
+                    'googleClientId'  => get_option( 'bassfit_google_client_id', '' ),
+                    'phoneOtpEnabled' => get_option( 'bassfit_phone_otp_provider', 'none' ) !== 'none',
+                ), 200 );
+            },
+            'permission_callback' => '__return_true',
+        ) );
         register_rest_route( 'bassfit/v1', '/auth/register', array(
             'methods'  => 'POST',
             'callback' => function( $req ) {

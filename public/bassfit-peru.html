@@ -2563,6 +2563,7 @@ function App() {
   const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", phone: "", address: "", department: "Lima", province: "Lima", district: "", reference: "" });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [phoneLoginForm, setPhoneLoginForm] = useState({ phone: "", code: "", step: "phone" });
+  const [googleClientId, setGoogleClientId] = useState("");
   const [touchEndX, setTouchEndX] = useState(null);
 
   // Noticias tab state & Dynamic Events Agenda
@@ -3045,6 +3046,17 @@ function App() {
   // CUSTOMER AUTH & PORTAL LOGIC
   // ==========================================
   useEffect(() => {
+    fetch("/api/auth/config")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.googleClientId) {
+          setGoogleClientId(data.googleClientId);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (!customerToken) {
       setCurrentUser(null);
       return;
@@ -3340,10 +3352,15 @@ function App() {
 
   const handleGoogleSignInClick = () => {
     setAuthError("");
+    const cleanId = (googleClientId || "").trim();
+    if (!cleanId || cleanId === "bassfit-web-client" || !cleanId.includes(".apps.googleusercontent.com")) {
+      setAuthError("⚠️ El inicio con Google requiere ingresar el Google Client ID en el panel de WordPress (WooCommerce > Clientes Web). Mientras tanto, puedes crear tu cuenta o iniciar sesión de inmediato con tu correo y contraseña en el formulario.");
+      return;
+    }
     if (typeof window !== "undefined" && window.google && window.google.accounts && window.google.accounts.id) {
       try {
         window.google.accounts.id.initialize({
-          client_id: "bassfit-web-client",
+          client_id: cleanId,
           callback: response => {
             if (response && response.credential) {
               setAuthLoading(true);
@@ -3378,10 +3395,10 @@ function App() {
         });
         window.google.accounts.id.prompt();
       } catch(err) {
-        setAuthError("Para activar el inicio con Google se requiere configurar el Google Client ID en el panel administrativo de WordPress (WooCommerce > Clientes Web).");
+        setAuthError("Hubo un inconveniente al abrir la ventana de Google. Por favor intenta con tu correo y contraseña.");
       }
     } else {
-      setAuthError("Para activar el inicio con Google se requiere configurar el Google Client ID en el panel de WordPress (WooCommerce > Clientes Web). Puedes registrarte con tu correo mientras tanto.");
+      setAuthError("El servicio de Google aún está cargando en tu navegador. Por favor intenta de nuevo en unos segundos.");
     }
   };
 
